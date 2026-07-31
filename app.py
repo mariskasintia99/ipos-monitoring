@@ -44,6 +44,9 @@ TARGETS_IPOS = [
 
 # Store IPOS domains from last patrol
 IPOS_DOMAINS = []
+LAST_PATROL_RESULT = "No patrol run yet"
+IS_PATROL_RUNNING = False
+PATROL_LOG = []
 
 log_buffer = ""
 
@@ -53,6 +56,7 @@ def log(type_msg, msg):
     line = f"[{timestamp}] [{type_msg}]  {msg}\n"
     print(line, end="")
     log_buffer += line
+    PATROL_LOG.append(line)
 
 # --- FUNGSI CLOUDFLARE & TELEGRAM ---
 def get_kv(key_name):
@@ -99,12 +103,14 @@ def get_all_domains():
     return all_domains
 
 # --- MESIN UTAMA (MULTI-KEY & AUTO FAILOVER) ---
-def run_api_check():
-    global log_buffer, IPOS_DOMAINS
-    log_buffer = "" 
+def run_patrol():
+    global IPOS_DOMAINS, LAST_PATROL_RESULT, PATROL_LOG
+    PATROL_LOG = []
     IPOS_DOMAINS = []
     
-    log("SYSTEM", "Memulai pengecekan Nawala (Mode Auto-Cadangan API)...")
+    log("SYSTEM", "=" * 50)
+    log("SYSTEM", "🚀 MEMULAI PATROLI KE NAWALA")
+    log("SYSTEM", "=" * 50)
 
     ada_perubahan = False
     global_report = []
@@ -117,6 +123,8 @@ def run_api_check():
         if not domains:
             log("INFO", "Tidak ada domain di KV. Skip.")
             continue
+            
+        log("INFO", f"Domain saat ini: {domains}")
             
         api_keys = target.get("api_keys", [])
         active_key_idx = 0 
@@ -174,8 +182,10 @@ def run_api_check():
                             continue
                         
                         dom = item.get("domain", "").lower().strip()
-                        if item.get("nawala", {}).get("blocked") or item.get("network", {}).get("blocked"):
+                        is_blocked = item.get("nawala", {}).get("blocked") or item.get("network", {}).get("blocked")
+                        if is_blocked:
                             blocked_domains.append(dom)
+                            log("WARN", f"🔴 {dom} TERDETEKSI IPOS!")
                             
                 except Exception as e:
                     log("ERROR", f"Gagal menghubungi API: {e}")
@@ -200,6 +210,8 @@ def run_api_check():
         if removed:
             update_kv(target['key'], active)
             ada_perubahan = True
+            log("INFO", f"✅ {len(removed)} domain dihapus dari {target['name']}")
+            log("INFO", f"Domain tersisa: {active}")
             
         global_report.append({"name": target["name"], "active": active, "removed": removed})
 
@@ -219,9 +231,14 @@ def run_api_check():
                 msg += f"🟢 {d}\n"
             msg += f"{garis}\n"
         send_and_pin(TELEGRAM_TOKEN_IPOS, CHAT_ID_IPOS, msg)
+        LAST_PATROL_RESULT = f"Patrol completed at {datetime.now(timezone.utc) + timedelta(hours=7):%H:%M:%S} - {len(all_removed)} domains removed"
+    else:
+        LAST_PATROL_RESULT = f"Patrol completed at {datetime.now(timezone.utc) + timedelta(hours=7):%H:%M:%S} - No IPOS domains found"
 
-    log("SUCCESS", "Pengecekan Nawala Selesai!")
-    return log_buffer
+    log("SYSTEM", "=" * 50)
+    log("SUCCESS", "✅ PATROLI SELESAI!")
+    log("SYSTEM", "=" * 50)
+    return "\\n".join(PATROL_LOG)
 
 # --- HTML TEMPLATE ---
 HTML_TEMPLATE = '''
@@ -392,6 +409,21 @@ HTML_TEMPLATE = '''
         border: 1.5px solid rgba(255, 23, 68, 0.25);
         box-shadow: 0 0 30px rgba(255, 23, 68, 0.08);
       }
+      .overall-badge.patrolling {
+        background: rgba(245, 158, 11, 0.12);
+        color: #f59e0b;
+        border: 1.5px solid rgba(245, 158, 11, 0.25);
+        animation: pulse-badge-glow 0.8s ease-in-out infinite;
+      }
+      .overall-badge.patrolling .pulse-icon {
+        background: #f59e0b;
+        animation: pulse-badge 0.5s ease-in-out infinite;
+      }
+
+      @keyframes pulse-badge-glow {
+        0%, 100% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.1); }
+        50% { box-shadow: 0 0 40px rgba(245, 158, 11, 0.3); }
+      }
 
       .overall-badge .pulse-icon {
         width: 10px;
@@ -402,6 +434,7 @@ HTML_TEMPLATE = '''
       }
       .all-up .pulse-icon { background: #00e676; }
       .has-ipos .pulse-icon { background: #ff1744; }
+      .patrolling .pulse-icon { background: #f59e0b; }
 
       @keyframes pulse-badge {
         0%, 100% { transform: scale(1); opacity: 1; }
@@ -702,8 +735,21 @@ HTML_TEMPLATE = '''
         box-shadow: 0 8px 30px rgba(245, 87, 108, 0.3);
       }
       .btn-refresh.spinning i { animation: spin 0.7s linear infinite; }
+      .btn-refresh:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none !important;
+      }
 
       @keyframes spin { to { transform: rotate(360deg); } }
+
+      .patrol-status {
+        font-size: 0.7rem;
+        color: rgba(255,255,255,0.3);
+        text-align: center;
+        padding-top: 4px;
+        flex-shrink: 0;
+      }
 
       .footer-copyright {
         text-align: center;
@@ -744,6 +790,9 @@ HTML_TEMPLATE = '''
         opacity: 1;
         transform: translateX(-50%) translateY(0);
       }
+      .toast.error {
+        background: rgba(255, 23, 68, 0.9);
+      }
 
       @media (max-width: 768px) {
         .app-container { padding: 14px 16px 12px; max-height: 100vh; border-radius: 16px; }
@@ -768,6 +817,7 @@ HTML_TEMPLATE = '''
         .timer-label { font-size: 0.55rem; }
         .header-status { font-size: 0.7rem; }
         .status-right { gap: 6px; }
+        .patrol-status { font-size: 0.6rem; }
         .footer-copyright { font-size: 0.55rem; }
       }
 
@@ -797,6 +847,7 @@ HTML_TEMPLATE = '''
         .header-status { font-size: 0.6rem; }
         .status-dot { width: 8px; height: 8px; }
         .status-right { gap: 4px; }
+        .patrol-status { font-size: 0.5rem; }
         .footer-copyright { font-size: 0.5rem; }
         .toast { font-size: 0.7rem; padding: 8px 16px; bottom: 20px; }
       }
@@ -854,17 +905,18 @@ HTML_TEMPLATE = '''
 
         <div class="total-domains" id="totalDomains">Total Domains: 0</div>
 
-        <button class="btn-refresh" id="btnRefresh" onclick="refreshAll()">
+        <button class="btn-refresh" id="btnRefresh" onclick="runPatrol()">
           <i class="fas fa-sync"></i> Refresh Status
         </button>
       </div>
+      
+      <div class="patrol-status" id="patrolStatus">Last patrol: Not run yet</div>
       
       <div class="footer-copyright">
         &copy; 2025 IPOS Monitoring — <a href="/">Back to Dashboard</a>
       </div>
     </div>
 
-    <!-- Toast Notification -->
     <div class="toast" id="toast"></div>
 
     <script>
@@ -886,14 +938,15 @@ HTML_TEMPLATE = '''
       })();
 
       // ── TOAST ──
-      function showToast(message) {
+      function showToast(message, isError = false) {
         const toast = document.getElementById('toast');
         toast.textContent = message;
+        toast.className = 'toast' + (isError ? ' error' : '');
         toast.classList.add('show');
         clearTimeout(toast._timeout);
         toast._timeout = setTimeout(() => {
           toast.classList.remove('show');
-        }, 2000);
+        }, 3000);
       }
 
       // ── DATA ──
@@ -903,15 +956,16 @@ HTML_TEMPLATE = '''
 
       let timerID = null;
       let timeLeft = AUTO_REFRESH_SEC;
+      let isPatrolRunning = false;
 
       // ── RENDER ──
-      function renderList() {
+      function renderList(services) {
         const container = document.getElementById("statusContainer");
         const groups = {};
         
         const iposSet = new Set(IPOS_DOMAINS.map(d => d.toLowerCase()));
         
-        SERVICES.forEach((svc) => {
+        services.forEach((svc) => {
           if (!groups[svc.brand]) groups[svc.brand] = [];
           const isIpos = iposSet.has(svc.name.toLowerCase());
           groups[svc.brand].push({ ...svc, isIpos: isIpos });
@@ -956,13 +1010,22 @@ HTML_TEMPLATE = '''
       }
 
       // ── OVERALL ──
-      function renderOverall() {
+      function renderOverall(iposCount) {
         const badge = document.getElementById("overallBadge");
         const text = document.getElementById("overallText");
         const dot = document.getElementById("statusDot");
         const label = document.getElementById("statusLabel");
 
-        const iposCount = IPOS_DOMAINS.length;
+        if (isPatrolRunning) {
+          badge.className = "overall-badge patrolling";
+          text.textContent = "🔄 Checking domains...";
+          dot.className = "status-dot";
+          dot.style.background = "#f59e0b";
+          label.textContent = "Patrolling...";
+          return;
+        }
+
+        dot.style.background = "";
 
         if (iposCount === 0) {
           badge.className = "overall-badge all-up";
@@ -981,10 +1044,9 @@ HTML_TEMPLATE = '''
       function copyDomain(domain) {
         navigator.clipboard.writeText(domain).then(() => {
           showToast(`Copied: ${domain}`);
-          // Visual feedback on button
           const buttons = document.querySelectorAll('.copy-btn');
           buttons.forEach(btn => {
-            if (btn.textContent.trim() === 'Copy' && btn.closest('.status-card').querySelector('.status-name').textContent === domain) {
+            if (btn.closest('.status-card')?.querySelector('.status-name')?.textContent === domain) {
               btn.classList.add('copied');
               btn.innerHTML = '<i class="fas fa-check"></i> Copied';
               setTimeout(() => {
@@ -994,7 +1056,6 @@ HTML_TEMPLATE = '''
             }
           });
         }).catch(() => {
-          // Fallback
           const textArea = document.createElement('textarea');
           textArea.value = domain;
           document.body.appendChild(textArea);
@@ -1020,7 +1081,6 @@ HTML_TEMPLATE = '''
             btn.innerHTML = '<i class="fas fa-copy"></i> Copy All';
           }, 2000);
         }).catch(() => {
-          // Fallback
           const textArea = document.createElement('textarea');
           textArea.value = text;
           document.body.appendChild(textArea);
@@ -1043,8 +1103,8 @@ HTML_TEMPLATE = '''
         const secs = Math.floor(timeLeft % 60);
         text.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 
-        if (timeLeft <= 0) {
-          refreshAll();
+        if (timeLeft <= 0 && !isPatrolRunning) {
+          runPatrol();
           timeLeft = AUTO_REFRESH_SEC;
         }
       }
@@ -1052,37 +1112,86 @@ HTML_TEMPLATE = '''
       function startTimer() {
         if (timerID) clearInterval(timerID);
         timerID = setInterval(() => {
-          timeLeft--;
-          updateTimer();
+          if (!isPatrolRunning) {
+            timeLeft--;
+            updateTimer();
+          }
         }, 1000);
         updateTimer();
       }
 
-      // ── REFRESH ALL ──
-      async function refreshAll() {
+      // ── RUN PATROL ──
+      async function runPatrol() {
+        if (isPatrolRunning) return;
+        
+        isPatrolRunning = true;
         const btn = document.getElementById("btnRefresh");
+        btn.disabled = true;
         btn.classList.add("spinning");
-
-        const now = new Date();
-        document.getElementById("lastChecked").textContent =
-          now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-
+        
+        renderOverall(0);
+        document.getElementById("patrolStatus").textContent = "🔄 Running patrol...";
+        document.getElementById("lastChecked").textContent = "Checking...";
+        
+        try {
+          const response = await fetch('/api/run-patrol', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            // Update services and IPOS domains
+            SERVICES.length = 0;
+            SERVICES.push(...data.services);
+            window.IPOS_DOMAINS = data.ipos_domains || [];
+            
+            renderList(SERVICES);
+            renderOverall(data.ipos_domains.length);
+            
+            const now = new Date();
+            document.getElementById("lastChecked").textContent =
+              now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+            
+            document.getElementById("patrolStatus").textContent = data.patrol_result || 'Patrol completed';
+            
+            if (data.ipos_domains && data.ipos_domains.length > 0) {
+              showToast(`${data.ipos_domains.length} domain(s) detected as IPOS and removed`, false);
+            } else {
+              showToast('No IPOS domains found. All domains are safe!', false);
+            }
+          } else {
+            showToast('Patrol failed: ' + (data.error || 'Unknown error'), true);
+          }
+        } catch (error) {
+          showToast('Patrol failed: ' + error.message, true);
+        }
+        
+        isPatrolRunning = false;
+        btn.disabled = false;
+        btn.classList.remove("spinning");
         timeLeft = AUTO_REFRESH_SEC;
         updateTimer();
-
-        btn.classList.remove("spinning");
+        
+        // Update IPOS_DOMAINS in window
+        window.IPOS_DOMAINS = IPOS_DOMAINS;
       }
 
       // ── FETCH IPOS STATUS ──
       async function fetchIposStatus() {
+        if (isPatrolRunning) return;
         try {
           const response = await fetch('/api/ipos-status');
           const data = await response.json();
           const iposDomains = data.ipos_domains || [];
+          const patrolResult = data.last_patrol || 'Not run yet';
+          
+          document.getElementById('patrolStatus').textContent = `Last patrol: ${patrolResult}`;
           
           window.IPOS_DOMAINS = iposDomains;
-          renderList();
-          renderOverall();
+          renderList(SERVICES);
+          renderOverall(iposDomains.length);
         } catch (e) {
           console.error('Failed to fetch IPOS status:', e);
         }
@@ -1090,14 +1199,14 @@ HTML_TEMPLATE = '''
 
       // ── INIT ──
       window.IPOS_DOMAINS = IPOS_DOMAINS;
-      renderList();
-      renderOverall();
+      renderList(SERVICES);
+      renderOverall(IPOS_DOMAINS.length);
       startTimer();
 
-      setInterval(fetchIposStatus, 30000);
+      setInterval(fetchIposStatus, 15000);
       
       document.addEventListener('visibilitychange', () => {
-        if (!document.hidden) {
+        if (!document.hidden && !isPatrolRunning) {
           fetchIposStatus();
         }
       });
@@ -1124,10 +1233,55 @@ def status_page():
 def api_ipos_status():
     return Response(
         json.dumps({
-            "ipos_domains": IPOS_DOMAINS
+            "ipos_domains": IPOS_DOMAINS,
+            "last_patrol": LAST_PATROL_RESULT
         }),
         mimetype='application/json'
     )
+
+@app.route('/api/run-patrol', methods=['POST'])
+def api_run_patrol():
+    """API untuk menjalankan patroli dan mengembalikan hasil terbaru"""
+    global IS_RUNNING
+    
+    if IS_RUNNING:
+        return Response(
+            json.dumps({
+                "success": False,
+                "error": "Patrol already running"
+            }),
+            mimetype='application/json',
+            status=409
+        )
+    
+    try:
+        IS_RUNNING = True
+        # Jalankan patroli
+        log_result = run_patrol()
+        # Ambil data terbaru setelah patroli
+        all_domains = get_all_domains()
+        
+        return Response(
+            json.dumps({
+                "success": True,
+                "services": all_domains,
+                "ipos_domains": IPOS_DOMAINS,
+                "patrol_result": LAST_PATROL_RESULT,
+                "log": log_result
+            }),
+            mimetype='application/json'
+        )
+    except Exception as e:
+        return Response(
+            json.dumps({
+                "success": False,
+                "error": str(e)
+            }),
+            mimetype='application/json',
+            status=500
+        )
+    finally:
+        IS_RUNNING = False
 
 @app.route('/api/domains')
 def api_domains():
@@ -1166,7 +1320,7 @@ def endpoint_patroli():
         IS_RUNNING = True
         try:
             LAST_RUN_TIME = sekarang
-            hasil_cek_baru = run_api_check()
+            hasil_cek_baru = run_patrol()
             LAST_LOG_OUTPUT = hasil_cek_baru
             hasil_log = hasil_cek_baru
         finally:
