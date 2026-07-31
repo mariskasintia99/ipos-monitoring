@@ -42,11 +42,11 @@ TARGETS_IPOS = [
     }
 ]
 
-# Store IPOS domains from last patrol
+# Store IPOS domains from last check
 IPOS_DOMAINS = []
-LAST_PATROL_RESULT = "No patrol run yet"
-IS_PATROL_RUNNING = False
-PATROL_LOG = []
+LAST_CHECK_RESULT = "No check run yet"
+IS_CHECK_RUNNING = False
+CHECK_LOG = []
 
 log_buffer = ""
 
@@ -56,7 +56,7 @@ def log(type_msg, msg):
     line = f"[{timestamp}] [{type_msg}]  {msg}\n"
     print(line, end="")
     log_buffer += line
-    PATROL_LOG.append(line)
+    CHECK_LOG.append(line)
 
 # --- FUNGSI CLOUDFLARE & TELEGRAM ---
 def get_kv(key_name):
@@ -112,13 +112,13 @@ def get_all_domains():
     return all_domains
 
 # --- MESIN UTAMA ---
-def run_patrol():
-    global IPOS_DOMAINS, LAST_PATROL_RESULT, PATROL_LOG
-    PATROL_LOG = []
+def run_check():
+    global IPOS_DOMAINS, LAST_CHECK_RESULT, CHECK_LOG
+    CHECK_LOG = []
     IPOS_DOMAINS = []
     
     log("SYSTEM", "=" * 50)
-    log("SYSTEM", "🚀 MEMULAI PATROLI KE NAWALA")
+    log("SYSTEM", "🚀 MEMULAI PENGECEKAN KE NAWALA")
     log("SYSTEM", "=" * 50)
 
     ada_perubahan = False
@@ -239,14 +239,14 @@ def run_patrol():
                 msg += f"🟢 {d}\n"
             msg += f"{garis}\n"
         send_and_pin(TELEGRAM_TOKEN_IPOS, CHAT_ID_IPOS, msg)
-        LAST_PATROL_RESULT = f"Checking completed at {datetime.now(timezone.utc) + timedelta(hours=7):%H:%M:%S} - {len(all_removed)} domains removed from KV Domain Storage"
+        LAST_CHECK_RESULT = f"Checking completed at {datetime.now(timezone.utc) + timedelta(hours=7):%H:%M:%S} - {len(all_removed)} domains removed from KV Domain Storage"
     else:
-        LAST_PATROL_RESULT = f"Checking completed at {datetime.now(timezone.utc) + timedelta(hours=7):%H:%M:%S} - No IPOS domains found"
+        LAST_CHECK_RESULT = f"Checking completed at {datetime.now(timezone.utc) + timedelta(hours=7):%H:%M:%S} - No IPOS domains found"
 
     log("SYSTEM", "=" * 50)
-    log("SUCCESS", "✅ PATROLI SELESAI!")
+    log("SUCCESS", "✅ PENGECEKAN SELESAI!")
     log("SYSTEM", "=" * 50)
-    return "\\n".join(PATROL_LOG)
+    return "\\n".join(CHECK_LOG)
 
 # --- HTML TEMPLATE ---
 HTML_TEMPLATE = '''
@@ -417,13 +417,13 @@ HTML_TEMPLATE = '''
         border: 1.5px solid rgba(255, 23, 68, 0.25);
         box-shadow: 0 0 30px rgba(255, 23, 68, 0.08);
       }
-      .overall-badge.patrolling {
+      .overall-badge.checking {
         background: rgba(245, 158, 11, 0.12);
         color: #f59e0b;
         border: 1.5px solid rgba(245, 158, 11, 0.25);
         animation: pulse-badge-glow 0.8s ease-in-out infinite;
       }
-      .overall-badge.patrolling .pulse-icon {
+      .overall-badge.checking .pulse-icon {
         background: #f59e0b;
         animation: pulse-badge 0.5s ease-in-out infinite;
       }
@@ -442,7 +442,7 @@ HTML_TEMPLATE = '''
       }
       .all-up .pulse-icon { background: #00e676; }
       .has-ipos .pulse-icon { background: #ff1744; }
-      .patrolling .pulse-icon { background: #f59e0b; }
+      .checking .pulse-icon { background: #f59e0b; }
 
       @keyframes pulse-badge {
         0%, 100% { transform: scale(1); opacity: 1; }
@@ -747,17 +747,24 @@ HTML_TEMPLATE = '''
         flex-wrap: wrap;
       }
 
+      .footer-left {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+
       .last-checked {
         font-size: 0.8rem;
         color: rgba(255,255,255,0.4);
       }
       .last-checked span { color: rgba(255,255,255,0.7); font-weight: 500; }
 
-      .patrol-status {
+      .check-result {
         font-size: 0.75rem;
         color: rgba(255,255,255,0.3);
       }
-      .patrol-status span { color: rgba(255,255,255,0.5); }
+      .check-result span { color: rgba(255,255,255,0.5); }
 
       .timer-wrapper {
         display: flex;
@@ -898,7 +905,9 @@ HTML_TEMPLATE = '''
         .copy-all-btn { font-size: 0.65rem; padding: 2px 12px; height: 26px; }
         .overall-badge { font-size: 0.8rem; padding: 4px 16px; }
         .footer-row { gap: 8px; }
+        .footer-left { gap: 12px; }
         .last-checked { font-size: 0.65rem; }
+        .check-result { font-size: 0.6rem; }
         .total-domains { font-size: 0.7rem; }
         .btn-refresh { font-size: 0.65rem; padding: 5px 14px; }
         .timer-circle { width: 34px; height: 34px; }
@@ -907,7 +916,6 @@ HTML_TEMPLATE = '''
         .timer-label { font-size: 0.55rem; }
         .header-status { font-size: 0.7rem; }
         .status-right { gap: 6px; }
-        .patrol-status { font-size: 0.6rem; }
         .footer-copyright { font-size: 0.55rem; }
         .ipos-header { font-size: 0.7rem; }
         .ipos-card .status-name { font-size: 0.75rem; }
@@ -929,7 +937,9 @@ HTML_TEMPLATE = '''
         .copy-all-btn { font-size: 0.55rem; padding: 1px 10px; height: 22px; }
         .overall-badge { font-size: 0.65rem; padding: 3px 12px; gap: 6px; }
         .footer-row { gap: 6px; flex-direction: column; align-items: stretch; }
+        .footer-left { flex-direction: column; align-items: flex-start; gap: 4px; }
         .last-checked { font-size: 0.55rem; }
+        .check-result { font-size: 0.5rem; }
         .total-domains { font-size: 0.6rem; }
         .btn-refresh { font-size: 0.55rem; padding: 4px 10px; gap: 4px; }
         .timer-circle { width: 28px; height: 28px; }
@@ -939,7 +949,6 @@ HTML_TEMPLATE = '''
         .header-status { font-size: 0.6rem; }
         .status-dot { width: 8px; height: 8px; }
         .status-right { gap: 4px; }
-        .patrol-status { font-size: 0.5rem; }
         .footer-copyright { font-size: 0.5rem; }
         .toast { font-size: 0.7rem; padding: 8px 16px; bottom: 20px; }
         .ipos-header { font-size: 0.65rem; }
@@ -986,8 +995,11 @@ HTML_TEMPLATE = '''
 
       <div class="footer-controls">
         <div class="footer-row">
-          <div class="last-checked">
-            <i class="fas fa-clock"></i>&nbsp; Last Checked: <span id="lastChecked">—</span>
+          <div class="footer-left">
+            <div class="last-checked">
+              <i class="fas fa-clock"></i>&nbsp; Last Checked: <span id="lastChecked">—</span>
+            </div>
+            <div class="check-result" id="checkResult">—</div>
           </div>
           <div class="timer-wrapper">
             <div class="timer-circle">
@@ -1002,12 +1014,9 @@ HTML_TEMPLATE = '''
             <span class="timer-label">Auto-refresh</span>
           </div>
           <div class="total-domains" id="totalDomains">Total Domains: 0</div>
-          <button class="btn-refresh" id="btnRefresh" onclick="runPatrol()">
+          <button class="btn-refresh" id="btnRefresh" onclick="runCheck()">
             <i class="fas fa-sync"></i> Refresh Status
           </button>
-        </div>
-        <div class="footer-row">
-          <div class="patrol-status" id="patrolStatus">Last patrol: Not run yet</div>
         </div>
       </div>
       
@@ -1055,7 +1064,7 @@ HTML_TEMPLATE = '''
 
       let timerID = null;
       let timeLeft = AUTO_REFRESH_SEC;
-      let isPatrolRunning = false;
+      let isCheckRunning = false;
 
       // ── RENDER ──
       function renderList(services, iposDomains) {
@@ -1139,12 +1148,12 @@ HTML_TEMPLATE = '''
         const dot = document.getElementById("statusDot");
         const label = document.getElementById("statusLabel");
 
-        if (isPatrolRunning) {
-          badge.className = "overall-badge patrolling";
+        if (isCheckRunning) {
+          badge.className = "overall-badge checking";
           text.textContent = "🔄 Checking domains...";
           dot.className = "status-dot";
           dot.style.background = "#f59e0b";
-          label.textContent = "Patrolling...";
+          label.textContent = "Checking...";
           return;
         }
 
@@ -1227,8 +1236,8 @@ HTML_TEMPLATE = '''
         const secs = Math.floor(timeLeft % 60);
         text.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 
-        if (timeLeft <= 0 && !isPatrolRunning) {
-          runPatrol();
+        if (timeLeft <= 0 && !isCheckRunning) {
+          runCheck();
           timeLeft = AUTO_REFRESH_SEC;
         }
       }
@@ -1236,7 +1245,7 @@ HTML_TEMPLATE = '''
       function startTimer() {
         if (timerID) clearInterval(timerID);
         timerID = setInterval(() => {
-          if (!isPatrolRunning) {
+          if (!isCheckRunning) {
             timeLeft--;
             updateTimer();
           }
@@ -1244,21 +1253,21 @@ HTML_TEMPLATE = '''
         updateTimer();
       }
 
-      // ── RUN PATROL ──
-      async function runPatrol() {
-        if (isPatrolRunning) return;
+      // ── RUN CHECK ──
+      async function runCheck() {
+        if (isCheckRunning) return;
         
-        isPatrolRunning = true;
+        isCheckRunning = true;
         const btn = document.getElementById("btnRefresh");
         btn.disabled = true;
         btn.classList.add("spinning");
         
         renderOverall(0);
-        document.getElementById("patrolStatus").textContent = "🔄 Running patrol...";
+        document.getElementById("checkResult").textContent = "🔄 Checking...";
         document.getElementById("lastChecked").textContent = "Checking...";
         
         try {
-          const response = await fetch('/api/run-patrol', {
+          const response = await fetch('/api/run-check', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }
           });
@@ -1276,7 +1285,7 @@ HTML_TEMPLATE = '''
             document.getElementById("lastChecked").textContent =
               now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
             
-            document.getElementById("patrolStatus").textContent = data.patrol_result || 'Patrol completed';
+            document.getElementById("checkResult").textContent = data.check_result || 'Check completed';
             
             if (IPOS_DOMAINS.length > 0) {
               showToast(`${IPOS_DOMAINS.length} domain(s) detected as IPOS and removed`, false);
@@ -1284,13 +1293,13 @@ HTML_TEMPLATE = '''
               showToast('No IPOS domains found. All domains are safe!', false);
             }
           } else {
-            showToast('Patrol failed: ' + (data.error || 'Unknown error'), true);
+            showToast('Check failed: ' + (data.error || 'Unknown error'), true);
           }
         } catch (error) {
-          showToast('Patrol failed: ' + error.message, true);
+          showToast('Check failed: ' + error.message, true);
         }
         
-        isPatrolRunning = false;
+        isCheckRunning = false;
         btn.disabled = false;
         btn.classList.remove("spinning");
         timeLeft = AUTO_REFRESH_SEC;
@@ -1299,14 +1308,14 @@ HTML_TEMPLATE = '''
 
       // ── FETCH IPOS STATUS ──
       async function fetchIposStatus() {
-        if (isPatrolRunning) return;
+        if (isCheckRunning) return;
         try {
           const response = await fetch('/api/ipos-status');
           const data = await response.json();
           const iposDomains = data.ipos_domains || [];
-          const patrolResult = data.last_patrol || 'Not run yet';
+          const checkResult = data.last_check || 'No check run yet';
           
-          document.getElementById('patrolStatus').textContent = patrolResult;
+          document.getElementById('checkResult').textContent = checkResult;
           
           IPOS_DOMAINS = iposDomains;
           renderList(SERVICES, IPOS_DOMAINS);
@@ -1321,13 +1330,15 @@ HTML_TEMPLATE = '''
       renderOverall(IPOS_DOMAINS.length);
       startTimer();
 
-      // Initial fetch after 1 second
+      // Set initial check result
+      const initialResult = "{{ last_check_result|default('No check run yet') }}";
+      document.getElementById('checkResult').textContent = initialResult;
+
       setTimeout(fetchIposStatus, 1000);
-      
       setInterval(fetchIposStatus, 15000);
       
       document.addEventListener('visibilitychange', () => {
-        if (!document.hidden && !isPatrolRunning) {
+        if (!document.hidden && !isCheckRunning) {
           fetchIposStatus();
         }
       });
@@ -1347,7 +1358,8 @@ def status_page():
     return render_template_string(
         HTML_TEMPLATE, 
         services=all_domains,
-        ipos_domains=IPOS_DOMAINS
+        ipos_domains=IPOS_DOMAINS,
+        last_check_result=LAST_CHECK_RESULT
     )
 
 @app.route('/api/ipos-status')
@@ -1355,20 +1367,20 @@ def api_ipos_status():
     return Response(
         json.dumps({
             "ipos_domains": IPOS_DOMAINS,
-            "last_patrol": LAST_PATROL_RESULT
+            "last_check": LAST_CHECK_RESULT
         }),
         mimetype='application/json'
     )
 
-@app.route('/api/run-patrol', methods=['POST'])
-def api_run_patrol():
+@app.route('/api/run-check', methods=['POST'])
+def api_run_check():
     global IS_RUNNING
     
     if IS_RUNNING:
         return Response(
             json.dumps({
                 "success": False,
-                "error": "Patrol already running"
+                "error": "Check already running"
             }),
             mimetype='application/json',
             status=409
@@ -1376,7 +1388,7 @@ def api_run_patrol():
     
     try:
         IS_RUNNING = True
-        log_result = run_patrol()
+        log_result = run_check()
         all_domains = get_all_domains()
         
         return Response(
@@ -1384,7 +1396,7 @@ def api_run_patrol():
                 "success": True,
                 "services": all_domains,
                 "ipos_domains": IPOS_DOMAINS,
-                "patrol_result": LAST_PATROL_RESULT,
+                "check_result": LAST_CHECK_RESULT,
                 "log": log_result
             }),
             mimetype='application/json'
@@ -1423,7 +1435,7 @@ def endpoint_patroli():
                 <title>MEMPROSES...</title>
             </head>
             <body style="background:#1e1e1e; color:#00ff00; font-family:monospace; text-align:center; padding-top:100px;">
-                <h2>⚙️ ROBOT SEDANG KELILING PATROLI...</h2>
+                <h2>⚙️ ROBOT SEDANG KELILING...</h2>
                 <p style="color:#888;">Mohon tunggu sekitar 10 detik. Layar akan otomatis memuat hasil log yang bersih.</p>
             </body>
         </html>
@@ -1438,7 +1450,7 @@ def endpoint_patroli():
         IS_RUNNING = True
         try:
             LAST_RUN_TIME = sekarang
-            hasil_cek_baru = run_patrol()
+            hasil_cek_baru = run_check()
             LAST_LOG_OUTPUT = hasil_cek_baru
             hasil_log = hasil_cek_baru
         finally:
@@ -1491,7 +1503,7 @@ def endpoint_patroli():
                     let s = timeLeft % 60;
                     let s_display = s < 10 ? "0" + s : s;
                     
-                    document.getElementById('countdown-text').innerText = "Patroli Berikutnya: " + m + ":" + s_display + " (" + percentage.toFixed(1) + "%)";
+                    document.getElementById('countdown-text').innerText = "Pengecekan Berikutnya: " + m + ":" + s_display + " (" + percentage.toFixed(1) + "%)";
                     
                     timePassed++;
                 }}
