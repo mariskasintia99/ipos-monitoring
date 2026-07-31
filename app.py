@@ -99,18 +99,6 @@ def get_all_domains():
                 })
     return all_domains
 
-# --- CHECK URL STATUS WITH PING ---
-def check_service_status(url):
-    try:
-        start = time.time()
-        response = requests.head(url, timeout=10, allow_redirects=True)
-        ping_ms = int((time.time() - start) * 1000)
-        if response.status_code < 400:
-            return {"status": "active", "ping": ping_ms}
-        return {"status": "active", "ping": None}
-    except:
-        return {"status": "active", "ping": None}
-
 # --- MESIN UTAMA (MULTI-KEY & AUTO FAILOVER) ---
 def run_api_check():
     global log_buffer, IPOS_DOMAINS, LAST_PATROL_RESULT
@@ -239,7 +227,7 @@ def run_api_check():
     log("SUCCESS", "Pengecekan Nawala Selesai!")
     return log_buffer
 
-# --- HTML TEMPLATE (ENGLISH, WITH PING, IPOS STATUS FROM KV) ---
+# --- HTML TEMPLATE ---
 HTML_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="en">
@@ -696,7 +684,6 @@ HTML_TEMPLATE = '''
         flex-shrink: 0;
       }
 
-      /* ── FOOTER COPYRIGHT ── */
       .footer-copyright {
         text-align: center;
         padding: 6px 0 0;
@@ -715,7 +702,6 @@ HTML_TEMPLATE = '''
         color: #f093fb;
       }
 
-      /* ── RESPONSIVE ── */
       @media (max-width: 768px) {
         .app-container { padding: 14px 16px 12px; max-height: 100vh; border-radius: 16px; }
         .logo { font-size: 1.2rem; }
@@ -828,10 +814,8 @@ HTML_TEMPLATE = '''
         </button>
       </div>
       
-      <!-- PATROL RESULT -->
       <div class="patrol-result" id="patrolResult">Last patrol: Not run yet</div>
       
-      <!-- COPYRIGHT -->
       <div class="footer-copyright">
         &copy; 2025 IPOS Monitoring — <a href="/">Back to Dashboard</a>
       </div>
@@ -865,18 +849,25 @@ HTML_TEMPLATE = '''
       let timeLeft = AUTO_REFRESH_SEC;
       let isUpdating = false;
 
-      // ── CHECK SINGLE SERVICE (with ping) ──
+      // ── CHECK SINGLE SERVICE (GET with follow redirects) ──
       async function checkOne(url) {
         const start = Date.now();
         try {
           const response = await fetch(url, {
-            method: "HEAD",
-            mode: "no-cors",
+            method: "GET",
+            mode: "cors",
             cache: "no-store",
-            signal: AbortSignal.timeout(10000),
+            redirect: "follow",
+            signal: AbortSignal.timeout(15000),
           });
-          return { status: "active", ping: Date.now() - start };
-        } catch {
+          const ping = Date.now() - start;
+          // Jika status 200-399 = success (termasuk redirect ke moneysite)
+          if (response.status >= 200 && response.status < 400) {
+            return { status: "active", ping: ping };
+          }
+          return { status: "active", ping: null };
+        } catch (error) {
+          // Kalau error/timeout, return null
           return { status: "active", ping: null };
         }
       }
@@ -886,7 +877,6 @@ HTML_TEMPLATE = '''
         const container = document.getElementById("statusContainer");
         const groups = {};
         
-        // Build IPOS set for quick lookup
         const iposSet = new Set(IPOS_DOMAINS.map(d => d.toLowerCase()));
         
         SERVICES.forEach((svc, i) => {
@@ -983,7 +973,7 @@ HTML_TEMPLATE = '''
         updateTimer();
       }
 
-      // ── REFRESH ALL (with real ping) ──
+      // ── REFRESH ALL ──
       async function refreshAll() {
         if (isUpdating) return;
         isUpdating = true;
@@ -991,12 +981,10 @@ HTML_TEMPLATE = '''
         const btn = document.getElementById("btnRefresh");
         btn.classList.add("spinning");
 
-        // Set loading state
         results = SERVICES.map(() => ({ status: "active", ping: null }));
         renderList();
 
-        // Check each domain with real ping
-        const batchSize = 10;
+        const batchSize = 5;
         for (let i = 0; i < SERVICES.length; i += batchSize) {
           const batch = SERVICES.slice(i, i + batchSize);
           await Promise.all(
@@ -1007,9 +995,12 @@ HTML_TEMPLATE = '''
               renderList();
             })
           );
+          // Delay antar batch biar gak overload
+          if (i + batchSize < SERVICES.length) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
         }
 
-        // Update last checked time
         const now = new Date();
         document.getElementById("lastChecked").textContent =
           now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
@@ -1022,7 +1013,7 @@ HTML_TEMPLATE = '''
         isUpdating = false;
       }
 
-      // ── FETCH IPOS STATUS FROM SERVER ──
+      // ── FETCH IPOS STATUS ──
       async function fetchIposStatus() {
         try {
           const response = await fetch('/api/ipos-status');
@@ -1032,7 +1023,6 @@ HTML_TEMPLATE = '''
           
           document.getElementById('patrolResult').textContent = `Last patrol: ${patrolResult}`;
           
-          // Update IPOS_DOMAINS and re-render
           window.IPOS_DOMAINS = iposDomains;
           renderList();
           renderOverall();
@@ -1047,15 +1037,12 @@ HTML_TEMPLATE = '''
       renderOverall();
       startTimer();
 
-      // Initial check after page load
       setTimeout(() => {
         refreshAll();
       }, 500);
 
-      // Fetch IPOS status periodically
-      setInterval(fetchIposStatus, 30000); // Every 30 seconds
+      setInterval(fetchIposStatus, 30000);
       
-      // Also fetch on page visibility change
       document.addEventListener('visibilitychange', () => {
         if (!document.hidden) {
           fetchIposStatus();
@@ -1082,7 +1069,6 @@ def status_page():
 
 @app.route('/api/ipos-status')
 def api_ipos_status():
-    """API untuk mendapatkan status IPOS terkini"""
     return Response(
         json.dumps({
             "ipos_domains": IPOS_DOMAINS,
