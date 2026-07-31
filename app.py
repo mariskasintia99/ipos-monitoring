@@ -95,6 +95,18 @@ def get_all_domains():
                 })
     return all_domains
 
+# --- CHECK URL STATUS WITH PING ---
+def check_service_status(url):
+    try:
+        start = time.time()
+        response = requests.head(url, timeout=10, allow_redirects=True)
+        ping_ms = int((time.time() - start) * 1000)
+        if response.status_code < 400:
+            return {"status": "up", "ping": ping_ms}
+        return {"status": "down", "ping": None}
+    except:
+        return {"status": "down", "ping": None}
+
 # --- MESIN UTAMA (MULTI-KEY & AUTO FAILOVER) ---
 def run_api_check():
     global log_buffer
@@ -213,14 +225,14 @@ def run_api_check():
     log("SUCCESS", "Pengecekan Nawala Selesai!")
     return log_buffer
 
-# --- HTML TEMPLATE (BESAR, JELAS, BERANIMASI) ---
+# --- HTML TEMPLATE (ENGLISH, WITH PING) ---
 HTML_TEMPLATE = '''
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>IPOS Monitor</title>
+    <title>IPOS Monitoring</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
@@ -246,7 +258,6 @@ HTML_TEMPLATE = '''
         100% { background-position: 0% 50%; }
       }
 
-      /* Floating particles */
       .particles {
         position: fixed;
         top: 0;
@@ -262,7 +273,7 @@ HTML_TEMPLATE = '''
         position: absolute;
         width: 6px;
         height: 6px;
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.08);
         border-radius: 50%;
         animation: float linear infinite;
       }
@@ -303,7 +314,7 @@ HTML_TEMPLATE = '''
       }
 
       .logo {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
         font-weight: 900;
         letter-spacing: -0.5px;
         background: linear-gradient(135deg, #fff 30%, #f093fb 100%);
@@ -345,18 +356,18 @@ HTML_TEMPLATE = '''
       .hero {
         text-align: center;
         flex-shrink: 0;
-        padding: 10px 0 6px;
+        padding: 8px 0 4px;
       }
 
       .hero h1 {
-        font-size: 1.6rem;
+        font-size: 1.4rem;
         font-weight: 800;
         letter-spacing: -0.5px;
       }
 
       .hero p {
-        color: rgba(255,255,255,0.5);
-        font-size: 0.9rem;
+        color: rgba(255,255,255,0.4);
+        font-size: 0.8rem;
         margin-top: 2px;
       }
 
@@ -364,30 +375,30 @@ HTML_TEMPLATE = '''
         display: inline-flex;
         align-items: center;
         gap: 10px;
-        padding: 8px 28px;
+        padding: 6px 24px;
         border-radius: 50px;
-        font-size: 1.1rem;
+        font-size: 1rem;
         font-weight: 700;
-        margin-top: 6px;
+        margin-top: 4px;
         transition: all 0.4s;
       }
 
       .overall-badge.all-up {
-        background: rgba(0, 230, 118, 0.15);
+        background: rgba(0, 230, 118, 0.12);
         color: #00e676;
-        border: 1.5px solid rgba(0, 230, 118, 0.3);
-        box-shadow: 0 0 30px rgba(0, 230, 118, 0.1);
+        border: 1.5px solid rgba(0, 230, 118, 0.25);
+        box-shadow: 0 0 30px rgba(0, 230, 118, 0.08);
       }
       .overall-badge.has-down {
-        background: rgba(255, 23, 68, 0.15);
+        background: rgba(255, 23, 68, 0.12);
         color: #ff1744;
-        border: 1.5px solid rgba(255, 23, 68, 0.3);
-        box-shadow: 0 0 30px rgba(255, 23, 68, 0.1);
+        border: 1.5px solid rgba(255, 23, 68, 0.25);
+        box-shadow: 0 0 30px rgba(255, 23, 68, 0.08);
       }
 
       .overall-badge .pulse-icon {
-        width: 12px;
-        height: 12px;
+        width: 10px;
+        height: 10px;
         border-radius: 50%;
         display: inline-block;
         animation: pulse-badge 1.2s ease-in-out infinite;
@@ -411,11 +422,11 @@ HTML_TEMPLATE = '''
       }
 
       .section-title {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         font-weight: 700;
         letter-spacing: 2px;
         text-transform: uppercase;
-        color: rgba(255,255,255,0.3);
+        color: rgba(255,255,255,0.25);
         flex-shrink: 0;
         padding-bottom: 4px;
       }
@@ -439,19 +450,19 @@ HTML_TEMPLATE = '''
       }
 
       .brand-group {
-        margin-bottom: 8px;
+        margin-bottom: 10px;
       }
 
       .brand-header {
-        font-size: 1rem;
+        font-size: 1.1rem;
         font-weight: 700;
         color: #f093fb;
-        padding: 4px 0 2px;
+        padding: 4px 0 3px;
         border-bottom: 1px solid rgba(255,255,255,0.06);
         margin-bottom: 6px;
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
       }
 
       .brand-header .count {
@@ -459,44 +470,44 @@ HTML_TEMPLATE = '''
         font-weight: 400;
         color: rgba(255,255,255,0.3);
         background: rgba(255,255,255,0.06);
-        padding: 1px 10px;
+        padding: 1px 12px;
         border-radius: 12px;
       }
 
       .status-list {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 6px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
       }
 
       .status-card {
         background: rgba(255, 255, 255, 0.04);
         border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 10px;
-        padding: 10px 14px;
+        border-radius: 8px;
+        padding: 8px 16px;
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 14px;
         text-decoration: none;
         color: #fff;
-        transition: all 0.3s ease;
+        transition: all 0.25s ease;
         cursor: pointer;
-        min-height: 48px;
+        min-height: 44px;
       }
 
       .status-card:hover {
         background: rgba(255, 255, 255, 0.08);
         border-color: rgba(255, 255, 255, 0.15);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        transform: translateX(4px);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
       }
 
       .status-card.up { border-left: 4px solid #00e676; }
       .status-card.down { border-left: 4px solid #ff1744; }
 
       .status-icon {
-        font-size: 1.2rem;
-        width: 28px;
+        font-size: 1rem;
+        width: 24px;
         text-align: center;
         flex-shrink: 0;
       }
@@ -506,41 +517,59 @@ HTML_TEMPLATE = '''
       .status-info {
         flex: 1;
         min-width: 0;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
       }
 
       .status-name {
         font-size: 0.95rem;
         font-weight: 700;
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
       }
 
       .status-url {
         font-size: 0.7rem;
         color: rgba(255,255,255,0.3);
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
       }
 
       .status-right {
+        display: flex;
+        align-items: center;
+        gap: 14px;
         flex-shrink: 0;
+      }
+
+      .status-ping {
+        font-size: 0.7rem;
+        color: rgba(255,255,255,0.4);
+        font-weight: 600;
+        min-width: 60px;
+        text-align: right;
+      }
+      .status-ping .fa-bolt {
+        color: #f093fb;
+        margin-right: 4px;
+      }
+      .status-ping.down {
+        color: rgba(255,255,255,0.2);
       }
 
       .status-badge {
         font-size: 0.7rem;
         font-weight: 700;
-        padding: 3px 14px;
+        padding: 3px 16px;
         border-radius: 20px;
         letter-spacing: 0.5px;
       }
       .up .status-badge {
-        background: rgba(0, 230, 118, 0.15);
+        background: rgba(0, 230, 118, 0.12);
         color: #00e676;
       }
       .down .status-badge {
-        background: rgba(255, 23, 68, 0.15);
+        background: rgba(255, 23, 68, 0.12);
         color: #ff1744;
       }
 
@@ -565,19 +594,19 @@ HTML_TEMPLATE = '''
       .timer-wrapper {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 10px;
       }
 
       .timer-circle {
         position: relative;
-        width: 44px;
-        height: 44px;
+        width: 40px;
+        height: 40px;
       }
 
       .timer-circle svg {
         transform: rotate(-90deg);
-        width: 44px;
-        height: 44px;
+        width: 40px;
+        height: 40px;
       }
 
       .timer-circle .bg {
@@ -599,14 +628,14 @@ HTML_TEMPLATE = '''
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        font-size: 0.7rem;
+        font-size: 0.6rem;
         font-weight: 700;
         color: #fff;
         font-variant-numeric: tabular-nums;
       }
 
       .timer-label {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         color: rgba(255,255,255,0.3);
       }
 
@@ -620,19 +649,19 @@ HTML_TEMPLATE = '''
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        padding: 7px 22px;
+        padding: 7px 20px;
         background: linear-gradient(135deg, #f093fb, #f5576c);
         color: #fff;
         border: none;
         border-radius: 8px;
         font-family: inherit;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         font-weight: 700;
         cursor: pointer;
         transition: all 0.3s;
       }
       .btn-refresh:hover {
-        transform: scale(1.05);
+        transform: scale(1.04);
         box-shadow: 0 8px 30px rgba(245, 87, 108, 0.3);
       }
       .btn-refresh.spinning i { animation: spin 0.7s linear infinite; }
@@ -642,50 +671,52 @@ HTML_TEMPLATE = '''
       /* ── RESPONSIVE ── */
       @media (max-width: 768px) {
         .app-container { padding: 14px 16px 12px; max-height: 100vh; border-radius: 16px; }
-        .logo { font-size: 1.3rem; }
-        .hero h1 { font-size: 1.2rem; }
-        .status-list { grid-template-columns: 1fr 1fr; }
+        .logo { font-size: 1.2rem; }
+        .hero h1 { font-size: 1.1rem; }
+        .brand-header { font-size: 0.9rem; }
         .status-name { font-size: 0.8rem; }
-        .status-card { padding: 8px 10px; min-height: 40px; }
-        .overall-badge { font-size: 0.85rem; padding: 6px 18px; }
+        .status-url { font-size: 0.6rem; }
+        .status-ping { font-size: 0.6rem; min-width: 50px; }
+        .status-card { padding: 6px 12px; min-height: 38px; gap: 10px; }
+        .status-info { gap: 8px; }
+        .status-badge { font-size: 0.6rem; padding: 2px 12px; }
+        .overall-badge { font-size: 0.8rem; padding: 4px 16px; }
         .footer-controls { gap: 8px; }
-        .timer-circle { width: 36px; height: 36px; }
-        .timer-circle svg { width: 36px; height: 36px; }
-        .timer-text { font-size: 0.6rem; }
+        .last-checked { font-size: 0.65rem; }
+        .total-domains { font-size: 0.7rem; }
+        .btn-refresh { font-size: 0.65rem; padding: 5px 14px; }
+        .timer-circle { width: 34px; height: 34px; }
+        .timer-circle svg { width: 34px; height: 34px; }
+        .timer-text { font-size: 0.5rem; }
+        .timer-label { font-size: 0.55rem; }
+        .header-status { font-size: 0.7rem; }
+        .status-right { gap: 8px; }
       }
 
       @media (max-width: 480px) {
         .app-container { padding: 10px 10px 8px; border-radius: 12px; }
         .logo { font-size: 1rem; }
-        .hero h1 { font-size: 1rem; }
-        .hero p { font-size: 0.7rem; }
-        .status-list { grid-template-columns: 1fr; }
-        .status-name { font-size: 0.75rem; }
-        .status-url { font-size: 0.6rem; }
-        .status-card { padding: 6px 10px; min-height: 36px; gap: 8px; }
-        .status-icon { font-size: 0.9rem; width: 22px; }
-        .status-badge { font-size: 0.6rem; padding: 2px 10px; }
-        .overall-badge { font-size: 0.7rem; padding: 4px 14px; }
-        .header-status { font-size: 0.65rem; }
+        .hero h1 { font-size: 0.95rem; }
+        .hero p { font-size: 0.65rem; }
+        .brand-header { font-size: 0.75rem; }
+        .status-name { font-size: 0.7rem; }
+        .status-url { font-size: 0.5rem; display: none; }
+        .status-ping { font-size: 0.5rem; min-width: 40px; }
+        .status-card { padding: 5px 10px; min-height: 32px; gap: 8px; }
+        .status-icon { font-size: 0.8rem; width: 20px; }
+        .status-badge { font-size: 0.5rem; padding: 1px 10px; }
+        .overall-badge { font-size: 0.65rem; padding: 3px 12px; gap: 6px; }
         .footer-controls { gap: 6px; }
-        .last-checked { font-size: 0.6rem; }
-        .total-domains { font-size: 0.65rem; }
-        .btn-refresh { font-size: 0.65rem; padding: 5px 14px; }
-        .timer-circle { width: 30px; height: 30px; }
-        .timer-circle svg { width: 30px; height: 30px; }
-        .timer-text { font-size: 0.5rem; }
-        .timer-label { font-size: 0.55rem; }
-        .brand-header { font-size: 0.8rem; }
-      }
-
-      @media (min-width: 1024px) {
-        .status-list { grid-template-columns: 1fr 1fr 1fr; }
-      }
-
-      @media (min-width: 1400px) {
-        .status-list { grid-template-columns: 1fr 1fr 1fr 1fr; }
-        .status-name { font-size: 1.1rem; }
-        .status-card { padding: 14px 18px; min-height: 56px; }
+        .last-checked { font-size: 0.55rem; }
+        .total-domains { font-size: 0.6rem; }
+        .btn-refresh { font-size: 0.55rem; padding: 4px 10px; gap: 4px; }
+        .timer-circle { width: 28px; height: 28px; }
+        .timer-circle svg { width: 28px; height: 28px; }
+        .timer-text { font-size: 0.45rem; }
+        .timer-label { font-size: 0.5rem; }
+        .header-status { font-size: 0.6rem; }
+        .status-dot { width: 8px; height: 8px; }
+        .status-right { gap: 6px; }
       }
     </style>
   </head>
@@ -697,41 +728,41 @@ HTML_TEMPLATE = '''
     <div class="app-container">
       <!-- HEADER -->
       <header>
-        <div class="logo"><i class="fas fa-shield-halved"></i>IPOS<span style="-webkit-text-fill-color:#f093fb;">Monitor</span></div>
+        <div class="logo"><i class="fas fa-shield-halved"></i>IPOS<span style="-webkit-text-fill-color:#f093fb;">Monitoring</span></div>
         <div class="header-status">
           <span class="status-dot green" id="statusDot"></span>
-          <span id="statusLabel">All Systems Go</span>
+          <span id="statusLabel">Monitoring Active</span>
         </div>
       </header>
 
       <!-- HERO -->
       <div class="hero">
-        <h1>Status Layanan IPOS</h1>
-        <p>Pantau kondisi semua domain secara real-time</p>
+        <h1>IPOS Service Status</h1>
+        <p>Real-time monitoring of all domains</p>
         <div class="overall-badge all-up" id="overallBadge">
           <span class="pulse-icon"></span>
-          <span id="overallText">Semua Domain Normal</span>
+          <span id="overallText">All Domains Normal</span>
         </div>
       </div>
 
       <!-- MAIN -->
       <main>
-        <div class="section-title"><i class="fas fa-server"></i>&nbsp; Daftar Domain</div>
+        <div class="section-title"><i class="fas fa-server"></i>&nbsp; Domain List</div>
         <div class="status-scroll" id="statusContainer"></div>
       </main>
 
       <!-- FOOTER -->
       <div class="footer-controls">
         <div class="last-checked">
-          <i class="fas fa-clock"></i>&nbsp; <span id="lastChecked">—</span>
+          <i class="fas fa-clock"></i>&nbsp; Last Checked: <span id="lastChecked">—</span>
         </div>
 
         <div class="timer-wrapper">
           <div class="timer-circle">
-            <svg viewBox="0 0 44 44">
-              <circle class="bg" cx="22" cy="22" r="19" />
-              <circle class="progress" id="timerProgress" cx="22" cy="22" r="19"
-                stroke-dasharray="119.38"
+            <svg viewBox="0 0 40 40">
+              <circle class="bg" cx="20" cy="20" r="17" />
+              <circle class="progress" id="timerProgress" cx="20" cy="20" r="17"
+                stroke-dasharray="106.81"
                 stroke-dashoffset="0" />
             </svg>
             <span class="timer-text" id="timerText">15:00</span>
@@ -739,10 +770,10 @@ HTML_TEMPLATE = '''
           <span class="timer-label">Auto-refresh</span>
         </div>
 
-        <div class="total-domains" id="totalDomains">Total: 0</div>
+        <div class="total-domains" id="totalDomains">Total Domains: 0</div>
 
         <button class="btn-refresh" id="btnRefresh" onclick="checkAll()">
-          <i class="fas fa-sync"></i> Refresh
+          <i class="fas fa-sync"></i> Refresh Status
         </button>
       </div>
     </div>
@@ -751,7 +782,7 @@ HTML_TEMPLATE = '''
       // ── PARTICLES ──
       (function createParticles() {
         const container = document.getElementById('particles');
-        const count = 30;
+        const count = 25;
         for (let i = 0; i < count; i++) {
           const particle = document.createElement('div');
           particle.className = 'particle';
@@ -760,7 +791,7 @@ HTML_TEMPLATE = '''
           particle.style.height = particle.style.width;
           particle.style.animationDuration = (Math.random() * 15 + 10) + 's';
           particle.style.animationDelay = (Math.random() * 15) + 's';
-          particle.style.opacity = Math.random() * 0.3 + 0.1;
+          particle.style.opacity = Math.random() * 0.3 + 0.05;
           container.appendChild(particle);
         }
       })();
@@ -769,9 +800,25 @@ HTML_TEMPLATE = '''
       const SERVICES = {{ services|tojson }};
       const AUTO_REFRESH_SEC = 15 * 60;
 
-      let results = SERVICES.map(() => ({ status: "up" }));
+      let results = SERVICES.map(() => ({ status: "up", ping: null }));
       let timerID = null;
       let timeLeft = AUTO_REFRESH_SEC;
+
+      // ── CHECK SINGLE SERVICE (with ping) ──
+      async function checkOne(url) {
+        const start = Date.now();
+        try {
+          const response = await fetch(url, {
+            method: "HEAD",
+            mode: "no-cors",
+            cache: "no-store",
+            signal: AbortSignal.timeout(10000),
+          });
+          return { status: "up", ping: Date.now() - start };
+        } catch {
+          return { status: "down", ping: null };
+        }
+      }
 
       // ── RENDER ──
       function renderList() {
@@ -788,23 +835,26 @@ HTML_TEMPLATE = '''
         for (const [brand, items] of Object.entries(groups)) {
           total += items.length;
           html += `<div class="brand-group">`;
-          html += `<div class="brand-header"><i class="fas fa-folder"></i> ${brand} <span class="count">${items.length}</span></div>`;
+          html += `<div class="brand-header"><i class="fas fa-folder"></i> ${brand} <span class="count">${items.length} domains</span></div>`;
           html += `<div class="status-list">`;
 
           items.forEach((svc) => {
-            const r = results[svc.index] || { status: "up" };
+            const r = results[svc.index] || { status: "up", ping: null };
             const cls = r.status || "up";
-            const badge = cls === "up" ? "AKTIF" : "IPOS";
+            const badge = cls === "up" ? "ACTIVE" : "DOWN";
             const icon = cls === "up" ? "fa-circle-check" : "fa-circle-xmark";
+            const pingDisplay = (r.ping !== null && r.ping !== undefined) ? `${r.ping} ms` : "—";
+            const pingClass = r.ping !== null ? "" : "down";
 
             html += `
               <a class="status-card ${cls}" href="${svc.url}" target="_blank" rel="noopener noreferrer">
                 <div class="status-icon"><i class="fas ${icon}"></i></div>
                 <div class="status-info">
-                  <div class="status-name">${svc.name}</div>
-                  <div class="status-url">${svc.url}</div>
+                  <span class="status-name">${svc.name}</span>
+                  <span class="status-url">${svc.url}</span>
                 </div>
                 <div class="status-right">
+                  <span class="status-ping ${pingClass}"><i class="fas fa-bolt"></i> ${pingDisplay}</span>
                   <span class="status-badge">${badge}</span>
                 </div>
               </a>`;
@@ -814,7 +864,7 @@ HTML_TEMPLATE = '''
         }
 
         container.innerHTML = html;
-        document.getElementById("totalDomains").textContent = `Total: ${total}`;
+        document.getElementById("totalDomains").textContent = `Total Domains: ${total}`;
       }
 
       // ── OVERALL ──
@@ -827,15 +877,15 @@ HTML_TEMPLATE = '''
 
         if (!anyDown) {
           badge.className = "overall-badge all-up";
-          text.textContent = "Semua Domain Normal";
+          text.textContent = "All Domains Normal";
           dot.className = "status-dot green";
-          label.textContent = "All Systems Go";
+          label.textContent = "Monitoring Active";
         } else {
           const downCount = results.filter(r => r.status === "down").length;
           badge.className = "overall-badge has-down";
-          text.textContent = `${downCount} Domain Bermasalah (IPOS)`;
+          text.textContent = `${downCount} Domain(s) Down`;
           dot.className = "status-dot red";
-          label.textContent = `${downCount} Issue(s)`;
+          label.textContent = `${downCount} Domain(s) Down`;
         }
       }
 
@@ -843,7 +893,7 @@ HTML_TEMPLATE = '''
       function updateTimer() {
         const progress = document.getElementById("timerProgress");
         const text = document.getElementById("timerText");
-        const circumference = 119.38;
+        const circumference = 106.81;
         const offset = circumference * (1 - timeLeft / AUTO_REFRESH_SEC);
         progress.style.strokeDashoffset = offset;
 
@@ -866,19 +916,36 @@ HTML_TEMPLATE = '''
         updateTimer();
       }
 
-      // ── CHECK ALL ──
+      // ── CHECK ALL (with real ping) ──
       async function checkAll() {
         const btn = document.getElementById("btnRefresh");
         btn.classList.add("spinning");
 
-        results = SERVICES.map(() => ({ status: "up" }));
+        // Set loading state
+        results = SERVICES.map(() => ({ status: "loading", ping: null }));
         renderList();
-        renderOverall();
 
+        // Check each domain with real ping
+        const batchSize = 10;
+        for (let i = 0; i < SERVICES.length; i += batchSize) {
+          const batch = SERVICES.slice(i, i + batchSize);
+          await Promise.all(
+            batch.map(async (svc, idx) => {
+              const realIdx = i + idx;
+              const r = await checkOne(svc.url);
+              results[realIdx] = r;
+              renderList();
+              renderOverall();
+            })
+          );
+        }
+
+        // Update last checked time
         const now = new Date();
         document.getElementById("lastChecked").textContent =
-          now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+          now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 
+        renderOverall();
         timeLeft = AUTO_REFRESH_SEC;
         updateTimer();
 
@@ -889,6 +956,11 @@ HTML_TEMPLATE = '''
       renderList();
       renderOverall();
       startTimer();
+
+      // Initial check after page load
+      setTimeout(() => {
+        checkAll();
+      }, 500);
     </script>
   </body>
 </html>
