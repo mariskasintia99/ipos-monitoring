@@ -213,50 +213,83 @@ def run_api_check():
     log("SUCCESS", "Pengecekan Nawala Selesai!")
     return log_buffer
 
-# --- HTML TEMPLATE (MODERN DENGAN ANIMASI TIMER) ---
+# --- HTML TEMPLATE (BESAR, JELAS, BERANIMASI) ---
 HTML_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Status — IPOS Monitoring</title>
+    <title>IPOS Monitor</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-      :root {
-        --bg: #0d0d0d;
-        --card: #1a1a1a;
-        --border: #2a2a2a;
-        --accent: #e50914;
-        --green: #00e676;
-        --red: #ff1744;
-        --yellow: #ffea00;
-        --text: #f5f5f5;
-        --muted: #888;
-        --glow-green: 0 0 20px rgba(0, 230, 118, 0.3);
-        --glow-red: 0 0 20px rgba(255, 23, 68, 0.3);
+      body {
+        font-family: "Inter", -apple-system, sans-serif;
+        height: 100vh;
+        overflow: hidden;
+        background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
       }
 
-      html, body {
+      @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+
+      /* Floating particles */
+      .particles {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
         height: 100%;
-        margin: 0;
-        padding: 0;
-        background: var(--bg);
-        color: var(--text);
-        font-family: "Inter", -apple-system, sans-serif;
+        pointer-events: none;
+        z-index: 0;
         overflow: hidden;
+      }
+
+      .particle {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        animation: float linear infinite;
+      }
+
+      @keyframes float {
+        0% { transform: translateY(100vh) scale(0); opacity: 0; }
+        10% { opacity: 1; }
+        90% { opacity: 1; }
+        100% { transform: translateY(-10vh) scale(1); opacity: 0; }
       }
 
       .app-container {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 1200px;
+        height: 100%;
+        max-height: 800px;
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 20px 28px 16px;
         display: flex;
         flex-direction: column;
-        height: 100vh;
-        max-height: 100vh;
-        padding: 12px 24px 10px;
-        overflow: hidden;
+        box-shadow: 0 25px 60px rgba(0,0,0,0.6);
       }
 
       /* ── HEADER ── */
@@ -264,126 +297,125 @@ HTML_TEMPLATE = '''
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 8px 0 6px;
-        border-bottom: 2px solid var(--accent);
         flex-shrink: 0;
+        padding-bottom: 10px;
+        border-bottom: 2px solid rgba(255,255,255,0.08);
       }
 
       .logo {
-        font-size: 1.6rem;
+        font-size: 1.8rem;
         font-weight: 900;
         letter-spacing: -0.5px;
-        background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+        background: linear-gradient(135deg, #fff 30%, #f093fb 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
       }
 
       .logo i {
-        -webkit-text-fill-color: var(--accent);
-        margin-right: 6px;
+        -webkit-text-fill-color: #f093fb;
+        margin-right: 8px;
       }
 
       .header-status {
-        font-size: 0.75rem;
-        color: var(--muted);
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
+        font-size: 0.85rem;
+        color: rgba(255,255,255,0.6);
       }
 
-      .header-status .dot {
-        width: 8px;
-        height: 8px;
+      .status-dot {
+        width: 12px;
+        height: 12px;
         border-radius: 50%;
         display: inline-block;
-        animation: pulse-dot 1.5s infinite;
+        animation: pulse-dot 1.5s ease-in-out infinite;
       }
 
-      .header-status .dot.green { background: var(--green); box-shadow: var(--glow-green); }
-      .header-status .dot.red { background: var(--red); box-shadow: var(--glow-red); }
+      .status-dot.green { background: #00e676; box-shadow: 0 0 20px rgba(0, 230, 118, 0.4); }
+      .status-dot.red { background: #ff1744; box-shadow: 0 0 20px rgba(255, 23, 68, 0.4); }
 
       @keyframes pulse-dot {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.4; transform: scale(0.8); }
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.3); opacity: 0.6; }
       }
 
       /* ── HERO ── */
       .hero {
         text-align: center;
-        padding: 10px 0 6px;
         flex-shrink: 0;
+        padding: 10px 0 6px;
       }
 
       .hero h1 {
-        font-size: 1.4rem;
+        font-size: 1.6rem;
         font-weight: 800;
         letter-spacing: -0.5px;
       }
 
       .hero p {
-        color: var(--muted);
-        font-size: 0.8rem;
+        color: rgba(255,255,255,0.5);
+        font-size: 0.9rem;
         margin-top: 2px;
       }
 
-      /* ── OVERALL BADGE ── */
       .overall-badge {
         display: inline-flex;
         align-items: center;
         gap: 10px;
-        padding: 6px 22px;
+        padding: 8px 28px;
         border-radius: 50px;
-        font-size: 0.95rem;
+        font-size: 1.1rem;
         font-weight: 700;
-        margin-top: 4px;
+        margin-top: 6px;
         transition: all 0.4s;
       }
 
       .overall-badge.all-up {
-        background: rgba(0, 230, 118, 0.12);
-        color: var(--green);
-        border: 1.5px solid var(--green);
-        box-shadow: var(--glow-green);
+        background: rgba(0, 230, 118, 0.15);
+        color: #00e676;
+        border: 1.5px solid rgba(0, 230, 118, 0.3);
+        box-shadow: 0 0 30px rgba(0, 230, 118, 0.1);
       }
       .overall-badge.has-down {
-        background: rgba(255, 23, 68, 0.12);
-        color: var(--red);
-        border: 1.5px solid var(--red);
-        box-shadow: var(--glow-red);
+        background: rgba(255, 23, 68, 0.15);
+        color: #ff1744;
+        border: 1.5px solid rgba(255, 23, 68, 0.3);
+        box-shadow: 0 0 30px rgba(255, 23, 68, 0.1);
       }
 
       .overall-badge .pulse-icon {
-        width: 10px;
-        height: 10px;
+        width: 12px;
+        height: 12px;
         border-radius: 50%;
         display: inline-block;
         animation: pulse-badge 1.2s ease-in-out infinite;
       }
-      .all-up .pulse-icon { background: var(--green); }
-      .has-down .pulse-icon { background: var(--red); }
+      .all-up .pulse-icon { background: #00e676; }
+      .has-down .pulse-icon { background: #ff1744; }
 
       @keyframes pulse-badge {
         0%, 100% { transform: scale(1); opacity: 1; }
-        50% { transform: scale(1.4); opacity: 0.6; }
+        50% { transform: scale(1.5); opacity: 0.5; }
       }
 
-      /* ── MAIN CONTENT ── */
+      /* ── MAIN ── */
       main {
         flex: 1;
         min-height: 0;
         display: flex;
         flex-direction: column;
-        padding: 6px 0 0;
+        padding-top: 6px;
         overflow: hidden;
       }
 
       .section-title {
-        font-size: 0.65rem;
+        font-size: 0.7rem;
         font-weight: 700;
-        letter-spacing: 1.5px;
+        letter-spacing: 2px;
         text-transform: uppercase;
-        color: var(--muted);
+        color: rgba(255,255,255,0.3);
         flex-shrink: 0;
         padding-bottom: 4px;
       }
@@ -391,202 +423,172 @@ HTML_TEMPLATE = '''
       .status-scroll {
         flex: 1;
         overflow-y: auto;
-        padding-right: 4px;
+        padding-right: 6px;
       }
 
       .status-scroll::-webkit-scrollbar {
         width: 4px;
       }
       .status-scroll::-webkit-scrollbar-track {
-        background: var(--border);
+        background: rgba(255,255,255,0.05);
         border-radius: 4px;
       }
       .status-scroll::-webkit-scrollbar-thumb {
-        background: var(--accent);
+        background: rgba(255,255,255,0.2);
         border-radius: 4px;
       }
 
       .brand-group {
-        margin-bottom: 6px;
+        margin-bottom: 8px;
       }
 
       .brand-header {
-        font-size: 0.8rem;
+        font-size: 1rem;
         font-weight: 700;
-        color: var(--accent);
-        padding: 3px 0 2px;
-        border-bottom: 1px solid var(--border);
-        margin-bottom: 4px;
+        color: #f093fb;
+        padding: 4px 0 2px;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        margin-bottom: 6px;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
       }
 
       .brand-header .count {
-        font-size: 0.6rem;
+        font-size: 0.7rem;
         font-weight: 400;
-        color: var(--muted);
-        background: var(--border);
-        padding: 1px 8px;
-        border-radius: 10px;
+        color: rgba(255,255,255,0.3);
+        background: rgba(255,255,255,0.06);
+        padding: 1px 10px;
+        border-radius: 12px;
       }
 
       .status-list {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 4px;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 6px;
       }
 
       .status-card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        padding: 4px 10px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
+        padding: 10px 14px;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 12px;
         text-decoration: none;
-        color: inherit;
-        transition: all 0.25s ease;
+        color: #fff;
+        transition: all 0.3s ease;
         cursor: pointer;
-        min-height: 32px;
+        min-height: 48px;
       }
 
       .status-card:hover {
-        border-color: var(--accent);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.3);
       }
 
-      .status-card.up { border-left: 3px solid var(--green); }
-      .status-card.down { border-left: 3px solid var(--red); }
+      .status-card.up { border-left: 4px solid #00e676; }
+      .status-card.down { border-left: 4px solid #ff1744; }
 
       .status-icon {
-        font-size: 0.8rem;
-        width: 20px;
+        font-size: 1.2rem;
+        width: 28px;
         text-align: center;
         flex-shrink: 0;
       }
-      .up .status-icon { color: var(--green); }
-      .down .status-icon { color: var(--red); }
+      .up .status-icon { color: #00e676; }
+      .down .status-icon { color: #ff1744; }
 
       .status-info {
         flex: 1;
         min-width: 0;
-        display: flex;
-        flex-direction: column;
       }
 
       .status-name {
-        font-size: 0.7rem;
-        font-weight: 600;
+        font-size: 0.95rem;
+        font-weight: 700;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
       }
 
       .status-url {
-        font-size: 0.55rem;
-        color: var(--muted);
+        font-size: 0.7rem;
+        color: rgba(255,255,255,0.3);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
       }
 
       .status-right {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
         flex-shrink: 0;
-        gap: 1px;
       }
 
       .status-badge {
-        font-size: 0.55rem;
+        font-size: 0.7rem;
         font-weight: 700;
-        padding: 1px 8px;
-        border-radius: 10px;
-        letter-spacing: 0.3px;
+        padding: 3px 14px;
+        border-radius: 20px;
+        letter-spacing: 0.5px;
       }
       .up .status-badge {
         background: rgba(0, 230, 118, 0.15);
-        color: var(--green);
+        color: #00e676;
       }
       .down .status-badge {
         background: rgba(255, 23, 68, 0.15);
-        color: var(--red);
+        color: #ff1744;
       }
 
-      /* ── FOOTER CONTROLS ── */
+      /* ── FOOTER ── */
       .footer-controls {
         flex-shrink: 0;
-        padding-top: 6px;
-        border-top: 1px solid var(--border);
+        padding-top: 10px;
+        border-top: 1px solid rgba(255,255,255,0.06);
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
+        gap: 16px;
         flex-wrap: wrap;
       }
 
       .last-checked {
-        font-size: 0.65rem;
-        color: var(--muted);
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.4);
       }
-      .last-checked span { color: var(--text); font-weight: 500; }
+      .last-checked span { color: rgba(255,255,255,0.7); font-weight: 500; }
 
-      .btn-refresh {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 5px 16px;
-        background: var(--accent);
-        color: #fff;
-        border: none;
-        border-radius: 6px;
-        font-family: inherit;
-        font-size: 0.7rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.25s;
-      }
-      .btn-refresh:hover {
-        background: #b71c1c;
-        transform: scale(1.03);
-      }
-      .btn-refresh.spinning i { animation: spin 0.7s linear infinite; }
-
-      @keyframes spin { to { transform: rotate(360deg); } }
-
-      /* ── TIMER CIRCLE ── */
       .timer-wrapper {
         display: flex;
         align-items: center;
-        gap: 10px;
-        flex-shrink: 0;
+        gap: 12px;
       }
 
       .timer-circle {
         position: relative;
-        width: 36px;
-        height: 36px;
+        width: 44px;
+        height: 44px;
       }
 
       .timer-circle svg {
         transform: rotate(-90deg);
-        width: 36px;
-        height: 36px;
+        width: 44px;
+        height: 44px;
       }
 
       .timer-circle .bg {
         fill: none;
-        stroke: var(--border);
+        stroke: rgba(255,255,255,0.08);
         stroke-width: 3;
       }
 
       .timer-circle .progress {
         fill: none;
-        stroke: var(--accent);
+        stroke: #f093fb;
         stroke-width: 3;
         stroke-linecap: round;
         transition: stroke-dashoffset 0.3s linear;
@@ -597,49 +599,108 @@ HTML_TEMPLATE = '''
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        font-size: 0.55rem;
+        font-size: 0.7rem;
         font-weight: 700;
-        color: var(--text);
+        color: #fff;
         font-variant-numeric: tabular-nums;
       }
 
       .timer-label {
-        font-size: 0.6rem;
-        color: var(--muted);
+        font-size: 0.7rem;
+        color: rgba(255,255,255,0.3);
       }
 
       .total-domains {
-        font-size: 0.6rem;
-        color: var(--muted);
-        flex-shrink: 0;
+        font-size: 0.85rem;
+        color: rgba(255,255,255,0.4);
+        font-weight: 600;
       }
 
+      .btn-refresh {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 22px;
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 0.8rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .btn-refresh:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 30px rgba(245, 87, 108, 0.3);
+      }
+      .btn-refresh.spinning i { animation: spin 0.7s linear infinite; }
+
+      @keyframes spin { to { transform: rotate(360deg); } }
+
       /* ── RESPONSIVE ── */
-      @media (max-width: 640px) {
-        .app-container { padding: 8px 12px 6px; }
-        .logo { font-size: 1.2rem; }
-        .hero h1 { font-size: 1.1rem; }
+      @media (max-width: 768px) {
+        .app-container { padding: 14px 16px 12px; max-height: 100vh; border-radius: 16px; }
+        .logo { font-size: 1.3rem; }
+        .hero h1 { font-size: 1.2rem; }
+        .status-list { grid-template-columns: 1fr 1fr; }
+        .status-name { font-size: 0.8rem; }
+        .status-card { padding: 8px 10px; min-height: 40px; }
+        .overall-badge { font-size: 0.85rem; padding: 6px 18px; }
+        .footer-controls { gap: 8px; }
+        .timer-circle { width: 36px; height: 36px; }
+        .timer-circle svg { width: 36px; height: 36px; }
+        .timer-text { font-size: 0.6rem; }
+      }
+
+      @media (max-width: 480px) {
+        .app-container { padding: 10px 10px 8px; border-radius: 12px; }
+        .logo { font-size: 1rem; }
+        .hero h1 { font-size: 1rem; }
+        .hero p { font-size: 0.7rem; }
         .status-list { grid-template-columns: 1fr; }
-        .timer-wrapper { gap: 6px; }
+        .status-name { font-size: 0.75rem; }
+        .status-url { font-size: 0.6rem; }
+        .status-card { padding: 6px 10px; min-height: 36px; gap: 8px; }
+        .status-icon { font-size: 0.9rem; width: 22px; }
+        .status-badge { font-size: 0.6rem; padding: 2px 10px; }
+        .overall-badge { font-size: 0.7rem; padding: 4px 14px; }
+        .header-status { font-size: 0.65rem; }
+        .footer-controls { gap: 6px; }
+        .last-checked { font-size: 0.6rem; }
+        .total-domains { font-size: 0.65rem; }
+        .btn-refresh { font-size: 0.65rem; padding: 5px 14px; }
         .timer-circle { width: 30px; height: 30px; }
         .timer-circle svg { width: 30px; height: 30px; }
-        .header-status { font-size: 0.6rem; }
-        .overall-badge { font-size: 0.75rem; padding: 4px 14px; }
+        .timer-text { font-size: 0.5rem; }
+        .timer-label { font-size: 0.55rem; }
+        .brand-header { font-size: 0.8rem; }
       }
 
       @media (min-width: 1024px) {
         .status-list { grid-template-columns: 1fr 1fr 1fr; }
       }
+
+      @media (min-width: 1400px) {
+        .status-list { grid-template-columns: 1fr 1fr 1fr 1fr; }
+        .status-name { font-size: 1.1rem; }
+        .status-card { padding: 14px 18px; min-height: 56px; }
+      }
     </style>
   </head>
   <body>
+
+    <!-- Floating Particles -->
+    <div class="particles" id="particles"></div>
+
     <div class="app-container">
       <!-- HEADER -->
       <header>
-        <div class="logo"><i class="fas fa-shield-halved"></i>IPOS<span style="-webkit-text-fill-color:var(--accent);">Monitor</span></div>
+        <div class="logo"><i class="fas fa-shield-halved"></i>IPOS<span style="-webkit-text-fill-color:#f093fb;">Monitor</span></div>
         <div class="header-status">
-          <span class="dot green" id="statusDot"></span>
-          <span id="statusLabel">Online</span>
+          <span class="status-dot green" id="statusDot"></span>
+          <span id="statusLabel">All Systems Go</span>
         </div>
       </header>
 
@@ -659,7 +720,7 @@ HTML_TEMPLATE = '''
         <div class="status-scroll" id="statusContainer"></div>
       </main>
 
-      <!-- FOOTER CONTROLS -->
+      <!-- FOOTER -->
       <div class="footer-controls">
         <div class="last-checked">
           <i class="fas fa-clock"></i>&nbsp; <span id="lastChecked">—</span>
@@ -667,10 +728,10 @@ HTML_TEMPLATE = '''
 
         <div class="timer-wrapper">
           <div class="timer-circle">
-            <svg viewBox="0 0 36 36">
-              <circle class="bg" cx="18" cy="18" r="15.5" />
-              <circle class="progress" id="timerProgress" cx="18" cy="18" r="15.5"
-                stroke-dasharray="97.39"
+            <svg viewBox="0 0 44 44">
+              <circle class="bg" cx="22" cy="22" r="19" />
+              <circle class="progress" id="timerProgress" cx="22" cy="22" r="19"
+                stroke-dasharray="119.38"
                 stroke-dashoffset="0" />
             </svg>
             <span class="timer-text" id="timerText">15:00</span>
@@ -687,12 +748,29 @@ HTML_TEMPLATE = '''
     </div>
 
     <script>
+      // ── PARTICLES ──
+      (function createParticles() {
+        const container = document.getElementById('particles');
+        const count = 30;
+        for (let i = 0; i < count; i++) {
+          const particle = document.createElement('div');
+          particle.className = 'particle';
+          particle.style.left = Math.random() * 100 + '%';
+          particle.style.width = (Math.random() * 4 + 2) + 'px';
+          particle.style.height = particle.style.width;
+          particle.style.animationDuration = (Math.random() * 15 + 10) + 's';
+          particle.style.animationDelay = (Math.random() * 15) + 's';
+          particle.style.opacity = Math.random() * 0.3 + 0.1;
+          container.appendChild(particle);
+        }
+      })();
+
+      // ── DATA ──
       const SERVICES = {{ services|tojson }};
       const AUTO_REFRESH_SEC = 15 * 60;
 
       let results = SERVICES.map(() => ({ status: "up" }));
       let timerID = null;
-      let animID = null;
       let timeLeft = AUTO_REFRESH_SEC;
 
       // ── RENDER ──
@@ -739,11 +817,10 @@ HTML_TEMPLATE = '''
         document.getElementById("totalDomains").textContent = `Total: ${total}`;
       }
 
-      // ── OVERALL STATUS ──
+      // ── OVERALL ──
       function renderOverall() {
         const badge = document.getElementById("overallBadge");
         const text = document.getElementById("overallText");
-        const allUp = results.every(r => r.status === "up");
         const anyDown = results.some(r => r.status === "down");
         const dot = document.getElementById("statusDot");
         const label = document.getElementById("statusLabel");
@@ -751,13 +828,13 @@ HTML_TEMPLATE = '''
         if (!anyDown) {
           badge.className = "overall-badge all-up";
           text.textContent = "Semua Domain Normal";
-          dot.className = "dot green";
+          dot.className = "status-dot green";
           label.textContent = "All Systems Go";
         } else {
           const downCount = results.filter(r => r.status === "down").length;
           badge.className = "overall-badge has-down";
           text.textContent = `${downCount} Domain Bermasalah (IPOS)`;
-          dot.className = "dot red";
+          dot.className = "status-dot red";
           label.textContent = `${downCount} Issue(s)`;
         }
       }
@@ -766,7 +843,7 @@ HTML_TEMPLATE = '''
       function updateTimer() {
         const progress = document.getElementById("timerProgress");
         const text = document.getElementById("timerText");
-        const circumference = 97.39;
+        const circumference = 119.38;
         const offset = circumference * (1 - timeLeft / AUTO_REFRESH_SEC);
         progress.style.strokeDashoffset = offset;
 
