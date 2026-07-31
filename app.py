@@ -254,6 +254,9 @@ HTML_TEMPLATE = '''
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>IPOS Monitoring</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>" />
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
@@ -548,6 +551,7 @@ HTML_TEMPLATE = '''
         align-items: center;
         gap: 5px;
         height: 28px;
+        flex-shrink: 0;
       }
       .copy-all-btn:hover {
         background: rgba(255,255,255,0.08);
@@ -806,6 +810,7 @@ HTML_TEMPLATE = '''
         font-size: 0.85rem;
         color: rgba(255,255,255,0.35);
         font-weight: 600;
+        flex-shrink: 0;
       }
 
       .footer-copyright {
