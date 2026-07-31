@@ -107,9 +107,9 @@ def check_service_status(url):
         ping_ms = int((time.time() - start) * 1000)
         if response.status_code < 400:
             return {"status": "active", "ping": ping_ms}
-        return {"status": "active", "ping": None}  # Always active if in KV
+        return {"status": "active", "ping": None}
     except:
-        return {"status": "active", "ping": None}  # Always active if in KV
+        return {"status": "active", "ping": None}
 
 # --- MESIN UTAMA (MULTI-KEY & AUTO FAILOVER) ---
 def run_api_check():
@@ -696,6 +696,25 @@ HTML_TEMPLATE = '''
         flex-shrink: 0;
       }
 
+      /* ── FOOTER COPYRIGHT ── */
+      .footer-copyright {
+        text-align: center;
+        padding: 6px 0 0;
+        font-size: 0.65rem;
+        color: rgba(255,255,255,0.2);
+        flex-shrink: 0;
+        border-top: 1px solid rgba(255,255,255,0.04);
+        margin-top: 4px;
+      }
+      .footer-copyright a {
+        color: rgba(255,255,255,0.3);
+        text-decoration: none;
+        transition: color 0.3s;
+      }
+      .footer-copyright a:hover {
+        color: #f093fb;
+      }
+
       /* ── RESPONSIVE ── */
       @media (max-width: 768px) {
         .app-container { padding: 14px 16px 12px; max-height: 100vh; border-radius: 16px; }
@@ -720,6 +739,7 @@ HTML_TEMPLATE = '''
         .header-status { font-size: 0.7rem; }
         .status-right { gap: 8px; }
         .patrol-result { font-size: 0.6rem; }
+        .footer-copyright { font-size: 0.55rem; }
       }
 
       @media (max-width: 480px) {
@@ -747,6 +767,7 @@ HTML_TEMPLATE = '''
         .status-dot { width: 8px; height: 8px; }
         .status-right { gap: 6px; }
         .patrol-result { font-size: 0.5rem; }
+        .footer-copyright { font-size: 0.5rem; }
       }
     </style>
   </head>
@@ -806,7 +827,14 @@ HTML_TEMPLATE = '''
           <i class="fas fa-sync"></i> Refresh Status
         </button>
       </div>
+      
+      <!-- PATROL RESULT -->
       <div class="patrol-result" id="patrolResult">Last patrol: Not run yet</div>
+      
+      <!-- COPYRIGHT -->
+      <div class="footer-copyright">
+        &copy; 2025 IPOS Monitoring — <a href="/">Back to Dashboard</a>
+      </div>
     </div>
 
     <script>
