@@ -425,6 +425,35 @@ HTML_TEMPLATE = '''
         color: rgba(255,255,255,0.25);
         flex-shrink: 0;
         padding-bottom: 4px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .copy-all-btn {
+        font-size: 0.6rem;
+        font-weight: 600;
+        color: rgba(255,255,255,0.4);
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.1);
+        padding: 3px 12px;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-family: inherit;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .copy-all-btn:hover {
+        background: rgba(255,255,255,0.12);
+        color: #fff;
+        border-color: rgba(255,255,255,0.2);
+      }
+      .copy-all-btn.copied {
+        background: rgba(0, 230, 118, 0.15);
+        color: #00e676;
+        border-color: rgba(0, 230, 118, 0.3);
       }
 
       .status-scroll {
@@ -487,7 +516,6 @@ HTML_TEMPLATE = '''
         text-decoration: none;
         color: #fff;
         transition: all 0.25s ease;
-        cursor: pointer;
         min-height: 44px;
       }
 
@@ -534,20 +562,8 @@ HTML_TEMPLATE = '''
       .status-right {
         display: flex;
         align-items: center;
-        gap: 14px;
+        gap: 10px;
         flex-shrink: 0;
-      }
-
-      .status-ping {
-        font-size: 0.7rem;
-        color: rgba(255,255,255,0.4);
-        font-weight: 600;
-        min-width: 60px;
-        text-align: right;
-      }
-      .status-ping .fa-bolt {
-        color: #f093fb;
-        margin-right: 4px;
       }
 
       .status-badge {
@@ -564,6 +580,35 @@ HTML_TEMPLATE = '''
       .ipos .status-badge {
         background: rgba(255, 23, 68, 0.12);
         color: #ff1744;
+      }
+
+      .copy-btn {
+        font-size: 0.7rem;
+        color: rgba(255,255,255,0.3);
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.08);
+        padding: 2px 10px;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-family: inherit;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        white-space: nowrap;
+      }
+      .copy-btn:hover {
+        background: rgba(255,255,255,0.1);
+        color: #fff;
+        border-color: rgba(255,255,255,0.2);
+      }
+      .copy-btn.copied {
+        background: rgba(0, 230, 118, 0.15);
+        color: #00e676;
+        border-color: rgba(0, 230, 118, 0.3);
+      }
+      .copy-btn i {
+        font-size: 0.6rem;
       }
 
       .footer-controls {
@@ -678,6 +723,28 @@ HTML_TEMPLATE = '''
         color: #f093fb;
       }
 
+      .toast {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 230, 118, 0.9);
+        color: #fff;
+        padding: 10px 24px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        opacity: 0;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        pointer-events: none;
+        z-index: 999;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+
       @media (max-width: 768px) {
         .app-container { padding: 14px 16px 12px; max-height: 100vh; border-radius: 16px; }
         .logo { font-size: 1.2rem; }
@@ -685,10 +752,11 @@ HTML_TEMPLATE = '''
         .brand-header { font-size: 0.9rem; }
         .status-name { font-size: 0.8rem; }
         .status-url { font-size: 0.6rem; }
-        .status-ping { font-size: 0.6rem; min-width: 50px; }
         .status-card { padding: 6px 12px; min-height: 38px; gap: 10px; }
         .status-info { gap: 8px; }
         .status-badge { font-size: 0.6rem; padding: 2px 12px; }
+        .copy-btn { font-size: 0.6rem; padding: 1px 8px; }
+        .copy-all-btn { font-size: 0.55rem; padding: 2px 10px; }
         .overall-badge { font-size: 0.8rem; padding: 4px 16px; }
         .footer-controls { gap: 8px; }
         .last-checked { font-size: 0.65rem; }
@@ -699,7 +767,7 @@ HTML_TEMPLATE = '''
         .timer-text { font-size: 0.5rem; }
         .timer-label { font-size: 0.55rem; }
         .header-status { font-size: 0.7rem; }
-        .status-right { gap: 8px; }
+        .status-right { gap: 6px; }
         .footer-copyright { font-size: 0.55rem; }
       }
 
@@ -711,10 +779,12 @@ HTML_TEMPLATE = '''
         .brand-header { font-size: 0.75rem; }
         .status-name { font-size: 0.7rem; }
         .status-url { font-size: 0.5rem; display: none; }
-        .status-ping { font-size: 0.5rem; min-width: 40px; }
         .status-card { padding: 5px 10px; min-height: 32px; gap: 8px; }
         .status-icon { font-size: 0.8rem; width: 20px; }
         .status-badge { font-size: 0.5rem; padding: 1px 10px; }
+        .copy-btn { font-size: 0.5rem; padding: 1px 6px; }
+        .copy-btn i { font-size: 0.5rem; }
+        .copy-all-btn { font-size: 0.5rem; padding: 1px 8px; }
         .overall-badge { font-size: 0.65rem; padding: 3px 12px; gap: 6px; }
         .footer-controls { gap: 6px; }
         .last-checked { font-size: 0.55rem; }
@@ -726,8 +796,9 @@ HTML_TEMPLATE = '''
         .timer-label { font-size: 0.5rem; }
         .header-status { font-size: 0.6rem; }
         .status-dot { width: 8px; height: 8px; }
-        .status-right { gap: 6px; }
+        .status-right { gap: 4px; }
         .footer-copyright { font-size: 0.5rem; }
+        .toast { font-size: 0.7rem; padding: 8px 16px; bottom: 20px; }
       }
     </style>
   </head>
@@ -754,7 +825,12 @@ HTML_TEMPLATE = '''
       </div>
 
       <main>
-        <div class="section-title"><i class="fas fa-server"></i>&nbsp; Domain List</div>
+        <div class="section-title">
+          <span><i class="fas fa-server"></i>&nbsp; Domain List</span>
+          <button class="copy-all-btn" id="copyAllBtn" onclick="copyAll()">
+            <i class="fas fa-copy"></i> Copy All
+          </button>
+        </div>
         <div class="status-scroll" id="statusContainer"></div>
       </main>
 
@@ -788,6 +864,9 @@ HTML_TEMPLATE = '''
       </div>
     </div>
 
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
     <script>
       // ── PARTICLES ──
       (function createParticles() {
@@ -806,34 +885,24 @@ HTML_TEMPLATE = '''
         }
       })();
 
+      // ── TOAST ──
+      function showToast(message) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.classList.add('show');
+        clearTimeout(toast._timeout);
+        toast._timeout = setTimeout(() => {
+          toast.classList.remove('show');
+        }, 2000);
+      }
+
       // ── DATA ──
       const SERVICES = {{ services|tojson }};
       const IPOS_DOMAINS = {{ ipos_domains|tojson }};
       const AUTO_REFRESH_SEC = 15 * 60;
 
-      let results = SERVICES.map(() => ({ status: "active", ping: null }));
       let timerID = null;
       let timeLeft = AUTO_REFRESH_SEC;
-      let isUpdating = false;
-
-      // ── CHECK SINGLE SERVICE (HEAD with no-cors) ──
-      async function checkOne(url) {
-        const start = Date.now();
-        try {
-          const response = await fetch(url, {
-            method: "HEAD",
-            mode: "no-cors",
-            cache: "no-store",
-            signal: AbortSignal.timeout(10000),
-          });
-          // no-cors mode returns opaque response, but we can still measure time
-          const ping = Date.now() - start;
-          return { status: "active", ping: ping };
-        } catch (error) {
-          // Timeout or error
-          return { status: "active", ping: null };
-        }
-      }
 
       // ── RENDER ──
       function renderList() {
@@ -842,10 +911,10 @@ HTML_TEMPLATE = '''
         
         const iposSet = new Set(IPOS_DOMAINS.map(d => d.toLowerCase()));
         
-        SERVICES.forEach((svc, i) => {
+        SERVICES.forEach((svc) => {
           if (!groups[svc.brand]) groups[svc.brand] = [];
           const isIpos = iposSet.has(svc.name.toLowerCase());
-          groups[svc.brand].push({ ...svc, index: i, isIpos: isIpos });
+          groups[svc.brand].push({ ...svc, isIpos: isIpos });
         });
 
         let html = '';
@@ -858,25 +927,25 @@ HTML_TEMPLATE = '''
           html += `<div class="status-list">`;
 
           items.forEach((svc) => {
-            const r = results[svc.index] || { status: "active", ping: null };
             const isIpos = svc.isIpos;
             const cls = isIpos ? "ipos" : "active";
             const badge = isIpos ? "IPOS" : "ACTIVE";
             const icon = isIpos ? "fa-circle-xmark" : "fa-circle-check";
-            const pingDisplay = (r.ping !== null && r.ping !== undefined) ? `${r.ping} ms` : "—";
 
             html += `
-              <a class="status-card ${cls}" href="${svc.url}" target="_blank" rel="noopener noreferrer">
+              <div class="status-card ${cls}">
                 <div class="status-icon"><i class="fas ${icon}"></i></div>
                 <div class="status-info">
                   <span class="status-name">${svc.name}</span>
                   <span class="status-url">${svc.url}</span>
                 </div>
                 <div class="status-right">
-                  <span class="status-ping"><i class="fas fa-bolt"></i> ${pingDisplay}</span>
+                  <button class="copy-btn" onclick="copyDomain('${svc.name}')" title="Copy domain">
+                    <i class="fas fa-copy"></i> Copy
+                  </button>
                   <span class="status-badge">${badge}</span>
                 </div>
-              </a>`;
+              </div>`;
           });
 
           html += `</div></div>`;
@@ -908,6 +977,60 @@ HTML_TEMPLATE = '''
         }
       }
 
+      // ── COPY SINGLE DOMAIN ──
+      function copyDomain(domain) {
+        navigator.clipboard.writeText(domain).then(() => {
+          showToast(`Copied: ${domain}`);
+          // Visual feedback on button
+          const buttons = document.querySelectorAll('.copy-btn');
+          buttons.forEach(btn => {
+            if (btn.textContent.trim() === 'Copy' && btn.closest('.status-card').querySelector('.status-name').textContent === domain) {
+              btn.classList.add('copied');
+              btn.innerHTML = '<i class="fas fa-check"></i> Copied';
+              setTimeout(() => {
+                btn.classList.remove('copied');
+                btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+              }, 1500);
+            }
+          });
+        }).catch(() => {
+          // Fallback
+          const textArea = document.createElement('textarea');
+          textArea.value = domain;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          showToast(`Copied: ${domain}`);
+        });
+      }
+
+      // ── COPY ALL DOMAINS ──
+      function copyAll() {
+        const domains = SERVICES.map(svc => svc.name);
+        const text = domains.join('\\n');
+        
+        navigator.clipboard.writeText(text).then(() => {
+          showToast(`Copied ${domains.length} domains`);
+          const btn = document.getElementById('copyAllBtn');
+          btn.classList.add('copied');
+          btn.innerHTML = '<i class="fas fa-check"></i> Copied All';
+          setTimeout(() => {
+            btn.classList.remove('copied');
+            btn.innerHTML = '<i class="fas fa-copy"></i> Copy All';
+          }, 2000);
+        }).catch(() => {
+          // Fallback
+          const textArea = document.createElement('textarea');
+          textArea.value = text;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          showToast(`Copied ${domains.length} domains`);
+        });
+      }
+
       // ── TIMER ──
       function updateTimer() {
         const progress = document.getElementById("timerProgress");
@@ -937,41 +1060,17 @@ HTML_TEMPLATE = '''
 
       // ── REFRESH ALL ──
       async function refreshAll() {
-        if (isUpdating) return;
-        isUpdating = true;
-
         const btn = document.getElementById("btnRefresh");
         btn.classList.add("spinning");
-
-        results = SERVICES.map(() => ({ status: "active", ping: null }));
-        renderList();
-
-        const batchSize = 5;
-        for (let i = 0; i < SERVICES.length; i += batchSize) {
-          const batch = SERVICES.slice(i, i + batchSize);
-          await Promise.all(
-            batch.map(async (svc, idx) => {
-              const realIdx = i + idx;
-              const r = await checkOne(svc.url);
-              results[realIdx] = r;
-              renderList();
-            })
-          );
-          if (i + batchSize < SERVICES.length) {
-            await new Promise(resolve => setTimeout(resolve, 500));
-          }
-        }
 
         const now = new Date();
         document.getElementById("lastChecked").textContent =
           now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 
-        renderOverall();
         timeLeft = AUTO_REFRESH_SEC;
         updateTimer();
 
         btn.classList.remove("spinning");
-        isUpdating = false;
       }
 
       // ── FETCH IPOS STATUS ──
@@ -994,10 +1093,6 @@ HTML_TEMPLATE = '''
       renderList();
       renderOverall();
       startTimer();
-
-      setTimeout(() => {
-        refreshAll();
-      }, 500);
 
       setInterval(fetchIposStatus, 30000);
       
