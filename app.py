@@ -228,7 +228,7 @@ def run_check():
         log("INFO", "Mengirim laporan Telegram...")
         waktu_str = (datetime.now(timezone.utc) + timedelta(hours=7)).strftime("%d/%m/%Y, %H:%M:%S WIB")
         garis = "---------------------------------------"
-        msg = f"📅 Waktu: {waktu_str}\n🌐 Source: Nawala.link\n\n"
+        msg = f"📅 Waktu: {waktu_str}\n🌐 Source: Nawala.in (Auto Check Ipos)\n\n"
         for r in global_report:
             msg += f"🍄 UPDATE LINK [{r['name']}]\n{garis}\n"
             for d in r['removed']: 
@@ -318,7 +318,7 @@ HTML_TEMPLATE = '''
         -webkit-backdrop-filter: blur(20px);
         border-radius: 24px;
         border: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 16px 24px 12px;
+        padding: 14px 22px 10px;
         display: flex;
         flex-direction: column;
         box-shadow: 0 25px 60px rgba(0,0,0,0.6);
@@ -334,7 +334,7 @@ HTML_TEMPLATE = '''
       }
 
       .logo {
-        font-size: 1.4rem;
+        font-size: 1.3rem;
         font-weight: 900;
         letter-spacing: -0.5px;
         background: linear-gradient(135deg, #fff 30%, #f093fb 100%);
@@ -347,9 +347,9 @@ HTML_TEMPLATE = '''
       .header-status {
         display: flex;
         align-items: center;
-        gap: 10px;
-        font-size: 0.8rem;
-        color: rgba(255,255,255,0.6);
+        gap: 8px;
+        font-size: 0.75rem;
+        color: rgba(255,255,255,0.5);
       }
       .status-dot {
         width: 10px; height: 10px;
@@ -364,42 +364,37 @@ HTML_TEMPLATE = '''
         50% { transform: scale(1.3); opacity: 0.6; }
       }
 
-      /* ── HERO - BADGE DI SISI KIRI ── */
-      .hero-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+      /* ── HERO - CENTERED ── */
+      .hero-center {
+        text-align: center;
         flex-shrink: 0;
-        padding: 6px 0 4px;
-        gap: 16px;
+        padding: 4px 0 3px;
       }
-
-      .hero-left {
-        display: flex;
-        flex-direction: column;
-      }
-      .hero-left h1 {
+      .hero-center h1 {
         font-size: 1.1rem;
         font-weight: 800;
         letter-spacing: -0.3px;
       }
-      .hero-left p {
+      .hero-center p {
         color: rgba(255,255,255,0.3);
         font-size: 0.7rem;
+        margin-top: 1px;
       }
 
       .overall-badge {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 8px;
-        padding: 4px 18px;
+        padding: 4px 20px;
         border-radius: 50px;
         font-size: 0.8rem;
         font-weight: 700;
         transition: all 0.4s;
         cursor: default;
-        flex-shrink: 0;
-        height: 32px;
+        margin-top: 3px;
+        height: 30px;
+        min-width: 180px;
       }
       .overall-badge.all-up {
         background: rgba(0, 230, 118, 0.12);
@@ -435,70 +430,36 @@ HTML_TEMPLATE = '''
         50% { transform: scale(1.5); opacity: 0.5; }
       }
 
-      /* ── IPOS CARD DI KANAN ATAS ── */
-      .ipos-summary-card {
-        background: rgba(255, 23, 68, 0.08);
-        border: 1px solid rgba(255, 23, 68, 0.2);
-        border-radius: 10px;
-        padding: 4px 16px 4px 12px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-shrink: 0;
-        height: 32px;
-      }
-      .ipos-summary-card i {
-        color: #ff1744;
-        font-size: 0.8rem;
-      }
-      .ipos-summary-card .label {
-        font-size: 0.65rem;
-        color: rgba(255,255,255,0.4);
-      }
-      .ipos-summary-card .count {
-        font-size: 0.8rem;
-        font-weight: 700;
-        color: #ff1744;
-      }
-      .ipos-summary-card .domains {
-        font-size: 0.7rem;
-        color: rgba(255,255,255,0.5);
-        max-width: 120px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
       /* ── MAIN ── */
       main {
         flex: 1;
         min-height: 0;
         display: flex;
         flex-direction: column;
-        padding-top: 4px;
+        padding-top: 3px;
         overflow: hidden;
       }
 
       .section-title {
-        font-size: 0.6rem;
+        font-size: 0.55rem;
         font-weight: 700;
         letter-spacing: 2px;
         text-transform: uppercase;
         color: rgba(255,255,255,0.2);
         flex-shrink: 0;
-        padding-bottom: 3px;
+        padding-bottom: 2px;
         display: flex;
         justify-content: space-between;
         align-items: center;
       }
 
       .copy-all-btn {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         font-weight: 600;
-        color: rgba(255,255,255,0.5);
-        background: rgba(255,255,255,0.06);
+        color: rgba(255,255,255,0.4);
+        background: rgba(255,255,255,0.05);
         border: 1px solid rgba(255,255,255,0.08);
-        padding: 2px 12px;
+        padding: 1px 10px;
         border-radius: 12px;
         cursor: pointer;
         transition: all 0.3s;
@@ -506,17 +467,17 @@ HTML_TEMPLATE = '''
         display: flex;
         align-items: center;
         gap: 4px;
-        height: 26px;
+        height: 22px;
       }
       .copy-all-btn:hover {
-        background: rgba(255,255,255,0.1);
+        background: rgba(255,255,255,0.08);
         color: #fff;
-        border-color: rgba(255,255,255,0.2);
+        border-color: rgba(255,255,255,0.15);
       }
       .copy-all-btn.copied {
-        background: rgba(0, 230, 118, 0.15);
+        background: rgba(0, 230, 118, 0.12);
         color: #00e676;
-        border-color: rgba(0, 230, 118, 0.3);
+        border-color: rgba(0, 230, 118, 0.2);
       }
 
       .status-scroll {
@@ -529,24 +490,24 @@ HTML_TEMPLATE = '''
       .status-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
 
       .brand-group {
-        margin-bottom: 4px;
+        margin-bottom: 3px;
       }
       .brand-header {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         font-weight: 700;
         color: #f093fb;
-        padding: 2px 0 1px;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
-        margin-bottom: 3px;
+        padding: 1px 0 1px;
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+        margin-bottom: 2px;
         display: flex;
         align-items: center;
         gap: 8px;
       }
       .brand-header .count {
-        font-size: 0.55rem;
+        font-size: 0.5rem;
         font-weight: 400;
-        color: rgba(255,255,255,0.25);
-        background: rgba(255,255,255,0.05);
+        color: rgba(255,255,255,0.2);
+        background: rgba(255,255,255,0.04);
         padding: 0 8px;
         border-radius: 10px;
       }
@@ -554,29 +515,29 @@ HTML_TEMPLATE = '''
       .status-list {
         display: flex;
         flex-direction: column;
-        gap: 2px;
+        gap: 1px;
       }
       .status-card {
         background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 6px;
-        padding: 4px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        border-radius: 5px;
+        padding: 3px 10px;
         display: flex;
         align-items: center;
-        gap: 10px;
-        min-height: 30px;
+        gap: 8px;
+        min-height: 26px;
         transition: all 0.2s ease;
       }
       .status-card:hover {
-        background: rgba(255, 255, 255, 0.06);
-        border-color: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.08);
       }
       .status-card.active { border-left: 3px solid #00e676; }
       .status-card.ipos { border-left: 3px solid #ff1744; }
 
       .status-icon {
-        font-size: 0.8rem;
-        width: 20px;
+        font-size: 0.7rem;
+        width: 18px;
         text-align: center;
         flex-shrink: 0;
       }
@@ -588,16 +549,16 @@ HTML_TEMPLATE = '''
         min-width: 0;
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 10px;
         flex-wrap: wrap;
       }
       .status-name {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         font-weight: 600;
         white-space: nowrap;
       }
       .status-url {
-        font-size: 0.55rem;
+        font-size: 0.5rem;
         color: rgba(255,255,255,0.2);
         white-space: nowrap;
       }
@@ -605,15 +566,15 @@ HTML_TEMPLATE = '''
       .status-right {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 5px;
         flex-shrink: 0;
       }
       .status-badge {
-        font-size: 0.6rem;
+        font-size: 0.55rem;
         font-weight: 700;
-        padding: 1px 12px;
-        border-radius: 14px;
-        height: 22px;
+        padding: 1px 10px;
+        border-radius: 12px;
+        height: 20px;
         display: flex;
         align-items: center;
       }
@@ -627,12 +588,12 @@ HTML_TEMPLATE = '''
       }
 
       .copy-btn {
-        font-size: 0.6rem;
-        color: rgba(255,255,255,0.3);
-        background: rgba(255,255,255,0.04);
-        border: 1px solid rgba(255,255,255,0.06);
-        padding: 1px 10px;
-        border-radius: 12px;
+        font-size: 0.55rem;
+        color: rgba(255,255,255,0.25);
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.05);
+        padding: 0 8px;
+        border-radius: 10px;
         cursor: pointer;
         transition: all 0.3s;
         font-family: inherit;
@@ -640,67 +601,140 @@ HTML_TEMPLATE = '''
         align-items: center;
         gap: 3px;
         white-space: nowrap;
-        height: 22px;
+        height: 20px;
       }
       .copy-btn:hover {
-        background: rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.06);
         color: #fff;
-        border-color: rgba(255,255,255,0.15);
+        border-color: rgba(255,255,255,0.12);
       }
       .copy-btn.copied {
-        background: rgba(0, 230, 118, 0.12);
+        background: rgba(0, 230, 118, 0.1);
         color: #00e676;
-        border-color: rgba(0, 230, 118, 0.2);
+        border-color: rgba(0, 230, 118, 0.15);
       }
-      .copy-btn i { font-size: 0.5rem; }
+      .copy-btn i { font-size: 0.45rem; }
+
+      /* ── IPOS SECTION (di bawah RUBY8000) ── */
+      .ipos-section {
+        margin-top: 3px;
+        border-top: 1px solid rgba(255,23,68,0.15);
+        padding-top: 3px;
+      }
+      .ipos-header {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #ff1744;
+        padding: 1px 0 1px;
+        border-bottom: 1px solid rgba(255,23,68,0.1);
+        margin-bottom: 2px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .ipos-header .count {
+        font-size: 0.5rem;
+        font-weight: 400;
+        color: rgba(255,255,255,0.3);
+        background: rgba(255,23,68,0.1);
+        padding: 0 8px;
+        border-radius: 10px;
+      }
+      .ipos-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+      }
+      .ipos-card {
+        background: rgba(255, 23, 68, 0.05);
+        border: 1px solid rgba(255, 23, 68, 0.1);
+        border-radius: 5px;
+        padding: 3px 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 24px;
+        border-left: 3px solid #ff1744;
+      }
+      .ipos-card .status-name {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #ff1744;
+      }
+      .ipos-card .status-badge {
+        background: rgba(255, 23, 68, 0.12);
+        color: #ff1744;
+        font-size: 0.5rem;
+        padding: 1px 10px;
+        border-radius: 12px;
+        font-weight: 700;
+        height: 18px;
+        display: flex;
+        align-items: center;
+      }
+      .ipos-card .copy-btn {
+        border-color: rgba(255, 23, 68, 0.15);
+        color: rgba(255,255,255,0.3);
+        height: 18px;
+        font-size: 0.5rem;
+      }
+      .ipos-card .copy-btn:hover {
+        border-color: rgba(255, 23, 68, 0.3);
+        color: #fff;
+      }
+      .ipos-card .status-icon {
+        font-size: 0.65rem;
+        width: 16px;
+        color: #ff1744;
+      }
 
       /* ── FOOTER ── */
       .footer-controls {
         flex-shrink: 0;
-        padding-top: 6px;
-        border-top: 1px solid rgba(255,255,255,0.05);
+        padding-top: 5px;
+        border-top: 1px solid rgba(255,255,255,0.04);
         display: flex;
         flex-direction: column;
-        gap: 3px;
+        gap: 2px;
       }
       .footer-row {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
+        gap: 10px;
         flex-wrap: wrap;
       }
       .footer-left {
         display: flex;
         align-items: center;
-        gap: 16px;
+        gap: 14px;
         flex-wrap: wrap;
       }
       .last-checked {
-        font-size: 0.7rem;
-        color: rgba(255,255,255,0.35);
-      }
-      .last-checked span { color: rgba(255,255,255,0.6); font-weight: 500; }
-      .check-result {
         font-size: 0.65rem;
-        color: rgba(255,255,255,0.25);
+        color: rgba(255,255,255,0.3);
       }
-      .check-result span { color: rgba(255,255,255,0.4); }
+      .last-checked span { color: rgba(255,255,255,0.5); font-weight: 500; }
+      .check-result {
+        font-size: 0.6rem;
+        color: rgba(255,255,255,0.2);
+      }
+      .check-result span { color: rgba(255,255,255,0.35); }
 
       .timer-wrapper {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
       }
       .timer-circle {
         position: relative;
-        width: 32px;
-        height: 32px;
+        width: 28px;
+        height: 28px;
       }
       .timer-circle svg {
         transform: rotate(-90deg);
-        width: 32px;
-        height: 32px;
+        width: 28px;
+        height: 28px;
       }
       .timer-circle .bg {
         fill: none;
@@ -719,55 +753,55 @@ HTML_TEMPLATE = '''
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        font-size: 0.5rem;
+        font-size: 0.45rem;
         font-weight: 700;
         color: #fff;
         font-variant-numeric: tabular-nums;
       }
       .timer-label {
-        font-size: 0.55rem;
-        color: rgba(255,255,255,0.25);
+        font-size: 0.5rem;
+        color: rgba(255,255,255,0.2);
       }
 
       .total-domains {
-        font-size: 0.75rem;
-        color: rgba(255,255,255,0.35);
+        font-size: 0.7rem;
+        color: rgba(255,255,255,0.3);
         font-weight: 600;
       }
       .btn-refresh {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        padding: 5px 16px;
+        gap: 5px;
+        padding: 4px 14px;
         background: linear-gradient(135deg, #f093fb, #f5576c);
         color: #fff;
         border: none;
         border-radius: 6px;
         font-family: inherit;
-        font-size: 0.65rem;
+        font-size: 0.6rem;
         font-weight: 700;
         cursor: pointer;
         transition: all 0.3s;
       }
       .btn-refresh:hover {
         transform: scale(1.03);
-        box-shadow: 0 6px 20px rgba(245, 87, 108, 0.25);
+        box-shadow: 0 6px 20px rgba(245, 87, 108, 0.2);
       }
       .btn-refresh.spinning i { animation: spin 0.7s linear infinite; }
-      .btn-refresh:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+      .btn-refresh:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
       @keyframes spin { to { transform: rotate(360deg); } }
 
       .footer-copyright {
         text-align: center;
-        padding: 4px 0 0;
-        font-size: 0.55rem;
-        color: rgba(255,255,255,0.15);
+        padding: 3px 0 0;
+        font-size: 0.5rem;
+        color: rgba(255,255,255,0.12);
         flex-shrink: 0;
         border-top: 1px solid rgba(255,255,255,0.03);
-        margin-top: 3px;
+        margin-top: 2px;
       }
       .footer-copyright a {
-        color: rgba(255,255,255,0.2);
+        color: rgba(255,255,255,0.18);
         text-decoration: none;
         transition: color 0.3s;
       }
@@ -780,9 +814,9 @@ HTML_TEMPLATE = '''
         transform: translateX(-50%);
         background: rgba(0, 230, 118, 0.9);
         color: #fff;
-        padding: 8px 20px;
-        border-radius: 10px;
-        font-size: 0.75rem;
+        padding: 6px 16px;
+        border-radius: 8px;
+        font-size: 0.7rem;
         font-weight: 600;
         opacity: 0;
         transition: opacity 0.3s ease;
@@ -794,70 +828,70 @@ HTML_TEMPLATE = '''
       .toast.error { background: rgba(255, 23, 68, 0.9); }
 
       @media (max-width: 768px) {
-        .app-container { padding: 12px 14px 10px; max-height: 100vh; border-radius: 16px; }
+        .app-container { padding: 10px 12px 8px; border-radius: 16px; }
         .logo { font-size: 1.1rem; }
-        .hero-left h1 { font-size: 0.95rem; }
-        .status-name { font-size: 0.7rem; }
-        .status-url { font-size: 0.5rem; display: none; }
-        .overall-badge { font-size: 0.65rem; padding: 3px 12px; height: 26px; }
-        .ipos-summary-card { height: 26px; padding: 2px 10px; }
-        .ipos-summary-card .domains { max-width: 80px; font-size: 0.6rem; }
-        .copy-btn { font-size: 0.5rem; padding: 1px 8px; height: 20px; }
-        .copy-btn i { font-size: 0.45rem; }
-        .copy-all-btn { font-size: 0.6rem; padding: 1px 10px; height: 22px; }
-        .status-badge { font-size: 0.5rem; padding: 1px 10px; height: 20px; }
-        .status-card { padding: 3px 10px; min-height: 26px; gap: 8px; }
-        .footer-left { gap: 10px; }
-        .last-checked { font-size: 0.6rem; }
-        .check-result { font-size: 0.55rem; }
-        .btn-refresh { font-size: 0.55rem; padding: 4px 12px; }
-        .timer-circle { width: 28px; height: 28px; }
-        .timer-circle svg { width: 28px; height: 28px; }
-        .timer-text { font-size: 0.45rem; }
-        .timer-label { font-size: 0.5rem; }
-        .total-domains { font-size: 0.65rem; }
-        .brand-header { font-size: 0.75rem; }
-        .status-icon { font-size: 0.7rem; width: 18px; }
-        .hero-row { flex-wrap: wrap; }
-        .ipos-summary-card .domains { max-width: 100px; }
-        .status-right { gap: 4px; }
-      }
-
-      @media (max-width: 480px) {
-        .app-container { padding: 8px 8px 6px; border-radius: 12px; }
-        .logo { font-size: 0.9rem; }
-        .hero-left h1 { font-size: 0.8rem; }
-        .hero-left p { font-size: 0.55rem; }
-        .overall-badge { font-size: 0.55rem; padding: 2px 10px; height: 22px; }
-        .ipos-summary-card { height: 22px; padding: 2px 8px; gap: 6px; }
-        .ipos-summary-card .domains { max-width: 60px; font-size: 0.5rem; }
-        .ipos-summary-card .label { font-size: 0.5rem; }
-        .ipos-summary-card .count { font-size: 0.6rem; }
-        .status-name { font-size: 0.6rem; }
-        .status-url { display: none; }
-        .copy-btn { font-size: 0.45rem; padding: 1px 6px; height: 18px; }
+        .hero-center h1 { font-size: 0.95rem; }
+        .status-name { font-size: 0.65rem; }
+        .status-url { font-size: 0.45rem; display: none; }
+        .overall-badge { font-size: 0.65rem; padding: 3px 14px; height: 26px; min-width: 140px; }
+        .copy-btn { font-size: 0.5rem; padding: 0 6px; height: 18px; }
         .copy-btn i { font-size: 0.4rem; }
-        .copy-all-btn { font-size: 0.5rem; padding: 1px 8px; height: 18px; }
-        .status-badge { font-size: 0.45rem; padding: 1px 8px; height: 18px; }
+        .copy-all-btn { font-size: 0.55rem; padding: 1px 8px; height: 20px; }
+        .status-badge { font-size: 0.5rem; padding: 1px 8px; height: 18px; }
         .status-card { padding: 2px 8px; min-height: 22px; gap: 6px; }
-        .brand-header { font-size: 0.65rem; }
-        .brand-header .count { font-size: 0.45rem; padding: 0 6px; }
-        .status-icon { font-size: 0.6rem; width: 16px; }
-        .footer-left { gap: 6px; flex-wrap: wrap; }
-        .last-checked { font-size: 0.5rem; }
-        .check-result { font-size: 0.45rem; }
-        .btn-refresh { font-size: 0.5rem; padding: 3px 10px; gap: 4px; }
+        .footer-left { gap: 8px; }
+        .last-checked { font-size: 0.55rem; }
+        .check-result { font-size: 0.5rem; }
+        .btn-refresh { font-size: 0.55rem; padding: 3px 10px; }
         .timer-circle { width: 24px; height: 24px; }
         .timer-circle svg { width: 24px; height: 24px; }
         .timer-text { font-size: 0.4rem; }
         .timer-label { font-size: 0.45rem; }
-        .total-domains { font-size: 0.55rem; }
-        .footer-copyright { font-size: 0.45rem; }
-        .toast { font-size: 0.6rem; padding: 6px 14px; bottom: 15px; }
-        .section-title { font-size: 0.5rem; }
-        .hero-row { gap: 8px; }
-        .status-right { gap: 3px; }
-        .ipos-summary-card .domains { display: none; }
+        .total-domains { font-size: 0.6rem; }
+        .brand-header { font-size: 0.7rem; }
+        .status-icon { font-size: 0.6rem; width: 16px; }
+        .ipos-card .status-name { font-size: 0.65rem; }
+        .ipos-header { font-size: 0.6rem; }
+        .ipos-card { padding: 2px 8px; min-height: 20px; }
+        .ipos-card .status-badge { font-size: 0.45rem; padding: 1px 8px; height: 16px; }
+        .ipos-card .copy-btn { font-size: 0.45rem; height: 16px; padding: 0 6px; }
+        .ipos-card .status-icon { font-size: 0.55rem; width: 14px; }
+      }
+
+      @media (max-width: 480px) {
+        .app-container { padding: 6px 6px 4px; border-radius: 12px; }
+        .logo { font-size: 0.9rem; }
+        .hero-center h1 { font-size: 0.8rem; }
+        .hero-center p { font-size: 0.5rem; }
+        .overall-badge { font-size: 0.55rem; padding: 2px 10px; height: 22px; min-width: 120px; }
+        .status-name { font-size: 0.55rem; }
+        .status-url { display: none; }
+        .copy-btn { font-size: 0.4rem; padding: 0 5px; height: 16px; }
+        .copy-btn i { font-size: 0.35rem; }
+        .copy-all-btn { font-size: 0.45rem; padding: 1px 6px; height: 16px; }
+        .status-badge { font-size: 0.4rem; padding: 1px 6px; height: 16px; }
+        .status-card { padding: 2px 6px; min-height: 18px; gap: 4px; }
+        .brand-header { font-size: 0.6rem; }
+        .brand-header .count { font-size: 0.4rem; padding: 0 5px; }
+        .status-icon { font-size: 0.5rem; width: 14px; }
+        .footer-left { gap: 4px; flex-wrap: wrap; }
+        .last-checked { font-size: 0.45rem; }
+        .check-result { font-size: 0.4rem; }
+        .btn-refresh { font-size: 0.45rem; padding: 2px 8px; gap: 3px; }
+        .timer-circle { width: 20px; height: 20px; }
+        .timer-circle svg { width: 20px; height: 20px; }
+        .timer-text { font-size: 0.35rem; }
+        .timer-label { font-size: 0.4rem; }
+        .total-domains { font-size: 0.5rem; }
+        .footer-copyright { font-size: 0.4rem; }
+        .toast { font-size: 0.55rem; padding: 4px 12px; bottom: 10px; }
+        .section-title { font-size: 0.45rem; }
+        .ipos-card .status-name { font-size: 0.55rem; }
+        .ipos-header { font-size: 0.5rem; }
+        .ipos-card { padding: 2px 6px; min-height: 18px; }
+        .ipos-card .status-badge { font-size: 0.4rem; padding: 1px 6px; height: 14px; }
+        .ipos-card .copy-btn { font-size: 0.4rem; height: 14px; padding: 0 4px; }
+        .ipos-card .status-icon { font-size: 0.45rem; width: 12px; }
       }
     </style>
   </head>
@@ -875,21 +909,13 @@ HTML_TEMPLATE = '''
         </div>
       </header>
 
-      <!-- HERO ROW: Badge kiri + IPOS Card kanan -->
-      <div class="hero-row">
-        <div class="hero-left">
-          <h1>IPOS Service Status</h1>
-          <p>Real-time monitoring of all domains</p>
-        </div>
+      <!-- HERO - CENTERED -->
+      <div class="hero-center">
+        <h1>IPOS Service Status</h1>
+        <p>Real-time monitoring of all domains</p>
         <div class="overall-badge all-up" id="overallBadge">
           <span class="pulse-icon"></span>
           <span id="overallText">All Domains Normal</span>
-        </div>
-        <div class="ipos-summary-card" id="iposSummary" style="display:none;">
-          <i class="fas fa-triangle-exclamation"></i>
-          <span class="label">IPOS:</span>
-          <span class="count" id="iposCount">0</span>
-          <span class="domains" id="iposDomainsList">—</span>
         </div>
       </div>
 
@@ -917,10 +943,10 @@ HTML_TEMPLATE = '''
           </div>
           <div class="timer-wrapper">
             <div class="timer-circle">
-              <svg viewBox="0 0 32 32">
-                <circle class="bg" cx="16" cy="16" r="13" />
-                <circle class="progress" id="timerProgress" cx="16" cy="16" r="13"
-                  stroke-dasharray="81.68"
+              <svg viewBox="0 0 28 28">
+                <circle class="bg" cx="14" cy="14" r="11" />
+                <circle class="progress" id="timerProgress" cx="14" cy="14" r="11"
+                  stroke-dasharray="69.12"
                   stroke-dashoffset="0" />
               </svg>
               <span class="timer-text" id="timerText">15:00</span>
@@ -1023,26 +1049,32 @@ HTML_TEMPLATE = '''
           html += `</div></div>`;
         }
 
+        // ── IPOS SECTION (di bawah RUBY8000) ──
+        if (iposDomains && iposDomains.length > 0) {
+          html += `<div class="ipos-section">`;
+          html += `<div class="ipos-header"><i class="fas fa-triangle-exclamation"></i> IPOS Domains <span class="count">${iposDomains.length} domains</span></div>`;
+          html += `<div class="ipos-list">`;
+          
+          iposDomains.forEach((domain) => {
+            html += `
+              <div class="ipos-card">
+                <div class="status-icon"><i class="fas fa-circle-xmark"></i></div>
+                <span class="status-name">${domain}</span>
+                <div style="flex:1;"></div>
+                <div class="status-right">
+                  <button class="copy-btn" onclick="copyDomain('${domain}')">
+                    <i class="fas fa-copy"></i> Copy
+                  </button>
+                  <span class="status-badge">IPOS</span>
+                </div>
+              </div>`;
+          });
+          
+          html += `</div></div>`;
+        }
+
         container.innerHTML = html;
         document.getElementById("totalDomains").textContent = `Total: ${total}`;
-        
-        // Update IPOS summary
-        updateIposSummary(iposDomains);
-      }
-
-      // ── IPOS SUMMARY ──
-      function updateIposSummary(iposDomains) {
-        const card = document.getElementById('iposSummary');
-        const countEl = document.getElementById('iposCount');
-        const listEl = document.getElementById('iposDomainsList');
-        
-        if (iposDomains && iposDomains.length > 0) {
-          card.style.display = 'flex';
-          countEl.textContent = iposDomains.length;
-          listEl.textContent = iposDomains.join(', ');
-        } else {
-          card.style.display = 'none';
-        }
       }
 
       // ── OVERALL BADGE ──
@@ -1054,7 +1086,7 @@ HTML_TEMPLATE = '''
 
         if (isCheckRunning) {
           badge.className = "overall-badge checking";
-          text.textContent = "🔄 Checking...";
+          text.textContent = "Checking...";
           dot.className = "status-dot";
           dot.style.background = "#f59e0b";
           label.textContent = "Checking...";
@@ -1080,7 +1112,8 @@ HTML_TEMPLATE = '''
         navigator.clipboard.writeText(domain).then(() => {
           showToast(`Copied: ${domain}`);
           document.querySelectorAll('.copy-btn').forEach(btn => {
-            if (btn.closest('.status-card')?.querySelector('.status-name')?.textContent === domain) {
+            const parent = btn.closest('.status-card') || btn.closest('.ipos-card');
+            if (parent?.querySelector('.status-name')?.textContent === domain) {
               btn.classList.add('copied');
               btn.innerHTML = '<i class="fas fa-check"></i> Copied';
               setTimeout(() => {
@@ -1127,7 +1160,7 @@ HTML_TEMPLATE = '''
       function updateTimer() {
         const prog = document.getElementById("timerProgress");
         const txt = document.getElementById("timerText");
-        const circ = 81.68;
+        const circ = 69.12;
         const off = circ * (1 - timeLeft / AUTO_REFRESH_SEC);
         prog.style.strokeDashoffset = off;
         const m = Math.floor(timeLeft / 60);
@@ -1156,7 +1189,7 @@ HTML_TEMPLATE = '''
         btn.classList.add("spinning");
         
         renderOverall(0);
-        document.getElementById("checkResult").textContent = "🔄 Checking...";
+        document.getElementById("checkResult").textContent = "Checking...";
         document.getElementById("lastChecked").textContent = "Checking...";
         
         try {
