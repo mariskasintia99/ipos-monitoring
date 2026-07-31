@@ -230,7 +230,7 @@ def run_patrol():
         log("INFO", "Mengirim laporan Telegram...")
         waktu_str = (datetime.now(timezone.utc) + timedelta(hours=7)).strftime("%d/%m/%Y, %H:%M:%S WIB")
         garis = "---------------------------------------"
-        msg = f"📅 Waktu: {waktu_str}\n🌐 Source: Nawala.in (Auto Check Ipos)\n\n"
+        msg = f"📅 Waktu: {waktu_str}\n🌐 Source: Nawala.link\n\n"
         for r in global_report:
             msg += f"🍄 UPDATE LINK [{r['name']}]\n{garis}\n"
             for d in r['removed']: 
