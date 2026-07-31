@@ -60,13 +60,35 @@ def log(type_msg, msg):
 
 # --- FUNGSI CLOUDFLARE & TELEGRAM ---
 def get_kv(key_name):
+    """Mengambil data dari KV dengan error handling untuk JSON malformed"""
     url = f"https://api.cloudflare.com/client/v4/accounts/{CF_ACCOUNT_ID}/storage/kv/namespaces/{KV_NAMESPACE_ID}/values/{key_name}"
     try:
         r = requests.get(url, headers={"Authorization": f"Bearer {CF_API_TOKEN}"})
         if r.status_code == 200:
-            return r.json()
+            try:
+                data = r.json()
+                if isinstance(data, list):
+                    return data
+                else:
+                    log("WARN", f"Data {key_name} bukan list: {data}")
+                    return []
+            except json.JSONDecodeError as e:
+                log("ERROR", f"JSON Error pada {key_name}: {e}")
+                # Coba perbaiki manual: hapus kutip ganda
+                raw_text = r.text
+                # Perbaiki "domain"" menjadi "domain"
+                fixed_text = raw_text.replace('""', '"')
+                try:
+                    data = json.loads(fixed_text)
+                    if isinstance(data, list):
+                        log("INFO", f"Berhasil perbaiki {key_name} secara manual")
+                        return data
+                except:
+                    pass
+                return []
         return []
-    except: 
+    except Exception as e:
+        log("ERROR", f"Gagal get KV {key_name}: {e}")
         return []
 
 def update_kv(key_name, new_list):
@@ -94,15 +116,20 @@ def get_all_domains():
         domains = get_kv(target['key'])
         if domains and isinstance(domains, list):
             for domain in domains:
-                all_domains.append({
-                    "name": domain,
-                    "url": f"https://{domain}/",
-                    "brand": target['name'],
-                    "key": target['key']
-                })
+                if domain and isinstance(domain, str):
+                    domain = domain.strip()
+                    if domain:
+                        all_domains.append({
+                            "name": domain,
+                            "url": f"https://{domain}/",
+                            "brand": target['name'],
+                            "key": target['key']
+                        })
+        else:
+            log("WARN", f"Tidak ada domain valid untuk {target['name']}")
     return all_domains
 
-# --- MESIN UTAMA (MULTI-KEY & AUTO FAILOVER) ---
+# --- MESIN UTAMA ---
 def run_patrol():
     global IPOS_DOMAINS, LAST_PATROL_RESULT, PATROL_LOG
     PATROL_LOG = []
@@ -121,10 +148,10 @@ def run_patrol():
         domains = get_kv(target['key'])
         
         if not domains:
-            log("INFO", "Tidak ada domain di KV. Skip.")
+            log("INFO", f"Tidak ada domain di {target['name']}.")
             continue
             
-        log("INFO", f"Domain saat ini: {domains}")
+        log("INFO", f"Domain saat ini ({len(domains)}): {domains}")
             
         api_keys = target.get("api_keys", [])
         active_key_idx = 0 
@@ -215,7 +242,6 @@ def run_patrol():
             
         global_report.append({"name": target["name"], "active": active, "removed": removed})
 
-    # Save IPOS domains for display
     IPOS_DOMAINS = all_removed
     
     if ada_perubahan:
@@ -240,7 +266,7 @@ def run_patrol():
     log("SYSTEM", "=" * 50)
     return "\\n".join(PATROL_LOG)
 
-# --- HTML TEMPLATE ---
+# --- HTML TEMPLATE (SAMA SEPERTI SEBELUMNYA) ---
 HTML_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="en">
@@ -1174,7 +1200,6 @@ HTML_TEMPLATE = '''
         timeLeft = AUTO_REFRESH_SEC;
         updateTimer();
         
-        // Update IPOS_DOMAINS in window
         window.IPOS_DOMAINS = IPOS_DOMAINS;
       }
 
@@ -1215,7 +1240,7 @@ HTML_TEMPLATE = '''
 </html>
 '''
 
-# --- ENDPOINT UTAMA ---
+# --- ENDPOINT ---
 LAST_RUN_TIME = None
 LAST_LOG_OUTPUT = "Sistem baru menyala. Memuat data patroli..."
 IS_RUNNING = False
@@ -1241,7 +1266,6 @@ def api_ipos_status():
 
 @app.route('/api/run-patrol', methods=['POST'])
 def api_run_patrol():
-    """API untuk menjalankan patroli dan mengembalikan hasil terbaru"""
     global IS_RUNNING
     
     if IS_RUNNING:
@@ -1256,9 +1280,7 @@ def api_run_patrol():
     
     try:
         IS_RUNNING = True
-        # Jalankan patroli
         log_result = run_patrol()
-        # Ambil data terbaru setelah patroli
         all_domains = get_all_domains()
         
         return Response(
