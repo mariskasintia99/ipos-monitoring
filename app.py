@@ -318,7 +318,7 @@ HTML_TEMPLATE = '''
         -webkit-backdrop-filter: blur(20px);
         border-radius: 24px;
         border: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 14px 22px 10px;
+        padding: 16px 24px 12px;
         display: flex;
         flex-direction: column;
         box-shadow: 0 25px 60px rgba(0,0,0,0.6);
@@ -329,12 +329,12 @@ HTML_TEMPLATE = '''
         align-items: center;
         justify-content: space-between;
         flex-shrink: 0;
-        padding-bottom: 6px;
+        padding-bottom: 8px;
         border-bottom: 2px solid rgba(255,255,255,0.08);
       }
 
       .logo {
-        font-size: 1.3rem;
+        font-size: 1.5rem;
         font-weight: 900;
         letter-spacing: -0.5px;
         background: linear-gradient(135deg, #fff 30%, #f093fb 100%);
@@ -347,12 +347,12 @@ HTML_TEMPLATE = '''
       .header-status {
         display: flex;
         align-items: center;
-        gap: 8px;
-        font-size: 0.75rem;
+        gap: 10px;
+        font-size: 0.9rem;
         color: rgba(255,255,255,0.5);
       }
       .status-dot {
-        width: 10px; height: 10px;
+        width: 12px; height: 12px;
         border-radius: 50%;
         display: inline-block;
         animation: pulse-dot 1.5s ease-in-out infinite;
@@ -368,33 +368,33 @@ HTML_TEMPLATE = '''
       .hero-center {
         text-align: center;
         flex-shrink: 0;
-        padding: 4px 0 3px;
+        padding: 6px 0 5px;
       }
       .hero-center h1 {
-        font-size: 1.1rem;
+        font-size: 1.4rem;
         font-weight: 800;
         letter-spacing: -0.3px;
       }
       .hero-center p {
         color: rgba(255,255,255,0.3);
-        font-size: 0.7rem;
-        margin-top: 1px;
+        font-size: 0.85rem;
+        margin-top: 2px;
       }
 
       .overall-badge {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
-        padding: 4px 20px;
+        gap: 10px;
+        padding: 6px 28px;
         border-radius: 50px;
-        font-size: 0.8rem;
+        font-size: 1rem;
         font-weight: 700;
         transition: all 0.4s;
         cursor: default;
-        margin-top: 3px;
-        height: 30px;
-        min-width: 180px;
+        margin-top: 4px;
+        height: 38px;
+        min-width: 200px;
       }
       .overall-badge.all-up {
         background: rgba(0, 230, 118, 0.12);
@@ -417,7 +417,7 @@ HTML_TEMPLATE = '''
         50% { box-shadow: 0 0 40px rgba(245, 158, 11, 0.3); }
       }
       .overall-badge .pulse-icon {
-        width: 8px; height: 8px;
+        width: 10px; height: 10px;
         border-radius: 50%;
         display: inline-block;
         animation: pulse-badge 1.2s ease-in-out infinite;
@@ -436,38 +436,38 @@ HTML_TEMPLATE = '''
         min-height: 0;
         display: flex;
         flex-direction: column;
-        padding-top: 3px;
+        padding-top: 4px;
         overflow: hidden;
       }
 
       .section-title {
-        font-size: 0.55rem;
+        font-size: 0.7rem;
         font-weight: 700;
         letter-spacing: 2px;
         text-transform: uppercase;
         color: rgba(255,255,255,0.2);
         flex-shrink: 0;
-        padding-bottom: 2px;
+        padding-bottom: 3px;
         display: flex;
         justify-content: space-between;
         align-items: center;
       }
 
       .copy-all-btn {
-        font-size: 0.65rem;
+        font-size: 0.8rem;
         font-weight: 600;
         color: rgba(255,255,255,0.4);
         background: rgba(255,255,255,0.05);
         border: 1px solid rgba(255,255,255,0.08);
-        padding: 1px 10px;
-        border-radius: 12px;
+        padding: 3px 14px;
+        border-radius: 14px;
         cursor: pointer;
         transition: all 0.3s;
         font-family: inherit;
         display: flex;
         align-items: center;
-        gap: 4px;
-        height: 22px;
+        gap: 5px;
+        height: 28px;
       }
       .copy-all-btn:hover {
         background: rgba(255,255,255,0.08);
@@ -490,54 +490,54 @@ HTML_TEMPLATE = '''
       .status-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
 
       .brand-group {
-        margin-bottom: 3px;
+        margin-bottom: 5px;
       }
       .brand-header {
-        font-size: 0.8rem;
+        font-size: 1rem;
         font-weight: 700;
         color: #f093fb;
-        padding: 1px 0 1px;
-        border-bottom: 1px solid rgba(255,255,255,0.04);
-        margin-bottom: 2px;
+        padding: 2px 0 2px;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        margin-bottom: 3px;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
       }
       .brand-header .count {
-        font-size: 0.5rem;
+        font-size: 0.65rem;
         font-weight: 400;
-        color: rgba(255,255,255,0.2);
-        background: rgba(255,255,255,0.04);
-        padding: 0 8px;
-        border-radius: 10px;
+        color: rgba(255,255,255,0.25);
+        background: rgba(255,255,255,0.05);
+        padding: 0 10px;
+        border-radius: 12px;
       }
 
       .status-list {
         display: flex;
         flex-direction: column;
-        gap: 1px;
+        gap: 2px;
       }
       .status-card {
         background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.04);
-        border-radius: 5px;
-        padding: 3px 10px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 6px;
+        padding: 4px 14px;
         display: flex;
         align-items: center;
-        gap: 8px;
-        min-height: 26px;
+        gap: 12px;
+        min-height: 34px;
         transition: all 0.2s ease;
       }
       .status-card:hover {
-        background: rgba(255, 255, 255, 0.05);
-        border-color: rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.1);
       }
       .status-card.active { border-left: 3px solid #00e676; }
       .status-card.ipos { border-left: 3px solid #ff1744; }
 
       .status-icon {
-        font-size: 0.7rem;
-        width: 18px;
+        font-size: 0.9rem;
+        width: 22px;
         text-align: center;
         flex-shrink: 0;
       }
@@ -549,32 +549,32 @@ HTML_TEMPLATE = '''
         min-width: 0;
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 14px;
         flex-wrap: wrap;
       }
       .status-name {
-        font-size: 0.75rem;
+        font-size: 0.95rem;
         font-weight: 600;
         white-space: nowrap;
       }
       .status-url {
-        font-size: 0.5rem;
-        color: rgba(255,255,255,0.2);
+        font-size: 0.65rem;
+        color: rgba(255,255,255,0.25);
         white-space: nowrap;
       }
 
       .status-right {
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 8px;
         flex-shrink: 0;
       }
       .status-badge {
-        font-size: 0.55rem;
+        font-size: 0.7rem;
         font-weight: 700;
-        padding: 1px 10px;
-        border-radius: 12px;
-        height: 20px;
+        padding: 2px 14px;
+        border-radius: 14px;
+        height: 26px;
         display: flex;
         align-items: center;
       }
@@ -588,153 +588,153 @@ HTML_TEMPLATE = '''
       }
 
       .copy-btn {
-        font-size: 0.55rem;
-        color: rgba(255,255,255,0.25);
-        background: rgba(255,255,255,0.03);
-        border: 1px solid rgba(255,255,255,0.05);
-        padding: 0 8px;
-        border-radius: 10px;
+        font-size: 0.7rem;
+        color: rgba(255,255,255,0.3);
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.06);
+        padding: 1px 12px;
+        border-radius: 12px;
         cursor: pointer;
         transition: all 0.3s;
         font-family: inherit;
         display: flex;
         align-items: center;
-        gap: 3px;
+        gap: 4px;
         white-space: nowrap;
-        height: 20px;
+        height: 26px;
       }
       .copy-btn:hover {
-        background: rgba(255,255,255,0.06);
+        background: rgba(255,255,255,0.08);
         color: #fff;
-        border-color: rgba(255,255,255,0.12);
+        border-color: rgba(255,255,255,0.15);
       }
       .copy-btn.copied {
         background: rgba(0, 230, 118, 0.1);
         color: #00e676;
         border-color: rgba(0, 230, 118, 0.15);
       }
-      .copy-btn i { font-size: 0.45rem; }
+      .copy-btn i { font-size: 0.55rem; }
 
-      /* ── IPOS SECTION (di bawah RUBY8000) ── */
+      /* ── IPOS SECTION ── */
       .ipos-section {
-        margin-top: 3px;
+        margin-top: 4px;
         border-top: 1px solid rgba(255,23,68,0.15);
-        padding-top: 3px;
+        padding-top: 4px;
       }
       .ipos-header {
-        font-size: 0.7rem;
+        font-size: 0.9rem;
         font-weight: 700;
         color: #ff1744;
-        padding: 1px 0 1px;
+        padding: 2px 0 2px;
         border-bottom: 1px solid rgba(255,23,68,0.1);
-        margin-bottom: 2px;
+        margin-bottom: 3px;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
       }
       .ipos-header .count {
-        font-size: 0.5rem;
+        font-size: 0.6rem;
         font-weight: 400;
         color: rgba(255,255,255,0.3);
         background: rgba(255,23,68,0.1);
-        padding: 0 8px;
-        border-radius: 10px;
+        padding: 0 10px;
+        border-radius: 12px;
       }
       .ipos-list {
         display: flex;
         flex-direction: column;
-        gap: 1px;
+        gap: 2px;
       }
       .ipos-card {
         background: rgba(255, 23, 68, 0.05);
         border: 1px solid rgba(255, 23, 68, 0.1);
-        border-radius: 5px;
-        padding: 3px 10px;
+        border-radius: 6px;
+        padding: 4px 14px;
         display: flex;
         align-items: center;
-        gap: 8px;
-        min-height: 24px;
+        gap: 12px;
+        min-height: 30px;
         border-left: 3px solid #ff1744;
       }
       .ipos-card .status-name {
-        font-size: 0.75rem;
+        font-size: 0.95rem;
         font-weight: 600;
         color: #ff1744;
       }
       .ipos-card .status-badge {
         background: rgba(255, 23, 68, 0.12);
         color: #ff1744;
-        font-size: 0.5rem;
-        padding: 1px 10px;
-        border-radius: 12px;
+        font-size: 0.65rem;
+        padding: 2px 14px;
+        border-radius: 14px;
         font-weight: 700;
-        height: 18px;
+        height: 24px;
         display: flex;
         align-items: center;
       }
       .ipos-card .copy-btn {
         border-color: rgba(255, 23, 68, 0.15);
         color: rgba(255,255,255,0.3);
-        height: 18px;
-        font-size: 0.5rem;
+        height: 24px;
+        font-size: 0.65rem;
       }
       .ipos-card .copy-btn:hover {
         border-color: rgba(255, 23, 68, 0.3);
         color: #fff;
       }
       .ipos-card .status-icon {
-        font-size: 0.65rem;
-        width: 16px;
+        font-size: 0.8rem;
+        width: 20px;
         color: #ff1744;
       }
 
       /* ── FOOTER ── */
       .footer-controls {
         flex-shrink: 0;
-        padding-top: 5px;
-        border-top: 1px solid rgba(255,255,255,0.04);
+        padding-top: 6px;
+        border-top: 1px solid rgba(255,255,255,0.05);
         display: flex;
         flex-direction: column;
-        gap: 2px;
+        gap: 3px;
       }
       .footer-row {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 10px;
+        gap: 14px;
         flex-wrap: wrap;
       }
       .footer-left {
         display: flex;
         align-items: center;
-        gap: 14px;
+        gap: 18px;
         flex-wrap: wrap;
       }
       .last-checked {
-        font-size: 0.65rem;
+        font-size: 0.8rem;
         color: rgba(255,255,255,0.3);
       }
       .last-checked span { color: rgba(255,255,255,0.5); font-weight: 500; }
       .check-result {
-        font-size: 0.6rem;
-        color: rgba(255,255,255,0.2);
+        font-size: 0.75rem;
+        color: rgba(255,255,255,0.25);
       }
-      .check-result span { color: rgba(255,255,255,0.35); }
+      .check-result span { color: rgba(255,255,255,0.4); }
 
       .timer-wrapper {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
       }
       .timer-circle {
         position: relative;
-        width: 28px;
-        height: 28px;
+        width: 36px;
+        height: 36px;
       }
       .timer-circle svg {
         transform: rotate(-90deg);
-        width: 28px;
-        height: 28px;
+        width: 36px;
+        height: 36px;
       }
       .timer-circle .bg {
         fill: none;
@@ -753,32 +753,32 @@ HTML_TEMPLATE = '''
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        font-size: 0.45rem;
+        font-size: 0.55rem;
         font-weight: 700;
         color: #fff;
         font-variant-numeric: tabular-nums;
       }
       .timer-label {
-        font-size: 0.5rem;
-        color: rgba(255,255,255,0.2);
+        font-size: 0.6rem;
+        color: rgba(255,255,255,0.25);
       }
 
       .total-domains {
-        font-size: 0.7rem;
+        font-size: 0.85rem;
         color: rgba(255,255,255,0.3);
         font-weight: 600;
       }
       .btn-refresh {
         display: inline-flex;
         align-items: center;
-        gap: 5px;
-        padding: 4px 14px;
+        gap: 6px;
+        padding: 5px 18px;
         background: linear-gradient(135deg, #f093fb, #f5576c);
         color: #fff;
         border: none;
-        border-radius: 6px;
+        border-radius: 8px;
         font-family: inherit;
-        font-size: 0.6rem;
+        font-size: 0.75rem;
         font-weight: 700;
         cursor: pointer;
         transition: all 0.3s;
@@ -793,8 +793,8 @@ HTML_TEMPLATE = '''
 
       .footer-copyright {
         text-align: center;
-        padding: 3px 0 0;
-        font-size: 0.5rem;
+        padding: 4px 0 0;
+        font-size: 0.6rem;
         color: rgba(255,255,255,0.12);
         flex-shrink: 0;
         border-top: 1px solid rgba(255,255,255,0.03);
@@ -814,9 +814,9 @@ HTML_TEMPLATE = '''
         transform: translateX(-50%);
         background: rgba(0, 230, 118, 0.9);
         color: #fff;
-        padding: 6px 16px;
-        border-radius: 8px;
-        font-size: 0.7rem;
+        padding: 8px 20px;
+        border-radius: 10px;
+        font-size: 0.8rem;
         font-weight: 600;
         opacity: 0;
         transition: opacity 0.3s ease;
@@ -828,70 +828,70 @@ HTML_TEMPLATE = '''
       .toast.error { background: rgba(255, 23, 68, 0.9); }
 
       @media (max-width: 768px) {
-        .app-container { padding: 10px 12px 8px; border-radius: 16px; }
-        .logo { font-size: 1.1rem; }
+        .app-container { padding: 12px 16px 10px; border-radius: 16px; }
+        .logo { font-size: 1.2rem; }
+        .hero-center h1 { font-size: 1.1rem; }
+        .status-name { font-size: 0.8rem; }
+        .status-url { font-size: 0.55rem; display: none; }
+        .overall-badge { font-size: 0.8rem; padding: 4px 18px; height: 32px; min-width: 160px; }
+        .copy-btn { font-size: 0.6rem; padding: 1px 10px; height: 22px; }
+        .copy-btn i { font-size: 0.5rem; }
+        .copy-all-btn { font-size: 0.65rem; padding: 2px 12px; height: 24px; }
+        .status-badge { font-size: 0.6rem; padding: 2px 12px; height: 22px; }
+        .status-card { padding: 3px 10px; min-height: 28px; gap: 8px; }
+        .footer-left { gap: 10px; }
+        .last-checked { font-size: 0.65rem; }
+        .check-result { font-size: 0.6rem; }
+        .btn-refresh { font-size: 0.65rem; padding: 4px 14px; }
+        .timer-circle { width: 30px; height: 30px; }
+        .timer-circle svg { width: 30px; height: 30px; }
+        .timer-text { font-size: 0.5rem; }
+        .timer-label { font-size: 0.5rem; }
+        .total-domains { font-size: 0.7rem; }
+        .brand-header { font-size: 0.85rem; }
+        .status-icon { font-size: 0.75rem; width: 18px; }
+        .ipos-card .status-name { font-size: 0.8rem; }
+        .ipos-header { font-size: 0.75rem; }
+        .ipos-card { padding: 3px 10px; min-height: 26px; }
+        .ipos-card .status-badge { font-size: 0.55rem; padding: 2px 12px; height: 20px; }
+        .ipos-card .copy-btn { font-size: 0.55rem; height: 20px; padding: 1px 10px; }
+        .ipos-card .status-icon { font-size: 0.7rem; width: 18px; }
+      }
+
+      @media (max-width: 480px) {
+        .app-container { padding: 8px 10px 6px; border-radius: 12px; }
+        .logo { font-size: 1rem; }
         .hero-center h1 { font-size: 0.95rem; }
-        .status-name { font-size: 0.65rem; }
-        .status-url { font-size: 0.45rem; display: none; }
-        .overall-badge { font-size: 0.65rem; padding: 3px 14px; height: 26px; min-width: 140px; }
-        .copy-btn { font-size: 0.5rem; padding: 0 6px; height: 18px; }
+        .hero-center p { font-size: 0.65rem; }
+        .overall-badge { font-size: 0.65rem; padding: 3px 14px; height: 28px; min-width: 140px; }
+        .status-name { font-size: 0.7rem; }
+        .status-url { display: none; }
+        .copy-btn { font-size: 0.5rem; padding: 1px 8px; height: 18px; }
         .copy-btn i { font-size: 0.4rem; }
-        .copy-all-btn { font-size: 0.55rem; padding: 1px 8px; height: 20px; }
-        .status-badge { font-size: 0.5rem; padding: 1px 8px; height: 18px; }
-        .status-card { padding: 2px 8px; min-height: 22px; gap: 6px; }
-        .footer-left { gap: 8px; }
+        .copy-all-btn { font-size: 0.55rem; padding: 2px 10px; height: 20px; }
+        .status-badge { font-size: 0.5rem; padding: 1px 10px; height: 18px; }
+        .status-card { padding: 2px 8px; min-height: 24px; gap: 6px; }
+        .brand-header { font-size: 0.7rem; }
+        .brand-header .count { font-size: 0.5rem; padding: 0 8px; }
+        .status-icon { font-size: 0.65rem; width: 16px; }
+        .footer-left { gap: 6px; flex-wrap: wrap; }
         .last-checked { font-size: 0.55rem; }
         .check-result { font-size: 0.5rem; }
-        .btn-refresh { font-size: 0.55rem; padding: 3px 10px; }
+        .btn-refresh { font-size: 0.55rem; padding: 3px 12px; gap: 4px; }
         .timer-circle { width: 24px; height: 24px; }
         .timer-circle svg { width: 24px; height: 24px; }
         .timer-text { font-size: 0.4rem; }
         .timer-label { font-size: 0.45rem; }
         .total-domains { font-size: 0.6rem; }
-        .brand-header { font-size: 0.7rem; }
-        .status-icon { font-size: 0.6rem; width: 16px; }
-        .ipos-card .status-name { font-size: 0.65rem; }
-        .ipos-header { font-size: 0.6rem; }
-        .ipos-card { padding: 2px 8px; min-height: 20px; }
-        .ipos-card .status-badge { font-size: 0.45rem; padding: 1px 8px; height: 16px; }
-        .ipos-card .copy-btn { font-size: 0.45rem; height: 16px; padding: 0 6px; }
+        .footer-copyright { font-size: 0.45rem; }
+        .toast { font-size: 0.6rem; padding: 6px 14px; bottom: 15px; }
+        .section-title { font-size: 0.55rem; }
+        .ipos-card .status-name { font-size: 0.7rem; }
+        .ipos-header { font-size: 0.65rem; }
+        .ipos-card { padding: 2px 8px; min-height: 22px; }
+        .ipos-card .status-badge { font-size: 0.45rem; padding: 1px 10px; height: 18px; }
+        .ipos-card .copy-btn { font-size: 0.45rem; height: 18px; padding: 1px 8px; }
         .ipos-card .status-icon { font-size: 0.55rem; width: 14px; }
-      }
-
-      @media (max-width: 480px) {
-        .app-container { padding: 6px 6px 4px; border-radius: 12px; }
-        .logo { font-size: 0.9rem; }
-        .hero-center h1 { font-size: 0.8rem; }
-        .hero-center p { font-size: 0.5rem; }
-        .overall-badge { font-size: 0.55rem; padding: 2px 10px; height: 22px; min-width: 120px; }
-        .status-name { font-size: 0.55rem; }
-        .status-url { display: none; }
-        .copy-btn { font-size: 0.4rem; padding: 0 5px; height: 16px; }
-        .copy-btn i { font-size: 0.35rem; }
-        .copy-all-btn { font-size: 0.45rem; padding: 1px 6px; height: 16px; }
-        .status-badge { font-size: 0.4rem; padding: 1px 6px; height: 16px; }
-        .status-card { padding: 2px 6px; min-height: 18px; gap: 4px; }
-        .brand-header { font-size: 0.6rem; }
-        .brand-header .count { font-size: 0.4rem; padding: 0 5px; }
-        .status-icon { font-size: 0.5rem; width: 14px; }
-        .footer-left { gap: 4px; flex-wrap: wrap; }
-        .last-checked { font-size: 0.45rem; }
-        .check-result { font-size: 0.4rem; }
-        .btn-refresh { font-size: 0.45rem; padding: 2px 8px; gap: 3px; }
-        .timer-circle { width: 20px; height: 20px; }
-        .timer-circle svg { width: 20px; height: 20px; }
-        .timer-text { font-size: 0.35rem; }
-        .timer-label { font-size: 0.4rem; }
-        .total-domains { font-size: 0.5rem; }
-        .footer-copyright { font-size: 0.4rem; }
-        .toast { font-size: 0.55rem; padding: 4px 12px; bottom: 10px; }
-        .section-title { font-size: 0.45rem; }
-        .ipos-card .status-name { font-size: 0.55rem; }
-        .ipos-header { font-size: 0.5rem; }
-        .ipos-card { padding: 2px 6px; min-height: 18px; }
-        .ipos-card .status-badge { font-size: 0.4rem; padding: 1px 6px; height: 14px; }
-        .ipos-card .copy-btn { font-size: 0.4rem; height: 14px; padding: 0 4px; }
-        .ipos-card .status-icon { font-size: 0.45rem; width: 12px; }
       }
     </style>
   </head>
@@ -943,10 +943,10 @@ HTML_TEMPLATE = '''
           </div>
           <div class="timer-wrapper">
             <div class="timer-circle">
-              <svg viewBox="0 0 28 28">
-                <circle class="bg" cx="14" cy="14" r="11" />
-                <circle class="progress" id="timerProgress" cx="14" cy="14" r="11"
-                  stroke-dasharray="69.12"
+              <svg viewBox="0 0 36 36">
+                <circle class="bg" cx="18" cy="18" r="15" />
+                <circle class="progress" id="timerProgress" cx="18" cy="18" r="15"
+                  stroke-dasharray="94.25"
                   stroke-dashoffset="0" />
               </svg>
               <span class="timer-text" id="timerText">15:00</span>
@@ -1049,7 +1049,7 @@ HTML_TEMPLATE = '''
           html += `</div></div>`;
         }
 
-        // ── IPOS SECTION (di bawah RUBY8000) ──
+        // ── IPOS SECTION ──
         if (iposDomains && iposDomains.length > 0) {
           html += `<div class="ipos-section">`;
           html += `<div class="ipos-header"><i class="fas fa-triangle-exclamation"></i> IPOS Domains <span class="count">${iposDomains.length} domains</span></div>`;
@@ -1160,7 +1160,7 @@ HTML_TEMPLATE = '''
       function updateTimer() {
         const prog = document.getElementById("timerProgress");
         const txt = document.getElementById("timerText");
-        const circ = 69.12;
+        const circ = 94.25;
         const off = circ * (1 - timeLeft / AUTO_REFRESH_SEC);
         prog.style.strokeDashoffset = off;
         const m = Math.floor(timeLeft / 60);
