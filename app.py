@@ -368,7 +368,7 @@ HTML_TEMPLATE = '''
       .hero-center {
         text-align: center;
         flex-shrink: 0;
-        padding: 5px 0 4px;
+        padding: 4px 0 3px;
       }
       .hero-center h1 {
         font-size: 1.3rem;
@@ -388,11 +388,11 @@ HTML_TEMPLATE = '''
         gap: 10px;
         padding: 5px 24px;
         border-radius: 50px;
-        font-size: 0.95rem;
+        font-size: 1rem;
         font-weight: 700;
         transition: all 0.4s;
         cursor: default;
-        margin-top: 3px;
+        margin-top: 2px;
         height: 36px;
         min-width: 190px;
       }
@@ -430,32 +430,38 @@ HTML_TEMPLATE = '''
         50% { transform: scale(1.5); opacity: 0.5; }
       }
 
-      /* ── TIMER BAR (di atas Domain List) ── */
-      .timer-bar {
+      /* ── TOP BAR (Auto-refresh + Refresh button) ── */
+      .top-bar {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 14px;
         flex-shrink: 0;
         padding: 4px 0 6px;
         border-bottom: 1px solid rgba(255,255,255,0.05);
         margin-bottom: 4px;
       }
-      .timer-bar .label {
-        font-size: 0.65rem;
-        color: rgba(255,255,255,0.25);
+      .top-bar .timer-section {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 1;
+      }
+      .top-bar .timer-section .label {
+        font-size: 0.7rem;
+        color: rgba(255,255,255,0.3);
         font-weight: 500;
         letter-spacing: 1px;
         text-transform: uppercase;
       }
-      .timer-bar .progress-track {
+      .top-bar .timer-section .progress-track {
         flex: 1;
-        height: 4px;
+        height: 5px;
         background: rgba(255,255,255,0.06);
         border-radius: 4px;
         overflow: hidden;
         min-width: 60px;
       }
-      .timer-bar .progress-fill {
+      .top-bar .timer-section .progress-fill {
         height: 100%;
         background: linear-gradient(90deg, #f093fb, #f5576c);
         border-radius: 4px;
@@ -463,23 +469,46 @@ HTML_TEMPLATE = '''
         transition: width 0.5s linear;
         box-shadow: 0 0 10px rgba(245, 87, 108, 0.3);
       }
-      .timer-bar .time-text {
-        font-size: 0.7rem;
+      .top-bar .timer-section .time-text {
+        font-size: 0.8rem;
         font-weight: 600;
-        color: rgba(255,255,255,0.4);
+        color: rgba(255,255,255,0.5);
         font-variant-numeric: tabular-nums;
-        min-width: 40px;
+        min-width: 45px;
         text-align: right;
       }
-      .timer-bar .icon-sand {
+      .top-bar .timer-section .icon-sand {
         color: #f093fb;
-        font-size: 0.9rem;
+        font-size: 1rem;
         animation: spin-sand 4s linear infinite;
       }
       @keyframes spin-sand {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
       }
+      .top-bar .btn-refresh {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 16px;
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        font-family: inherit;
+        font-size: 0.75rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        flex-shrink: 0;
+      }
+      .top-bar .btn-refresh:hover {
+        transform: scale(1.03);
+        box-shadow: 0 6px 20px rgba(245, 87, 108, 0.2);
+      }
+      .top-bar .btn-refresh.spinning i { animation: spin 0.7s linear infinite; }
+      .top-bar .btn-refresh:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+      @keyframes spin { to { transform: rotate(360deg); } }
 
       /* ── MAIN ── */
       main {
@@ -492,7 +521,7 @@ HTML_TEMPLATE = '''
       }
 
       .section-title {
-        font-size: 0.65rem;
+        font-size: 0.7rem;
         font-weight: 700;
         letter-spacing: 2px;
         text-transform: uppercase;
@@ -503,6 +532,34 @@ HTML_TEMPLATE = '''
         justify-content: space-between;
         align-items: center;
       }
+
+      .copy-all-btn {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: rgba(255,255,255,0.4);
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.08);
+        padding: 2px 14px;
+        border-radius: 14px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-family: inherit;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        height: 28px;
+      }
+      .copy-all-btn:hover {
+        background: rgba(255,255,255,0.08);
+        color: #fff;
+        border-color: rgba(255,255,255,0.15);
+      }
+      .copy-all-btn.copied {
+        background: rgba(0, 230, 118, 0.12);
+        color: #00e676;
+        border-color: rgba(0, 230, 118, 0.2);
+      }
+      .copy-all-btn i { font-size: 0.6rem; }
 
       .status-scroll {
         flex: 1;
@@ -517,7 +574,7 @@ HTML_TEMPLATE = '''
         margin-bottom: 4px;
       }
       .brand-header {
-        font-size: 0.95rem;
+        font-size: 1rem;
         font-weight: 700;
         color: #f093fb;
         padding: 2px 0 2px;
@@ -525,49 +582,16 @@ HTML_TEMPLATE = '''
         margin-bottom: 2px;
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-      }
-      .brand-header .left {
-        display: flex;
-        align-items: center;
         gap: 10px;
       }
       .brand-header .count {
-        font-size: 0.6rem;
+        font-size: 0.65rem;
         font-weight: 400;
         color: rgba(255,255,255,0.25);
         background: rgba(255,255,255,0.05);
         padding: 0 10px;
         border-radius: 12px;
       }
-      .brand-header .copy-all-btn {
-        font-size: 0.65rem;
-        font-weight: 600;
-        color: rgba(255,255,255,0.35);
-        background: rgba(255,255,255,0.04);
-        border: 1px solid rgba(255,255,255,0.06);
-        padding: 1px 12px;
-        border-radius: 12px;
-        cursor: pointer;
-        transition: all 0.3s;
-        font-family: inherit;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        height: 24px;
-      }
-      .brand-header .copy-all-btn:hover {
-        background: rgba(255,255,255,0.08);
-        color: #fff;
-        border-color: rgba(255,255,255,0.15);
-      }
-      .brand-header .copy-all-btn.copied {
-        background: rgba(0, 230, 118, 0.12);
-        color: #00e676;
-        border-color: rgba(0, 230, 118, 0.2);
-      }
-      .brand-header .copy-all-btn i { font-size: 0.5rem; }
 
       .status-list {
         display: flex;
@@ -582,7 +606,7 @@ HTML_TEMPLATE = '''
         display: flex;
         align-items: center;
         gap: 10px;
-        min-height: 30px;
+        min-height: 32px;
         transition: all 0.2s ease;
       }
       .status-card:hover {
@@ -593,7 +617,7 @@ HTML_TEMPLATE = '''
       .status-card.ipos { border-left: 3px solid #ff1744; }
 
       .status-icon {
-        font-size: 0.8rem;
+        font-size: 0.85rem;
         width: 20px;
         text-align: center;
         flex-shrink: 0;
@@ -610,12 +634,12 @@ HTML_TEMPLATE = '''
         flex-wrap: wrap;
       }
       .status-name {
-        font-size: 0.85rem;
+        font-size: 0.9rem;
         font-weight: 600;
         white-space: nowrap;
       }
       .status-url {
-        font-size: 0.55rem;
+        font-size: 0.6rem;
         color: rgba(255,255,255,0.2);
         white-space: nowrap;
       }
@@ -627,11 +651,11 @@ HTML_TEMPLATE = '''
         flex-shrink: 0;
       }
       .status-badge {
-        font-size: 0.6rem;
+        font-size: 0.65rem;
         font-weight: 700;
         padding: 1px 12px;
         border-radius: 12px;
-        height: 22px;
+        height: 24px;
         display: flex;
         align-items: center;
       }
@@ -645,7 +669,7 @@ HTML_TEMPLATE = '''
       }
 
       .copy-btn {
-        font-size: 0.6rem;
+        font-size: 0.65rem;
         color: rgba(255,255,255,0.25);
         background: rgba(255,255,255,0.03);
         border: 1px solid rgba(255,255,255,0.05);
@@ -658,7 +682,7 @@ HTML_TEMPLATE = '''
         align-items: center;
         gap: 3px;
         white-space: nowrap;
-        height: 22px;
+        height: 24px;
       }
       .copy-btn:hover {
         background: rgba(255,255,255,0.06);
@@ -670,7 +694,7 @@ HTML_TEMPLATE = '''
         color: #00e676;
         border-color: rgba(0, 230, 118, 0.15);
       }
-      .copy-btn i { font-size: 0.45rem; }
+      .copy-btn i { font-size: 0.5rem; }
 
       /* ── IPOS SECTION ── */
       .ipos-section {
@@ -679,7 +703,7 @@ HTML_TEMPLATE = '''
         padding-top: 3px;
       }
       .ipos-header {
-        font-size: 0.8rem;
+        font-size: 0.85rem;
         font-weight: 700;
         color: #ff1744;
         padding: 1px 0 1px;
@@ -690,7 +714,7 @@ HTML_TEMPLATE = '''
         gap: 8px;
       }
       .ipos-header .count {
-        font-size: 0.55rem;
+        font-size: 0.6rem;
         font-weight: 400;
         color: rgba(255,255,255,0.3);
         background: rgba(255,23,68,0.1);
@@ -710,37 +734,37 @@ HTML_TEMPLATE = '''
         display: flex;
         align-items: center;
         gap: 10px;
-        min-height: 26px;
+        min-height: 28px;
         border-left: 3px solid #ff1744;
       }
       .ipos-card .status-name {
-        font-size: 0.85rem;
+        font-size: 0.9rem;
         font-weight: 600;
         color: #ff1744;
       }
       .ipos-card .status-badge {
         background: rgba(255, 23, 68, 0.12);
         color: #ff1744;
-        font-size: 0.55rem;
+        font-size: 0.6rem;
         padding: 1px 12px;
         border-radius: 12px;
         font-weight: 700;
-        height: 20px;
+        height: 22px;
         display: flex;
         align-items: center;
       }
       .ipos-card .copy-btn {
         border-color: rgba(255, 23, 68, 0.15);
         color: rgba(255,255,255,0.3);
-        height: 20px;
-        font-size: 0.55rem;
+        height: 22px;
+        font-size: 0.6rem;
       }
       .ipos-card .copy-btn:hover {
         border-color: rgba(255, 23, 68, 0.3);
         color: #fff;
       }
       .ipos-card .status-icon {
-        font-size: 0.7rem;
+        font-size: 0.75rem;
         width: 18px;
         color: #ff1744;
       }
@@ -768,43 +792,21 @@ HTML_TEMPLATE = '''
         flex-wrap: wrap;
       }
       .last-checked {
-        font-size: 0.7rem;
+        font-size: 0.75rem;
         color: rgba(255,255,255,0.3);
       }
       .last-checked span { color: rgba(255,255,255,0.5); font-weight: 500; }
       .check-result {
-        font-size: 0.65rem;
+        font-size: 0.7rem;
         color: rgba(255,255,255,0.2);
       }
       .check-result span { color: rgba(255,255,255,0.35); }
 
       .total-domains {
-        font-size: 0.8rem;
-        color: rgba(255,255,255,0.3);
+        font-size: 0.85rem;
+        color: rgba(255,255,255,0.35);
         font-weight: 600;
       }
-      .btn-refresh {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        padding: 4px 16px;
-        background: linear-gradient(135deg, #f093fb, #f5576c);
-        color: #fff;
-        border: none;
-        border-radius: 6px;
-        font-family: inherit;
-        font-size: 0.7rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.3s;
-      }
-      .btn-refresh:hover {
-        transform: scale(1.03);
-        box-shadow: 0 6px 20px rgba(245, 87, 108, 0.2);
-      }
-      .btn-refresh.spinning i { animation: spin 0.7s linear infinite; }
-      .btn-refresh:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
-      @keyframes spin { to { transform: rotate(360deg); } }
 
       .footer-copyright {
         text-align: center;
@@ -831,7 +833,7 @@ HTML_TEMPLATE = '''
         color: #fff;
         padding: 8px 20px;
         border-radius: 10px;
-        font-size: 0.75rem;
+        font-size: 0.8rem;
         font-weight: 600;
         opacity: 0;
         transition: opacity 0.3s ease;
@@ -846,30 +848,31 @@ HTML_TEMPLATE = '''
         .app-container { padding: 10px 14px 8px; border-radius: 16px; }
         .logo { font-size: 1.2rem; }
         .hero-center h1 { font-size: 1.1rem; }
-        .status-name { font-size: 0.75rem; }
+        .status-name { font-size: 0.8rem; }
         .status-url { font-size: 0.5rem; display: none; }
-        .overall-badge { font-size: 0.75rem; padding: 4px 16px; height: 30px; min-width: 160px; }
+        .overall-badge { font-size: 0.8rem; padding: 4px 16px; height: 32px; min-width: 160px; }
         .copy-btn { font-size: 0.55rem; padding: 0 8px; height: 20px; }
         .copy-btn i { font-size: 0.4rem; }
-        .brand-header .copy-all-btn { font-size: 0.55rem; padding: 1px 10px; height: 20px; }
+        .copy-all-btn { font-size: 0.65rem; padding: 2px 12px; height: 24px; }
         .status-badge { font-size: 0.55rem; padding: 1px 10px; height: 20px; }
-        .status-card { padding: 2px 10px; min-height: 26px; gap: 8px; }
+        .status-card { padding: 2px 10px; min-height: 28px; gap: 8px; }
         .footer-left { gap: 10px; }
-        .last-checked { font-size: 0.6rem; }
-        .check-result { font-size: 0.55rem; }
-        .btn-refresh { font-size: 0.6rem; padding: 3px 12px; }
-        .total-domains { font-size: 0.7rem; }
+        .last-checked { font-size: 0.65rem; }
+        .check-result { font-size: 0.6rem; }
+        .total-domains { font-size: 0.75rem; }
         .brand-header { font-size: 0.85rem; }
-        .status-icon { font-size: 0.7rem; width: 18px; }
-        .ipos-card .status-name { font-size: 0.75rem; }
-        .ipos-header { font-size: 0.7rem; }
+        .status-icon { font-size: 0.75rem; width: 18px; }
+        .ipos-card .status-name { font-size: 0.8rem; }
+        .ipos-header { font-size: 0.75rem; }
         .ipos-card { padding: 2px 10px; min-height: 24px; }
-        .ipos-card .status-badge { font-size: 0.5rem; padding: 1px 10px; height: 18px; }
-        .ipos-card .copy-btn { font-size: 0.5rem; height: 18px; padding: 0 8px; }
+        .ipos-card .status-badge { font-size: 0.55rem; padding: 1px 10px; height: 20px; }
+        .ipos-card .copy-btn { font-size: 0.55rem; height: 20px; padding: 0 8px; }
         .ipos-card .status-icon { font-size: 0.65rem; width: 16px; }
-        .timer-bar .label { font-size: 0.55rem; }
-        .timer-bar .time-text { font-size: 0.6rem; min-width: 35px; }
-        .timer-bar .icon-sand { font-size: 0.75rem; }
+        .top-bar .timer-section .label { font-size: 0.6rem; }
+        .top-bar .timer-section .time-text { font-size: 0.7rem; min-width: 40px; }
+        .top-bar .timer-section .icon-sand { font-size: 0.85rem; }
+        .top-bar .btn-refresh { font-size: 0.65rem; padding: 3px 12px; }
+        .section-title { font-size: 0.6rem; }
       }
 
       @media (max-width: 480px) {
@@ -877,35 +880,35 @@ HTML_TEMPLATE = '''
         .logo { font-size: 1rem; }
         .hero-center h1 { font-size: 0.9rem; }
         .hero-center p { font-size: 0.6rem; }
-        .overall-badge { font-size: 0.6rem; padding: 3px 12px; height: 26px; min-width: 130px; }
-        .status-name { font-size: 0.65rem; }
+        .overall-badge { font-size: 0.65rem; padding: 3px 12px; height: 28px; min-width: 140px; }
+        .status-name { font-size: 0.7rem; }
         .status-url { display: none; }
-        .copy-btn { font-size: 0.45rem; padding: 0 6px; height: 18px; }
-        .copy-btn i { font-size: 0.35rem; }
-        .brand-header .copy-all-btn { font-size: 0.45rem; padding: 1px 8px; height: 18px; }
-        .status-badge { font-size: 0.45rem; padding: 1px 8px; height: 18px; }
-        .status-card { padding: 2px 6px; min-height: 22px; gap: 6px; }
+        .copy-btn { font-size: 0.5rem; padding: 0 6px; height: 18px; }
+        .copy-btn i { font-size: 0.4rem; }
+        .copy-all-btn { font-size: 0.55rem; padding: 1px 10px; height: 20px; }
+        .status-badge { font-size: 0.5rem; padding: 1px 8px; height: 18px; }
+        .status-card { padding: 2px 6px; min-height: 24px; gap: 6px; }
         .brand-header { font-size: 0.7rem; }
-        .brand-header .count { font-size: 0.45rem; padding: 0 6px; }
-        .status-icon { font-size: 0.6rem; width: 16px; }
+        .brand-header .count { font-size: 0.5rem; padding: 0 6px; }
+        .status-icon { font-size: 0.65rem; width: 16px; }
         .footer-left { gap: 6px; flex-wrap: wrap; }
-        .last-checked { font-size: 0.5rem; }
-        .check-result { font-size: 0.45rem; }
-        .btn-refresh { font-size: 0.5rem; padding: 2px 10px; gap: 3px; }
-        .total-domains { font-size: 0.6rem; }
-        .footer-copyright { font-size: 0.4rem; }
-        .toast { font-size: 0.55rem; padding: 5px 12px; bottom: 10px; }
+        .last-checked { font-size: 0.55rem; }
+        .check-result { font-size: 0.5rem; }
+        .total-domains { font-size: 0.65rem; }
+        .footer-copyright { font-size: 0.45rem; }
+        .toast { font-size: 0.6rem; padding: 5px 12px; bottom: 10px; }
         .section-title { font-size: 0.5rem; }
-        .ipos-card .status-name { font-size: 0.65rem; }
-        .ipos-header { font-size: 0.6rem; }
-        .ipos-card { padding: 2px 6px; min-height: 20px; }
-        .ipos-card .status-badge { font-size: 0.4rem; padding: 1px 8px; height: 16px; }
-        .ipos-card .copy-btn { font-size: 0.4rem; height: 16px; padding: 0 6px; }
-        .ipos-card .status-icon { font-size: 0.5rem; width: 14px; }
-        .timer-bar .label { font-size: 0.45rem; }
-        .timer-bar .time-text { font-size: 0.5rem; min-width: 30px; }
-        .timer-bar .icon-sand { font-size: 0.65rem; }
-        .timer-bar .progress-track { min-width: 40px; }
+        .ipos-card .status-name { font-size: 0.7rem; }
+        .ipos-header { font-size: 0.65rem; }
+        .ipos-card { padding: 2px 6px; min-height: 22px; }
+        .ipos-card .status-badge { font-size: 0.5rem; padding: 1px 8px; height: 18px; }
+        .ipos-card .copy-btn { font-size: 0.5rem; height: 18px; padding: 0 6px; }
+        .ipos-card .status-icon { font-size: 0.55rem; width: 14px; }
+        .top-bar .timer-section .label { font-size: 0.5rem; }
+        .top-bar .timer-section .time-text { font-size: 0.6rem; min-width: 35px; }
+        .top-bar .timer-section .icon-sand { font-size: 0.7rem; }
+        .top-bar .btn-refresh { font-size: 0.55rem; padding: 2px 10px; }
+        .top-bar { gap: 8px; }
       }
     </style>
   </head>
@@ -933,20 +936,28 @@ HTML_TEMPLATE = '''
         </div>
       </div>
 
-      <!-- TIMER BAR (di atas Domain List) -->
-      <div class="timer-bar">
-        <i class="fas fa-hourglass-half icon-sand"></i>
-        <span class="label">Auto-refresh</span>
-        <div class="progress-track">
-          <div class="progress-fill" id="timerProgressFill" style="width:100%;"></div>
+      <!-- TOP BAR (Auto-refresh + Refresh button) -->
+      <div class="top-bar">
+        <div class="timer-section">
+          <i class="fas fa-hourglass-half icon-sand"></i>
+          <span class="label">Auto-refresh</span>
+          <div class="progress-track">
+            <div class="progress-fill" id="timerProgressFill" style="width:100%;"></div>
+          </div>
+          <span class="time-text" id="timerText">15:00</span>
         </div>
-        <span class="time-text" id="timerText">15:00</span>
+        <button class="btn-refresh" id="btnRefresh" onclick="runCheck()">
+          <i class="fas fa-sync"></i> Refresh
+        </button>
       </div>
 
       <!-- MAIN -->
       <main>
         <div class="section-title">
           <span><i class="fas fa-server"></i>&nbsp; Domain List</span>
+          <button class="copy-all-btn" id="copyAllBtn" onclick="copyAll()">
+            <i class="fas fa-copy"></i> Copy All
+          </button>
         </div>
         <div class="status-scroll" id="statusContainer">
           <!-- Rendered by JS -->
@@ -963,9 +974,6 @@ HTML_TEMPLATE = '''
             <div class="check-result" id="checkResult">—</div>
           </div>
           <div class="total-domains" id="totalDomains">Total Domains: 0</div>
-          <button class="btn-refresh" id="btnRefresh" onclick="runCheck()">
-            <i class="fas fa-sync"></i> Refresh
-          </button>
         </div>
       </div>
       
@@ -1032,13 +1040,8 @@ HTML_TEMPLATE = '''
           total += items.length;
           html += `<div class="brand-group">`;
           html += `<div class="brand-header">
-            <div class="left">
-              <i class="fas fa-folder"></i> ${brand}
-              <span class="count">${items.length} domains</span>
-            </div>
-            <button class="copy-all-btn" onclick="copyBrand('${brand}')">
-              <i class="fas fa-copy"></i> Copy All
-            </button>
+            <i class="fas fa-folder"></i> ${brand}
+            <span class="count">${items.length} domains</span>
           </div>`;
           html += `<div class="status-list">`;
 
@@ -1094,34 +1097,6 @@ HTML_TEMPLATE = '''
         document.getElementById("totalDomains").textContent = `Total Domains: ${total}`;
       }
 
-      // ── COPY BRAND ──
-      function copyBrand(brand) {
-        const domains = SERVICES.filter(s => s.brand === brand).map(s => s.name);
-        const text = domains.join('\\n');
-        navigator.clipboard.writeText(text).then(() => {
-          showToast(`Copied ${domains.length} domains from ${brand}`);
-          const btns = document.querySelectorAll('.brand-header .copy-all-btn');
-          btns.forEach(btn => {
-            if (btn.closest('.brand-header').querySelector('.left')?.textContent.includes(brand)) {
-              btn.classList.add('copied');
-              btn.innerHTML = '<i class="fas fa-check"></i> Copied';
-              setTimeout(() => {
-                btn.classList.remove('copied');
-                btn.innerHTML = '<i class="fas fa-copy"></i> Copy All';
-              }, 1500);
-            }
-          });
-        }).catch(() => {
-          const ta = document.createElement('textarea');
-          ta.value = text;
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand('copy');
-          document.body.removeChild(ta);
-          showToast(`Copied ${domains.length} domains from ${brand}`);
-        });
-      }
-
       // ── OVERALL BADGE ──
       function renderOverall(iposCount) {
         const badge = document.getElementById("overallBadge");
@@ -1175,6 +1150,30 @@ HTML_TEMPLATE = '''
           document.execCommand('copy');
           document.body.removeChild(ta);
           showToast(`Copied: ${domain}`);
+        });
+      }
+
+      // ── COPY ALL ──
+      function copyAll() {
+        const domains = SERVICES.map(s => s.name);
+        const text = domains.join('\\n');
+        navigator.clipboard.writeText(text).then(() => {
+          showToast(`Copied ${domains.length} domains`);
+          const btn = document.getElementById('copyAllBtn');
+          btn.classList.add('copied');
+          btn.innerHTML = '<i class="fas fa-check"></i> Copied All';
+          setTimeout(() => {
+            btn.classList.remove('copied');
+            btn.innerHTML = '<i class="fas fa-copy"></i> Copy All';
+          }, 1500);
+        }).catch(() => {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          showToast(`Copied ${domains.length} domains`);
         });
       }
 
