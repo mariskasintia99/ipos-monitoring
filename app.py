@@ -79,7 +79,7 @@ def send_and_pin(token, chat_id, message):
     except: 
         return False
 
-# --- GET ALL DOMAINS FROM KV ---
+# --- GET ALL DOMAINS FROM KV (TANPA PING) ---
 def get_all_domains():
     """Mengambil semua domain dari semua KV key"""
     all_domains = []
@@ -95,17 +95,12 @@ def get_all_domains():
                 })
     return all_domains
 
-# --- CHECK URL STATUS (PING SEDERHANA) ---
-def check_service_status(url):
-    try:
-        start = time.time()
-        response = requests.head(url, timeout=10, allow_redirects=True)
-        ping_ms = int((time.time() - start) * 1000)
-        if response.status_code < 400:
-            return {"status": "up", "ping": ping_ms}
-        return {"status": "down", "ping": None}
-    except:
-        return {"status": "down", "ping": None}
+# --- CEK STATUS DOMAIN DARI KV (HANYA UNTUK TAMPILAN) ---
+def get_domain_status_from_kv(domain):
+    """Cek apakah domain ada di KV (artinya AKTIF)"""
+    # Semua domain di KV dianggap AKTIF
+    # Domain IPOS akan dihapus dari KV oleh run_api_check()
+    return {"status": "up", "ping": None}
 
 # --- MESIN UTAMA (MULTI-KEY & AUTO FAILOVER) ---
 def run_api_check():
@@ -133,7 +128,6 @@ def run_api_check():
             chunk = domains[i:i + chunk_size]
             chunk_berhasil = False
             
-            # LOOP FAILOVER
             while not chunk_berhasil and active_key_idx < len(api_keys):
                 current_api_data = api_keys[active_key_idx]
                 current_api_label = current_api_data["label"]
@@ -226,7 +220,7 @@ def run_api_check():
     log("SUCCESS", "Pengecekan Nawala Selesai!")
     return log_buffer
 
-# --- HTML TEMPLATE ---
+# --- HTML TEMPLATE (DIPERKECIL) ---
 HTML_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="id">
@@ -258,17 +252,18 @@ HTML_TEMPLATE = '''
         min-height: 100vh;
         display: flex;
         flex-direction: column;
+        font-size: 12px;
       }
 
       /* ── HEADER ── */
       header {
         background: #111;
         border-bottom: 2px solid var(--accent);
-        padding: 18px 32px;
+        padding: 8px 20px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 16px;
+        gap: 12px;
         flex-wrap: wrap;
       }
 
@@ -276,7 +271,7 @@ HTML_TEMPLATE = '''
         display: inline-flex;
         align-items: center;
         text-decoration: none;
-        font-size: 1.5rem;
+        font-size: 1.1rem;
         font-weight: 700;
         color: var(--text);
       }
@@ -284,37 +279,36 @@ HTML_TEMPLATE = '''
       .logo span { color: var(--accent); }
 
       .header-sub {
-        font-size: 0.85rem;
+        font-size: 0.7rem;
         color: var(--muted);
       }
 
       /* ── HERO BANNER ── */
       .hero {
         text-align: center;
-        padding: 56px 24px 40px;
+        padding: 12px 16px 10px;
       }
 
       .hero h1 {
-        font-size: clamp(1.6rem, 4vw, 2.4rem);
+        font-size: 1.2rem;
         font-weight: 700;
-        margin-bottom: 10px;
+        margin-bottom: 4px;
       }
 
       .hero p {
         color: var(--muted);
-        font-size: 1rem;
+        font-size: 0.75rem;
         max-width: 480px;
-        margin: 0 auto 24px;
+        margin: 0 auto 8px;
       }
 
-      /* Overall status badge */
       .overall-badge {
         display: inline-flex;
         align-items: center;
-        gap: 10px;
-        padding: 12px 28px;
+        gap: 6px;
+        padding: 6px 16px;
         border-radius: 50px;
-        font-size: 1.1rem;
+        font-size: 0.85rem;
         font-weight: 700;
         transition: background 0.4s, color 0.4s;
       }
@@ -324,7 +318,7 @@ HTML_TEMPLATE = '''
       .overall-badge.checking { background: rgba(245,158,11,0.12); color: var(--yellow); border: 1.5px solid var(--yellow); }
 
       .pulse {
-        width: 12px; height: 12px;
+        width: 10px; height: 10px;
         border-radius: 50%;
         display: inline-block;
         animation: pulse 1.6s infinite;
@@ -341,79 +335,77 @@ HTML_TEMPLATE = '''
       /* ── MAIN CONTENT ── */
       main {
         flex: 1;
-        max-width: 900px;
+        max-width: 950px;
         width: 100%;
         margin: 0 auto;
-        padding: 0 24px 60px;
+        padding: 0 16px 20px;
       }
 
       .section-title {
-        font-size: 0.8rem;
+        font-size: 0.65rem;
         font-weight: 700;
-        letter-spacing: 1.5px;
+        letter-spacing: 1px;
         text-transform: uppercase;
         color: var(--muted);
-        margin: 36px 0 14px;
+        margin: 10px 0 6px;
       }
 
       .brand-group {
-        margin-bottom: 24px;
+        margin-bottom: 8px;
       }
 
       .brand-header {
-        font-size: 1.1rem;
+        font-size: 0.8rem;
         font-weight: 700;
         color: var(--accent);
-        padding: 10px 0 8px;
+        padding: 4px 0 3px;
         border-bottom: 1px solid var(--border);
-        margin-bottom: 12px;
+        margin-bottom: 5px;
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
       }
 
       .brand-header .count {
-        font-size: 0.8rem;
+        font-size: 0.6rem;
         font-weight: 400;
         color: var(--muted);
         background: var(--border);
-        padding: 2px 10px;
-        border-radius: 12px;
+        padding: 1px 8px;
+        border-radius: 10px;
       }
 
-      /* ── STATUS CARDS ── */
       .status-list {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 3px;
       }
 
       .status-card {
         background: var(--card);
-        border: 1.5px solid var(--border);
-        border-radius: 10px;
-        padding: 14px 20px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 4px 10px;
         display: flex;
         align-items: center;
-        gap: 16px;
-        transition: border-color 0.3s, box-shadow 0.3s, transform 0.2s;
+        gap: 8px;
+        transition: border-color 0.3s, box-shadow 0.3s;
         text-decoration: none;
         color: inherit;
         cursor: pointer;
       }
 
       .status-card:hover {
-        box-shadow: 0 4px 20px rgba(0,0,0,0.45);
-        transform: translateY(-2px);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
       }
 
-      .status-card.up   { border-left: 4px solid var(--green); }
-      .status-card.down { border-left: 4px solid var(--red); }
-      .status-card.loading { border-left: 4px solid var(--yellow); }
+      .status-card.up   { border-left: 3px solid var(--green); }
+      .status-card.down { border-left: 3px solid var(--red); }
+      .status-card.loading { border-left: 3px solid var(--yellow); }
 
       .status-icon {
-        font-size: 1.2rem;
-        width: 32px;
+        font-size: 0.85rem;
+        width: 22px;
         text-align: center;
         flex-shrink: 0;
       }
@@ -424,7 +416,7 @@ HTML_TEMPLATE = '''
       .status-info { flex: 1; min-width: 0; }
 
       .status-name {
-        font-size: 0.95rem;
+        font-size: 0.75rem;
         font-weight: 700;
         white-space: nowrap;
         overflow: hidden;
@@ -432,7 +424,7 @@ HTML_TEMPLATE = '''
       }
 
       .status-url {
-        font-size: 0.75rem;
+        font-size: 0.6rem;
         color: var(--muted);
         white-space: nowrap;
         overflow: hidden;
@@ -443,38 +435,37 @@ HTML_TEMPLATE = '''
         display: flex;
         flex-direction: column;
         align-items: flex-end;
-        gap: 4px;
+        gap: 1px;
         flex-shrink: 0;
       }
 
       .status-badge {
-        font-size: 0.75rem;
+        font-size: 0.6rem;
         font-weight: 700;
-        padding: 3px 12px;
-        border-radius: 20px;
-        letter-spacing: 0.5px;
+        padding: 1px 8px;
+        border-radius: 12px;
+        letter-spacing: 0.3px;
       }
       .up   .status-badge { background: rgba(34,197,94,0.18);  color: var(--green); }
       .down .status-badge { background: rgba(239,68,68,0.18);  color: var(--red); }
       .loading .status-badge { background: rgba(245,158,11,0.18); color: var(--yellow); }
 
       .status-ping {
-        font-size: 0.7rem;
+        font-size: 0.55rem;
         color: var(--muted);
       }
 
-      /* ── REFRESH CONTROLS ── */
       .controls {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
-        margin: 32px 0 0;
+        gap: 10px;
+        margin: 12px 0 0;
         flex-wrap: wrap;
       }
 
       .last-checked {
-        font-size: 0.82rem;
+        font-size: 0.65rem;
         color: var(--muted);
       }
 
@@ -483,32 +474,29 @@ HTML_TEMPLATE = '''
       .btn-refresh {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        padding: 9px 22px;
+        gap: 6px;
+        padding: 5px 14px;
         background: var(--accent);
         color: #fff;
         border: none;
-        border-radius: 6px;
+        border-radius: 5px;
         font-family: inherit;
-        font-size: 0.9rem;
+        font-size: 0.7rem;
         font-weight: 700;
         cursor: pointer;
-        transition: background 0.2s, transform 0.15s;
+        transition: background 0.2s;
       }
 
-      .btn-refresh:hover  { background: #a50000; transform: translateY(-1px); }
-      .btn-refresh:active { transform: translateY(0); }
-
+      .btn-refresh:hover  { background: #a50000; }
       .btn-refresh.spinning i { animation: spin 0.7s linear infinite; }
 
       @keyframes spin { to { transform: rotate(360deg); } }
 
-      /* ── AUTO REFRESH BAR ── */
       .refresh-bar-wrap {
-        margin-top: 18px;
+        margin-top: 10px;
         background: var(--border);
-        border-radius: 4px;
-        height: 3px;
+        border-radius: 3px;
+        height: 2px;
         overflow: hidden;
       }
 
@@ -521,24 +509,23 @@ HTML_TEMPLATE = '''
       }
 
       .refresh-note {
-        font-size: 0.75rem;
+        font-size: 0.6rem;
         color: var(--muted);
-        margin-top: 6px;
+        margin-top: 3px;
         text-align: right;
       }
 
       .total-domains {
-        font-size: 0.85rem;
+        font-size: 0.65rem;
         color: var(--muted);
-        margin-top: 8px;
+        margin-top: 4px;
         text-align: center;
       }
 
-      /* ── FOOTER ── */
       footer {
         text-align: center;
-        padding: 20px;
-        font-size: 0.78rem;
+        padding: 8px;
+        font-size: 0.6rem;
         color: var(--muted);
         border-top: 1px solid var(--border);
       }
@@ -548,13 +535,11 @@ HTML_TEMPLATE = '''
   </head>
   <body>
 
-    <!-- HEADER -->
     <header>
       <div class="logo">IPOS<span>Monitor</span></div>
-      <div class="header-sub"><i class="fa fa-circle-dot" style="color:var(--accent)"></i>&nbsp; System Status Page</div>
+      <div class="header-sub"><i class="fa fa-circle-dot" style="color:var(--accent)"></i>&nbsp; System Status</div>
     </header>
 
-    <!-- HERO -->
     <div class="hero">
       <h1>Status Layanan IPOS</h1>
       <p>Pantau kondisi semua domain IPOS secara real-time.</p>
@@ -564,21 +549,15 @@ HTML_TEMPLATE = '''
       </div>
     </div>
 
-    <!-- MAIN -->
     <main>
       <div class="section-title"><i class="fa fa-server"></i>&nbsp; Daftar Domain</div>
 
-      <div id="statusContainer">
-        <!-- Rendered by JS -->
-      </div>
+      <div id="statusContainer"></div>
 
       <div class="total-domains" id="totalDomains">Total Domain: 0</div>
 
-      <!-- CONTROLS -->
       <div class="controls">
-        <div class="last-checked">
-          Terakhir dicek: <span id="lastChecked">—</span>
-        </div>
+        <div class="last-checked">Terakhir dicek: <span id="lastChecked">—</span></div>
         <button class="btn-refresh" id="btnRefresh" onclick="checkAll()">
           <i class="fa fa-rotate-right"></i> Refresh
         </button>
@@ -590,37 +569,21 @@ HTML_TEMPLATE = '''
       <div class="refresh-note">Auto-refresh setiap <span id="intervalLabel">15</span> menit</div>
     </main>
 
-    <!-- FOOTER -->
-    <footer>
-      &copy; 2025 IPOS Monitoring &mdash; <a href="/">Kembali ke Beranda</a>
-    </footer>
+    <footer>&copy; 2025 IPOS Monitoring &mdash; <a href="/">Kembali</a></footer>
 
     <script>
-      /* ────────────────────────────────────────────
-         KONFIGURASI
-      ──────────────────────────────────────────── */
       const SERVICES = {{ services|tojson }};
-      const AUTO_REFRESH_SEC = 15 * 60; // 15 menit
+      const AUTO_REFRESH_SEC = 15 * 60;
 
-      /* ────────────────────────────────────────────
-         STATE
-      ──────────────────────────────────────────── */
-      let results   = SERVICES.map(() => ({ status: "loading", ping: null }));
-      let timerID   = null;
+      let results = SERVICES.map(() => ({ status: "up", ping: null }));
+      let timerID = null;
       let barAnimID = null;
 
-      /* ────────────────────────────────────────────
-         RENDER - Group by Brand
-      ──────────────────────────────────────────── */
       function renderList() {
         const container = document.getElementById("statusContainer");
-        
-        // Group by brand
         const groups = {};
         SERVICES.forEach((svc, i) => {
-          if (!groups[svc.brand]) {
-            groups[svc.brand] = [];
-          }
+          if (!groups[svc.brand]) groups[svc.brand] = [];
           groups[svc.brand].push({ ...svc, index: i });
         });
 
@@ -630,22 +593,15 @@ HTML_TEMPLATE = '''
         for (const [brand, items] of Object.entries(groups)) {
           totalDomains += items.length;
           html += `<div class="brand-group">`;
-          html += `<div class="brand-header">
-            <i class="fa fa-folder-open"></i> ${brand}
-            <span class="count">${items.length} domain</span>
-          </div>`;
+          html += `<div class="brand-header"><i class="fa fa-folder-open"></i> ${brand} <span class="count">${items.length}</span></div>`;
           html += `<div class="status-list">`;
 
           items.forEach((svc) => {
-            const r = results[svc.index];
-            const cls   = r ? r.status : "loading";
-            const badge = cls === "up"      ? "AKTIF"
-                        : cls === "down"    ? "IPOS"
-                        :                    "Memeriksa…";
-            const icon  = cls === "up"      ? "fa-circle-check"
-                        : cls === "down"    ? "fa-circle-xmark"
-                        :                    "fa-circle-notch fa-spin";
-            const ping  = (r && r.ping !== null) ? `${r.ping} ms` : "—";
+            const r = results[svc.index] || { status: "up", ping: null };
+            const cls = r.status || "up";
+            const badge = cls === "up" ? "AKTIF" : "IPOS";
+            const icon = cls === "up" ? "fa-circle-check" : "fa-circle-xmark";
+            const ping = (r.ping !== null && r.ping !== undefined) ? `${r.ping} ms` : "—";
 
             html += `
               <a class="status-card ${cls}" href="${svc.url}" target="_blank" rel="noopener noreferrer">
@@ -656,8 +612,7 @@ HTML_TEMPLATE = '''
                 </div>
                 <div class="status-right">
                   <span class="status-badge">${badge}</span>
-                  <span class="status-ping"><i class="fa fa-bolt" style="font-size:.7rem"></i> ${ping}</span>
-                  <span style="font-size:.7rem;color:var(--muted)"><i class="fa fa-arrow-up-right-from-square"></i></span>
+                  <span class="status-ping"><i class="fa fa-bolt" style="font-size:.5rem"></i> ${ping}</span>
                 </div>
               </a>`;
           });
@@ -671,15 +626,11 @@ HTML_TEMPLATE = '''
 
       function renderOverall() {
         const badge = document.getElementById("overallBadge");
-        const text  = document.getElementById("overallText");
-        const any   = results.some(r => r.status !== "loading");
-        if (!any) {
-          badge.className = "overall-badge checking";
-          text.textContent = "Memeriksa…";
-          return;
-        }
+        const text = document.getElementById("overallText");
         const allUp = results.every(r => r.status === "up");
-        if (allUp) {
+        const anyDown = results.some(r => r.status === "down");
+
+        if (!anyDown) {
           badge.className = "overall-badge all-up";
           text.textContent = "Semua Domain Normal";
         } else {
@@ -689,77 +640,35 @@ HTML_TEMPLATE = '''
         }
       }
 
-      /* ────────────────────────────────────────────
-         CHECK SINGLE SERVICE
-      ──────────────────────────────────────────── */
-      async function checkOne(url) {
-        const start = Date.now();
-        try {
-          const response = await fetch(url, {
-            method: "HEAD",
-            mode: "no-cors",
-            cache: "no-store",
-            signal: AbortSignal.timeout(10000),
-          });
-          return { status: "up", ping: Date.now() - start };
-        } catch {
-          return { status: "down", ping: null };
-        }
-      }
-
-      /* ────────────────────────────────────────────
-         CHECK ALL
-      ──────────────────────────────────────────── */
       async function checkAll() {
-        // Set semua ke loading
-        results = SERVICES.map(() => ({ status: "loading", ping: null }));
+        results = SERVICES.map(() => ({ status: "up", ping: null }));
         renderList();
         renderOverall();
 
-        // Spin button
         const btn = document.getElementById("btnRefresh");
         btn.classList.add("spinning");
 
-        // Jalankan paralel dengan batch
-        const batchSize = 10;
-        for (let i = 0; i < SERVICES.length; i += batchSize) {
-          const batch = SERVICES.slice(i, i + batchSize);
-          await Promise.all(
-            batch.map(async (svc, idx) => {
-              const realIdx = i + idx;
-              const r = await checkOne(svc.url);
-              results[realIdx] = r;
-              renderList();
-              renderOverall();
-            })
-          );
-        }
-
-        btn.classList.remove("spinning");
-
-        // Timestamp
         const now = new Date();
         document.getElementById("lastChecked").textContent =
           now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 
         // Reset auto-refresh bar
         startProgressBar();
+
+        btn.classList.remove("spinning");
       }
 
-      /* ────────────────────────────────────────────
-         AUTO-REFRESH PROGRESS BAR
-      ──────────────────────────────────────────── */
       function startProgressBar() {
         clearTimeout(timerID);
         if (barAnimID) cancelAnimationFrame(barAnimID);
 
-        const bar   = document.getElementById("refreshBar");
+        const bar = document.getElementById("refreshBar");
         const total = AUTO_REFRESH_SEC * 1000;
         const start = performance.now();
 
         function tick(now) {
           const elapsed = now - start;
-          const pct     = Math.min(elapsed / total, 1);
+          const pct = Math.min(elapsed / total, 1);
           bar.style.transform = `scaleX(${1 - pct})`;
           if (pct < 1) {
             barAnimID = requestAnimationFrame(tick);
@@ -772,12 +681,10 @@ HTML_TEMPLATE = '''
         }, total);
       }
 
-      /* ────────────────────────────────────────────
-         INIT
-      ──────────────────────────────────────────── */
       document.getElementById("intervalLabel").textContent = "15";
       renderList();
-      checkAll();
+      renderOverall();
+      startProgressBar();
     </script>
   </body>
 </html>
@@ -787,56 +694,18 @@ HTML_TEMPLATE = '''
 LAST_RUN_TIME = None
 LAST_LOG_OUTPUT = "Sistem baru menyala. Memuat data patroli..."
 IS_RUNNING = False
-SERVICE_STATUS = []
 
 @app.route('/')
 def status_page():
     """Halaman utama dengan tampilan status IPOS"""
-    global SERVICE_STATUS
-    
-    # Ambil semua domain dari KV
     all_domains = get_all_domains()
-    
-    # Jika belum ada status, lakukan pengecekan
-    if not SERVICE_STATUS or len(SERVICE_STATUS) != len(all_domains):
-        SERVICE_STATUS = []
-        for domain in all_domains:
-            status = check_service_status(domain["url"])
-            SERVICE_STATUS.append(status)
-    
     return render_template_string(HTML_TEMPLATE, services=all_domains)
-
-@app.route('/api/status')
-def api_status():
-    """API endpoint untuk mendapatkan status layanan"""
-    global SERVICE_STATUS
-    return Response(
-        json.dumps(SERVICE_STATUS),
-        mimetype='application/json'
-    )
-
-@app.route('/api/refresh')
-def api_refresh():
-    """Refresh status layanan"""
-    global SERVICE_STATUS
-    all_domains = get_all_domains()
-    SERVICE_STATUS = []
-    for domain in all_domains:
-        status = check_service_status(domain["url"])
-        SERVICE_STATUS.append(status)
-    return Response(
-        json.dumps({"status": "ok", "data": SERVICE_STATUS}),
-        mimetype='application/json'
-    )
 
 @app.route('/api/domains')
 def api_domains():
     """API untuk mendapatkan daftar semua domain dari KV"""
     all_domains = get_all_domains()
-    return Response(
-        json.dumps(all_domains),
-        mimetype='application/json'
-    )
+    return Response(json.dumps(all_domains), mimetype='application/json')
 
 @app.route('/jalankan-patroli', methods=['GET', 'HEAD'])
 def endpoint_patroli():
