@@ -44,7 +44,6 @@ TARGETS_IPOS = [
 
 # Store IPOS domains from last patrol
 IPOS_DOMAINS = []
-LAST_PATROL_RESULT = "No patrol run yet"
 
 log_buffer = ""
 
@@ -101,7 +100,7 @@ def get_all_domains():
 
 # --- MESIN UTAMA (MULTI-KEY & AUTO FAILOVER) ---
 def run_api_check():
-    global log_buffer, IPOS_DOMAINS, LAST_PATROL_RESULT
+    global log_buffer, IPOS_DOMAINS
     log_buffer = "" 
     IPOS_DOMAINS = []
     
@@ -220,9 +219,6 @@ def run_api_check():
                 msg += f"🟢 {d}\n"
             msg += f"{garis}\n"
         send_and_pin(TELEGRAM_TOKEN_IPOS, CHAT_ID_IPOS, msg)
-        LAST_PATROL_RESULT = f"Patrol completed at {datetime.now(timezone.utc) + timedelta(hours=7):%H:%M:%S} - {len(all_removed)} domains removed"
-    else:
-        LAST_PATROL_RESULT = f"Patrol completed at {datetime.now(timezone.utc) + timedelta(hours=7):%H:%M:%S} - No IPOS domains found"
 
     log("SUCCESS", "Pengecekan Nawala Selesai!")
     return log_buffer
@@ -305,7 +301,6 @@ HTML_TEMPLATE = '''
         box-shadow: 0 25px 60px rgba(0,0,0,0.6);
       }
 
-      /* ── HEADER ── */
       header {
         display: flex;
         align-items: center;
@@ -354,7 +349,6 @@ HTML_TEMPLATE = '''
         50% { transform: scale(1.3); opacity: 0.6; }
       }
 
-      /* ── HERO ── */
       .hero {
         text-align: center;
         flex-shrink: 0;
@@ -414,7 +408,6 @@ HTML_TEMPLATE = '''
         50% { transform: scale(1.5); opacity: 0.5; }
       }
 
-      /* ── MAIN ── */
       main {
         flex: 1;
         min-height: 0;
@@ -551,18 +544,10 @@ HTML_TEMPLATE = '''
         font-weight: 600;
         min-width: 60px;
         text-align: right;
-        transition: all 0.5s ease;
       }
       .status-ping .fa-bolt {
         color: #f093fb;
         margin-right: 4px;
-      }
-      .status-ping.updating {
-        animation: ping-flash 0.3s ease;
-      }
-      @keyframes ping-flash {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.3; }
       }
 
       .status-badge {
@@ -581,7 +566,6 @@ HTML_TEMPLATE = '''
         color: #ff1744;
       }
 
-      /* ── FOOTER ── */
       .footer-controls {
         flex-shrink: 0;
         padding-top: 10px;
@@ -676,14 +660,6 @@ HTML_TEMPLATE = '''
 
       @keyframes spin { to { transform: rotate(360deg); } }
 
-      .patrol-result {
-        font-size: 0.7rem;
-        color: rgba(255,255,255,0.3);
-        text-align: center;
-        padding-top: 4px;
-        flex-shrink: 0;
-      }
-
       .footer-copyright {
         text-align: center;
         padding: 6px 0 0;
@@ -724,7 +700,6 @@ HTML_TEMPLATE = '''
         .timer-label { font-size: 0.55rem; }
         .header-status { font-size: 0.7rem; }
         .status-right { gap: 8px; }
-        .patrol-result { font-size: 0.6rem; }
         .footer-copyright { font-size: 0.55rem; }
       }
 
@@ -752,18 +727,15 @@ HTML_TEMPLATE = '''
         .header-status { font-size: 0.6rem; }
         .status-dot { width: 8px; height: 8px; }
         .status-right { gap: 6px; }
-        .patrol-result { font-size: 0.5rem; }
         .footer-copyright { font-size: 0.5rem; }
       }
     </style>
   </head>
   <body>
 
-    <!-- Floating Particles -->
     <div class="particles" id="particles"></div>
 
     <div class="app-container">
-      <!-- HEADER -->
       <header>
         <div class="logo"><i class="fas fa-shield-halved"></i>IPOS<span style="-webkit-text-fill-color:#f093fb;">Monitoring</span></div>
         <div class="header-status">
@@ -772,7 +744,6 @@ HTML_TEMPLATE = '''
         </div>
       </header>
 
-      <!-- HERO -->
       <div class="hero">
         <h1>IPOS Service Status</h1>
         <p>Real-time monitoring of all domains</p>
@@ -782,13 +753,11 @@ HTML_TEMPLATE = '''
         </div>
       </div>
 
-      <!-- MAIN -->
       <main>
         <div class="section-title"><i class="fas fa-server"></i>&nbsp; Domain List</div>
         <div class="status-scroll" id="statusContainer"></div>
       </main>
 
-      <!-- FOOTER -->
       <div class="footer-controls">
         <div class="last-checked">
           <i class="fas fa-clock"></i>&nbsp; Last Checked: <span id="lastChecked">—</span>
@@ -813,8 +782,6 @@ HTML_TEMPLATE = '''
           <i class="fas fa-sync"></i> Refresh Status
         </button>
       </div>
-      
-      <div class="patrol-result" id="patrolResult">Last patrol: Not run yet</div>
       
       <div class="footer-copyright">
         &copy; 2025 IPOS Monitoring — <a href="/">Back to Dashboard</a>
@@ -849,25 +816,21 @@ HTML_TEMPLATE = '''
       let timeLeft = AUTO_REFRESH_SEC;
       let isUpdating = false;
 
-      // ── CHECK SINGLE SERVICE (GET with follow redirects) ──
+      // ── CHECK SINGLE SERVICE (HEAD with no-cors) ──
       async function checkOne(url) {
         const start = Date.now();
         try {
           const response = await fetch(url, {
-            method: "GET",
-            mode: "cors",
+            method: "HEAD",
+            mode: "no-cors",
             cache: "no-store",
-            redirect: "follow",
-            signal: AbortSignal.timeout(15000),
+            signal: AbortSignal.timeout(10000),
           });
+          // no-cors mode returns opaque response, but we can still measure time
           const ping = Date.now() - start;
-          // Jika status 200-399 = success (termasuk redirect ke moneysite)
-          if (response.status >= 200 && response.status < 400) {
-            return { status: "active", ping: ping };
-          }
-          return { status: "active", ping: null };
+          return { status: "active", ping: ping };
         } catch (error) {
-          // Kalau error/timeout, return null
+          // Timeout or error
           return { status: "active", ping: null };
         }
       }
@@ -901,7 +864,6 @@ HTML_TEMPLATE = '''
             const badge = isIpos ? "IPOS" : "ACTIVE";
             const icon = isIpos ? "fa-circle-xmark" : "fa-circle-check";
             const pingDisplay = (r.ping !== null && r.ping !== undefined) ? `${r.ping} ms` : "—";
-            const pingClass = r.ping !== null ? "" : "down";
 
             html += `
               <a class="status-card ${cls}" href="${svc.url}" target="_blank" rel="noopener noreferrer">
@@ -911,7 +873,7 @@ HTML_TEMPLATE = '''
                   <span class="status-url">${svc.url}</span>
                 </div>
                 <div class="status-right">
-                  <span class="status-ping ${pingClass}"><i class="fas fa-bolt"></i> ${pingDisplay}</span>
+                  <span class="status-ping"><i class="fas fa-bolt"></i> ${pingDisplay}</span>
                   <span class="status-badge">${badge}</span>
                 </div>
               </a>`;
@@ -995,7 +957,6 @@ HTML_TEMPLATE = '''
               renderList();
             })
           );
-          // Delay antar batch biar gak overload
           if (i + batchSize < SERVICES.length) {
             await new Promise(resolve => setTimeout(resolve, 500));
           }
@@ -1019,9 +980,6 @@ HTML_TEMPLATE = '''
           const response = await fetch('/api/ipos-status');
           const data = await response.json();
           const iposDomains = data.ipos_domains || [];
-          const patrolResult = data.last_patrol || 'Not run yet';
-          
-          document.getElementById('patrolResult').textContent = `Last patrol: ${patrolResult}`;
           
           window.IPOS_DOMAINS = iposDomains;
           renderList();
@@ -1071,8 +1029,7 @@ def status_page():
 def api_ipos_status():
     return Response(
         json.dumps({
-            "ipos_domains": IPOS_DOMAINS,
-            "last_patrol": LAST_PATROL_RESULT
+            "ipos_domains": IPOS_DOMAINS
         }),
         mimetype='application/json'
     )
