@@ -42,6 +42,10 @@ TARGETS_IPOS = [
     }
 ]
 
+# Store IPOS domains from last patrol
+IPOS_DOMAINS = []
+LAST_PATROL_RESULT = "No patrol run yet"
+
 log_buffer = ""
 
 def log(type_msg, msg):
@@ -102,19 +106,22 @@ def check_service_status(url):
         response = requests.head(url, timeout=10, allow_redirects=True)
         ping_ms = int((time.time() - start) * 1000)
         if response.status_code < 400:
-            return {"status": "up", "ping": ping_ms}
-        return {"status": "down", "ping": None}
+            return {"status": "active", "ping": ping_ms}
+        return {"status": "active", "ping": None}  # Always active if in KV
     except:
-        return {"status": "down", "ping": None}
+        return {"status": "active", "ping": None}  # Always active if in KV
 
 # --- MESIN UTAMA (MULTI-KEY & AUTO FAILOVER) ---
 def run_api_check():
-    global log_buffer
+    global log_buffer, IPOS_DOMAINS, LAST_PATROL_RESULT
     log_buffer = "" 
+    IPOS_DOMAINS = []
+    
     log("SYSTEM", "Memulai pengecekan Nawala (Mode Auto-Cadangan API)...")
 
     ada_perubahan = False
     global_report = []
+    all_removed = []
 
     for target in TARGETS_IPOS:
         log("INFO", f"--- Memproses Brand: {target['name']} ---")
@@ -197,6 +204,7 @@ def run_api_check():
         for d in domains:
             if d.lower().strip() in blocked_domains:
                 removed.append(d)
+                all_removed.append(d)
                 log("WARN", f"🔴 STATUS: IPOS ➜ {d} [AUTO DELETE]")
             else:
                 active.append(d)
@@ -208,6 +216,9 @@ def run_api_check():
             
         global_report.append({"name": target["name"], "active": active, "removed": removed})
 
+    # Save IPOS domains for display
+    IPOS_DOMAINS = all_removed
+    
     if ada_perubahan:
         log("INFO", "Mengirim laporan Telegram...")
         waktu_str = (datetime.now(timezone.utc) + timedelta(hours=7)).strftime("%d/%m/%Y, %H:%M:%S WIB")
@@ -221,11 +232,14 @@ def run_api_check():
                 msg += f"🟢 {d}\n"
             msg += f"{garis}\n"
         send_and_pin(TELEGRAM_TOKEN_IPOS, CHAT_ID_IPOS, msg)
+        LAST_PATROL_RESULT = f"Patrol completed at {datetime.now(timezone.utc) + timedelta(hours=7):%H:%M:%S} - {len(all_removed)} domains removed"
+    else:
+        LAST_PATROL_RESULT = f"Patrol completed at {datetime.now(timezone.utc) + timedelta(hours=7):%H:%M:%S} - No IPOS domains found"
 
     log("SUCCESS", "Pengecekan Nawala Selesai!")
     return log_buffer
 
-# --- HTML TEMPLATE (ENGLISH, WITH PING) ---
+# --- HTML TEMPLATE (ENGLISH, WITH PING, IPOS STATUS FROM KV) ---
 HTML_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="en">
@@ -381,6 +395,7 @@ HTML_TEMPLATE = '''
         font-weight: 700;
         margin-top: 4px;
         transition: all 0.4s;
+        cursor: default;
       }
 
       .overall-badge.all-up {
@@ -389,7 +404,7 @@ HTML_TEMPLATE = '''
         border: 1.5px solid rgba(0, 230, 118, 0.25);
         box-shadow: 0 0 30px rgba(0, 230, 118, 0.08);
       }
-      .overall-badge.has-down {
+      .overall-badge.has-ipos {
         background: rgba(255, 23, 68, 0.12);
         color: #ff1744;
         border: 1.5px solid rgba(255, 23, 68, 0.25);
@@ -404,7 +419,7 @@ HTML_TEMPLATE = '''
         animation: pulse-badge 1.2s ease-in-out infinite;
       }
       .all-up .pulse-icon { background: #00e676; }
-      .has-down .pulse-icon { background: #ff1744; }
+      .has-ipos .pulse-icon { background: #ff1744; }
 
       @keyframes pulse-badge {
         0%, 100% { transform: scale(1); opacity: 1; }
@@ -502,8 +517,8 @@ HTML_TEMPLATE = '''
         box-shadow: 0 4px 20px rgba(0,0,0,0.3);
       }
 
-      .status-card.up { border-left: 4px solid #00e676; }
-      .status-card.down { border-left: 4px solid #ff1744; }
+      .status-card.active { border-left: 4px solid #00e676; }
+      .status-card.ipos { border-left: 4px solid #ff1744; }
 
       .status-icon {
         font-size: 1rem;
@@ -511,8 +526,8 @@ HTML_TEMPLATE = '''
         text-align: center;
         flex-shrink: 0;
       }
-      .up .status-icon { color: #00e676; }
-      .down .status-icon { color: #ff1744; }
+      .active .status-icon { color: #00e676; }
+      .ipos .status-icon { color: #ff1744; }
 
       .status-info {
         flex: 1;
@@ -548,13 +563,18 @@ HTML_TEMPLATE = '''
         font-weight: 600;
         min-width: 60px;
         text-align: right;
+        transition: all 0.5s ease;
       }
       .status-ping .fa-bolt {
         color: #f093fb;
         margin-right: 4px;
       }
-      .status-ping.down {
-        color: rgba(255,255,255,0.2);
+      .status-ping.updating {
+        animation: ping-flash 0.3s ease;
+      }
+      @keyframes ping-flash {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.3; }
       }
 
       .status-badge {
@@ -564,11 +584,11 @@ HTML_TEMPLATE = '''
         border-radius: 20px;
         letter-spacing: 0.5px;
       }
-      .up .status-badge {
+      .active .status-badge {
         background: rgba(0, 230, 118, 0.12);
         color: #00e676;
       }
-      .down .status-badge {
+      .ipos .status-badge {
         background: rgba(255, 23, 68, 0.12);
         color: #ff1744;
       }
@@ -668,6 +688,14 @@ HTML_TEMPLATE = '''
 
       @keyframes spin { to { transform: rotate(360deg); } }
 
+      .patrol-result {
+        font-size: 0.7rem;
+        color: rgba(255,255,255,0.3);
+        text-align: center;
+        padding-top: 4px;
+        flex-shrink: 0;
+      }
+
       /* ── RESPONSIVE ── */
       @media (max-width: 768px) {
         .app-container { padding: 14px 16px 12px; max-height: 100vh; border-radius: 16px; }
@@ -691,6 +719,7 @@ HTML_TEMPLATE = '''
         .timer-label { font-size: 0.55rem; }
         .header-status { font-size: 0.7rem; }
         .status-right { gap: 8px; }
+        .patrol-result { font-size: 0.6rem; }
       }
 
       @media (max-width: 480px) {
@@ -717,6 +746,7 @@ HTML_TEMPLATE = '''
         .header-status { font-size: 0.6rem; }
         .status-dot { width: 8px; height: 8px; }
         .status-right { gap: 6px; }
+        .patrol-result { font-size: 0.5rem; }
       }
     </style>
   </head>
@@ -772,10 +802,11 @@ HTML_TEMPLATE = '''
 
         <div class="total-domains" id="totalDomains">Total Domains: 0</div>
 
-        <button class="btn-refresh" id="btnRefresh" onclick="checkAll()">
+        <button class="btn-refresh" id="btnRefresh" onclick="refreshAll()">
           <i class="fas fa-sync"></i> Refresh Status
         </button>
       </div>
+      <div class="patrol-result" id="patrolResult">Last patrol: Not run yet</div>
     </div>
 
     <script>
@@ -798,11 +829,13 @@ HTML_TEMPLATE = '''
 
       // ── DATA ──
       const SERVICES = {{ services|tojson }};
+      const IPOS_DOMAINS = {{ ipos_domains|tojson }};
       const AUTO_REFRESH_SEC = 15 * 60;
 
-      let results = SERVICES.map(() => ({ status: "up", ping: null }));
+      let results = SERVICES.map(() => ({ status: "active", ping: null }));
       let timerID = null;
       let timeLeft = AUTO_REFRESH_SEC;
+      let isUpdating = false;
 
       // ── CHECK SINGLE SERVICE (with ping) ──
       async function checkOne(url) {
@@ -814,9 +847,9 @@ HTML_TEMPLATE = '''
             cache: "no-store",
             signal: AbortSignal.timeout(10000),
           });
-          return { status: "up", ping: Date.now() - start };
+          return { status: "active", ping: Date.now() - start };
         } catch {
-          return { status: "down", ping: null };
+          return { status: "active", ping: null };
         }
       }
 
@@ -824,9 +857,14 @@ HTML_TEMPLATE = '''
       function renderList() {
         const container = document.getElementById("statusContainer");
         const groups = {};
+        
+        // Build IPOS set for quick lookup
+        const iposSet = new Set(IPOS_DOMAINS.map(d => d.toLowerCase()));
+        
         SERVICES.forEach((svc, i) => {
           if (!groups[svc.brand]) groups[svc.brand] = [];
-          groups[svc.brand].push({ ...svc, index: i });
+          const isIpos = iposSet.has(svc.name.toLowerCase());
+          groups[svc.brand].push({ ...svc, index: i, isIpos: isIpos });
         });
 
         let html = '';
@@ -839,10 +877,11 @@ HTML_TEMPLATE = '''
           html += `<div class="status-list">`;
 
           items.forEach((svc) => {
-            const r = results[svc.index] || { status: "up", ping: null };
-            const cls = r.status || "up";
-            const badge = cls === "up" ? "ACTIVE" : "DOWN";
-            const icon = cls === "up" ? "fa-circle-check" : "fa-circle-xmark";
+            const r = results[svc.index] || { status: "active", ping: null };
+            const isIpos = svc.isIpos;
+            const cls = isIpos ? "ipos" : "active";
+            const badge = isIpos ? "IPOS" : "ACTIVE";
+            const icon = isIpos ? "fa-circle-xmark" : "fa-circle-check";
             const pingDisplay = (r.ping !== null && r.ping !== undefined) ? `${r.ping} ms` : "—";
             const pingClass = r.ping !== null ? "" : "down";
 
@@ -871,21 +910,21 @@ HTML_TEMPLATE = '''
       function renderOverall() {
         const badge = document.getElementById("overallBadge");
         const text = document.getElementById("overallText");
-        const anyDown = results.some(r => r.status === "down");
         const dot = document.getElementById("statusDot");
         const label = document.getElementById("statusLabel");
 
-        if (!anyDown) {
+        const iposCount = IPOS_DOMAINS.length;
+
+        if (iposCount === 0) {
           badge.className = "overall-badge all-up";
           text.textContent = "All Domains Normal";
           dot.className = "status-dot green";
           label.textContent = "Monitoring Active";
         } else {
-          const downCount = results.filter(r => r.status === "down").length;
-          badge.className = "overall-badge has-down";
-          text.textContent = `${downCount} Domain(s) Down`;
+          badge.className = "overall-badge has-ipos";
+          text.textContent = `${iposCount} Domain(s) Nawala / IPOS`;
           dot.className = "status-dot red";
-          label.textContent = `${downCount} Domain(s) Down`;
+          label.textContent = `${iposCount} Domain(s) IPOS`;
         }
       }
 
@@ -902,7 +941,7 @@ HTML_TEMPLATE = '''
         text.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 
         if (timeLeft <= 0) {
-          checkAll();
+          refreshAll();
           timeLeft = AUTO_REFRESH_SEC;
         }
       }
@@ -916,13 +955,16 @@ HTML_TEMPLATE = '''
         updateTimer();
       }
 
-      // ── CHECK ALL (with real ping) ──
-      async function checkAll() {
+      // ── REFRESH ALL (with real ping) ──
+      async function refreshAll() {
+        if (isUpdating) return;
+        isUpdating = true;
+
         const btn = document.getElementById("btnRefresh");
         btn.classList.add("spinning");
 
         // Set loading state
-        results = SERVICES.map(() => ({ status: "loading", ping: null }));
+        results = SERVICES.map(() => ({ status: "active", ping: null }));
         renderList();
 
         // Check each domain with real ping
@@ -935,7 +977,6 @@ HTML_TEMPLATE = '''
               const r = await checkOne(svc.url);
               results[realIdx] = r;
               renderList();
-              renderOverall();
             })
           );
         }
@@ -950,17 +991,48 @@ HTML_TEMPLATE = '''
         updateTimer();
 
         btn.classList.remove("spinning");
+        isUpdating = false;
+      }
+
+      // ── FETCH IPOS STATUS FROM SERVER ──
+      async function fetchIposStatus() {
+        try {
+          const response = await fetch('/api/ipos-status');
+          const data = await response.json();
+          const iposDomains = data.ipos_domains || [];
+          const patrolResult = data.last_patrol || 'Not run yet';
+          
+          document.getElementById('patrolResult').textContent = `Last patrol: ${patrolResult}`;
+          
+          // Update IPOS_DOMAINS and re-render
+          window.IPOS_DOMAINS = iposDomains;
+          renderList();
+          renderOverall();
+        } catch (e) {
+          console.error('Failed to fetch IPOS status:', e);
+        }
       }
 
       // ── INIT ──
+      window.IPOS_DOMAINS = IPOS_DOMAINS;
       renderList();
       renderOverall();
       startTimer();
 
       // Initial check after page load
       setTimeout(() => {
-        checkAll();
+        refreshAll();
       }, 500);
+
+      // Fetch IPOS status periodically
+      setInterval(fetchIposStatus, 30000); // Every 30 seconds
+      
+      // Also fetch on page visibility change
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+          fetchIposStatus();
+        }
+      });
     </script>
   </body>
 </html>
@@ -974,7 +1046,22 @@ IS_RUNNING = False
 @app.route('/')
 def status_page():
     all_domains = get_all_domains()
-    return render_template_string(HTML_TEMPLATE, services=all_domains)
+    return render_template_string(
+        HTML_TEMPLATE, 
+        services=all_domains,
+        ipos_domains=IPOS_DOMAINS
+    )
+
+@app.route('/api/ipos-status')
+def api_ipos_status():
+    """API untuk mendapatkan status IPOS terkini"""
+    return Response(
+        json.dumps({
+            "ipos_domains": IPOS_DOMAINS,
+            "last_patrol": LAST_PATROL_RESULT
+        }),
+        mimetype='application/json'
+    )
 
 @app.route('/api/domains')
 def api_domains():
