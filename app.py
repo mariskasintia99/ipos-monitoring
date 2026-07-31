@@ -60,7 +60,6 @@ def log(type_msg, msg):
 
 # --- FUNGSI CLOUDFLARE & TELEGRAM ---
 def get_kv(key_name):
-    """Mengambil data dari KV dengan error handling untuk JSON malformed"""
     url = f"https://api.cloudflare.com/client/v4/accounts/{CF_ACCOUNT_ID}/storage/kv/namespaces/{KV_NAMESPACE_ID}/values/{key_name}"
     try:
         r = requests.get(url, headers={"Authorization": f"Bearer {CF_API_TOKEN}"})
@@ -70,25 +69,11 @@ def get_kv(key_name):
                 if isinstance(data, list):
                     return data
                 else:
-                    log("WARN", f"Data {key_name} bukan list: {data}")
                     return []
-            except json.JSONDecodeError as e:
-                log("ERROR", f"JSON Error pada {key_name}: {e}")
-                # Coba perbaiki manual: hapus kutip ganda
-                raw_text = r.text
-                # Perbaiki "domain"" menjadi "domain"
-                fixed_text = raw_text.replace('""', '"')
-                try:
-                    data = json.loads(fixed_text)
-                    if isinstance(data, list):
-                        log("INFO", f"Berhasil perbaiki {key_name} secara manual")
-                        return data
-                except:
-                    pass
+            except:
                 return []
         return []
-    except Exception as e:
-        log("ERROR", f"Gagal get KV {key_name}: {e}")
+    except: 
         return []
 
 def update_kv(key_name, new_list):
@@ -110,7 +95,6 @@ def send_and_pin(token, chat_id, message):
 
 # --- GET ALL DOMAINS FROM KV ---
 def get_all_domains():
-    """Mengambil semua domain dari semua KV key"""
     all_domains = []
     for target in TARGETS_IPOS:
         domains = get_kv(target['key'])
@@ -125,8 +109,6 @@ def get_all_domains():
                             "brand": target['name'],
                             "key": target['key']
                         })
-        else:
-            log("WARN", f"Tidak ada domain valid untuk {target['name']}")
     return all_domains
 
 # --- MESIN UTAMA ---
@@ -257,16 +239,16 @@ def run_patrol():
                 msg += f"🟢 {d}\n"
             msg += f"{garis}\n"
         send_and_pin(TELEGRAM_TOKEN_IPOS, CHAT_ID_IPOS, msg)
-        LAST_PATROL_RESULT = f"Patrol completed at {datetime.now(timezone.utc) + timedelta(hours=7):%H:%M:%S} - {len(all_removed)} domains removed"
+        LAST_PATROL_RESULT = f"Checking completed at {datetime.now(timezone.utc) + timedelta(hours=7):%H:%M:%S} - {len(all_removed)} domains removed from KV Domain Storage"
     else:
-        LAST_PATROL_RESULT = f"Patrol completed at {datetime.now(timezone.utc) + timedelta(hours=7):%H:%M:%S} - No IPOS domains found"
+        LAST_PATROL_RESULT = f"Checking completed at {datetime.now(timezone.utc) + timedelta(hours=7):%H:%M:%S} - No IPOS domains found"
 
     log("SYSTEM", "=" * 50)
     log("SUCCESS", "✅ PATROLI SELESAI!")
     log("SYSTEM", "=" * 50)
     return "\\n".join(PATROL_LOG)
 
-# --- HTML TEMPLATE (SAMA SEPERTI SEBELUMNYA) ---
+# --- HTML TEMPLATE ---
 HTML_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="en">
@@ -490,19 +472,20 @@ HTML_TEMPLATE = '''
       }
 
       .copy-all-btn {
-        font-size: 0.6rem;
+        font-size: 0.75rem;
         font-weight: 600;
-        color: rgba(255,255,255,0.4);
+        color: rgba(255,255,255,0.6);
         background: rgba(255,255,255,0.06);
         border: 1px solid rgba(255,255,255,0.1);
-        padding: 3px 12px;
-        border-radius: 12px;
+        padding: 4px 14px;
+        border-radius: 14px;
         cursor: pointer;
         transition: all 0.3s;
         font-family: inherit;
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 6px;
+        height: 30px;
       }
       .copy-all-btn:hover {
         background: rgba(255,255,255,0.12);
@@ -626,11 +609,14 @@ HTML_TEMPLATE = '''
       }
 
       .status-badge {
-        font-size: 0.7rem;
+        font-size: 0.75rem;
         font-weight: 700;
-        padding: 3px 16px;
+        padding: 3px 18px;
         border-radius: 20px;
         letter-spacing: 0.5px;
+        height: 30px;
+        display: flex;
+        align-items: center;
       }
       .active .status-badge {
         background: rgba(0, 230, 118, 0.12);
@@ -642,19 +628,20 @@ HTML_TEMPLATE = '''
       }
 
       .copy-btn {
-        font-size: 0.7rem;
-        color: rgba(255,255,255,0.3);
+        font-size: 0.75rem;
+        color: rgba(255,255,255,0.4);
         background: rgba(255,255,255,0.05);
         border: 1px solid rgba(255,255,255,0.08);
-        padding: 2px 10px;
-        border-radius: 12px;
+        padding: 2px 14px;
+        border-radius: 14px;
         cursor: pointer;
         transition: all 0.3s;
         font-family: inherit;
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: 5px;
         white-space: nowrap;
+        height: 30px;
       }
       .copy-btn:hover {
         background: rgba(255,255,255,0.1);
@@ -667,13 +654,92 @@ HTML_TEMPLATE = '''
         border-color: rgba(0, 230, 118, 0.3);
       }
       .copy-btn i {
-        font-size: 0.6rem;
+        font-size: 0.65rem;
+      }
+
+      .ipos-section {
+        margin-top: 4px;
+        border-top: 1px solid rgba(255,23,68,0.2);
+        padding-top: 6px;
+      }
+
+      .ipos-header {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #ff1744;
+        padding: 4px 0 3px;
+        border-bottom: 1px solid rgba(255,23,68,0.15);
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .ipos-header .count {
+        font-size: 0.65rem;
+        font-weight: 400;
+        color: rgba(255,255,255,0.3);
+        background: rgba(255,23,68,0.15);
+        padding: 1px 12px;
+        border-radius: 12px;
+      }
+
+      .ipos-list {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .ipos-card {
+        background: rgba(255, 23, 68, 0.06);
+        border: 1px solid rgba(255, 23, 68, 0.15);
+        border-radius: 8px;
+        padding: 8px 16px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-height: 40px;
+        border-left: 4px solid #ff1744;
+      }
+
+      .ipos-card .status-name {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #ff1744;
+      }
+
+      .ipos-card .status-badge {
+        background: rgba(255, 23, 68, 0.15);
+        color: #ff1744;
+        font-size: 0.7rem;
+        padding: 3px 16px;
+        border-radius: 20px;
+        font-weight: 700;
+        height: 28px;
+        display: flex;
+        align-items: center;
+      }
+
+      .ipos-card .copy-btn {
+        border-color: rgba(255, 23, 68, 0.2);
+        color: rgba(255,255,255,0.4);
+        height: 28px;
+      }
+      .ipos-card .copy-btn:hover {
+        border-color: rgba(255, 23, 68, 0.4);
+        color: #fff;
       }
 
       .footer-controls {
         flex-shrink: 0;
         padding-top: 10px;
         border-top: 1px solid rgba(255,255,255,0.06);
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .footer-row {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -686,6 +752,12 @@ HTML_TEMPLATE = '''
         color: rgba(255,255,255,0.4);
       }
       .last-checked span { color: rgba(255,255,255,0.7); font-weight: 500; }
+
+      .patrol-status {
+        font-size: 0.75rem;
+        color: rgba(255,255,255,0.3);
+      }
+      .patrol-status span { color: rgba(255,255,255,0.5); }
 
       .timer-wrapper {
         display: flex;
@@ -769,14 +841,6 @@ HTML_TEMPLATE = '''
 
       @keyframes spin { to { transform: rotate(360deg); } }
 
-      .patrol-status {
-        font-size: 0.7rem;
-        color: rgba(255,255,255,0.3);
-        text-align: center;
-        padding-top: 4px;
-        flex-shrink: 0;
-      }
-
       .footer-copyright {
         text-align: center;
         padding: 6px 0 0;
@@ -829,11 +893,11 @@ HTML_TEMPLATE = '''
         .status-url { font-size: 0.6rem; }
         .status-card { padding: 6px 12px; min-height: 38px; gap: 10px; }
         .status-info { gap: 8px; }
-        .status-badge { font-size: 0.6rem; padding: 2px 12px; }
-        .copy-btn { font-size: 0.6rem; padding: 1px 8px; }
-        .copy-all-btn { font-size: 0.55rem; padding: 2px 10px; }
+        .status-badge { font-size: 0.65rem; padding: 2px 12px; height: 26px; }
+        .copy-btn { font-size: 0.65rem; padding: 1px 10px; height: 26px; }
+        .copy-all-btn { font-size: 0.65rem; padding: 2px 12px; height: 26px; }
         .overall-badge { font-size: 0.8rem; padding: 4px 16px; }
-        .footer-controls { gap: 8px; }
+        .footer-row { gap: 8px; }
         .last-checked { font-size: 0.65rem; }
         .total-domains { font-size: 0.7rem; }
         .btn-refresh { font-size: 0.65rem; padding: 5px 14px; }
@@ -845,6 +909,8 @@ HTML_TEMPLATE = '''
         .status-right { gap: 6px; }
         .patrol-status { font-size: 0.6rem; }
         .footer-copyright { font-size: 0.55rem; }
+        .ipos-header { font-size: 0.7rem; }
+        .ipos-card .status-name { font-size: 0.75rem; }
       }
 
       @media (max-width: 480px) {
@@ -857,12 +923,12 @@ HTML_TEMPLATE = '''
         .status-url { font-size: 0.5rem; display: none; }
         .status-card { padding: 5px 10px; min-height: 32px; gap: 8px; }
         .status-icon { font-size: 0.8rem; width: 20px; }
-        .status-badge { font-size: 0.5rem; padding: 1px 10px; }
-        .copy-btn { font-size: 0.5rem; padding: 1px 6px; }
+        .status-badge { font-size: 0.55rem; padding: 1px 10px; height: 22px; }
+        .copy-btn { font-size: 0.55rem; padding: 1px 8px; height: 22px; }
         .copy-btn i { font-size: 0.5rem; }
-        .copy-all-btn { font-size: 0.5rem; padding: 1px 8px; }
+        .copy-all-btn { font-size: 0.55rem; padding: 1px 10px; height: 22px; }
         .overall-badge { font-size: 0.65rem; padding: 3px 12px; gap: 6px; }
-        .footer-controls { gap: 6px; }
+        .footer-row { gap: 6px; flex-direction: column; align-items: stretch; }
         .last-checked { font-size: 0.55rem; }
         .total-domains { font-size: 0.6rem; }
         .btn-refresh { font-size: 0.55rem; padding: 4px 10px; gap: 4px; }
@@ -876,6 +942,11 @@ HTML_TEMPLATE = '''
         .patrol-status { font-size: 0.5rem; }
         .footer-copyright { font-size: 0.5rem; }
         .toast { font-size: 0.7rem; padding: 8px 16px; bottom: 20px; }
+        .ipos-header { font-size: 0.65rem; }
+        .ipos-card .status-name { font-size: 0.65rem; }
+        .ipos-card { padding: 5px 10px; min-height: 30px; }
+        .ipos-card .status-badge { font-size: 0.5rem; padding: 1px 10px; height: 20px; }
+        .ipos-card .copy-btn { font-size: 0.5rem; padding: 1px 6px; height: 20px; }
       }
     </style>
   </head>
@@ -908,35 +979,37 @@ HTML_TEMPLATE = '''
             <i class="fas fa-copy"></i> Copy All
           </button>
         </div>
-        <div class="status-scroll" id="statusContainer"></div>
+        <div class="status-scroll" id="statusContainer">
+          <!-- Rendered by JS -->
+        </div>
       </main>
 
       <div class="footer-controls">
-        <div class="last-checked">
-          <i class="fas fa-clock"></i>&nbsp; Last Checked: <span id="lastChecked">—</span>
-        </div>
-
-        <div class="timer-wrapper">
-          <div class="timer-circle">
-            <svg viewBox="0 0 40 40">
-              <circle class="bg" cx="20" cy="20" r="17" />
-              <circle class="progress" id="timerProgress" cx="20" cy="20" r="17"
-                stroke-dasharray="106.81"
-                stroke-dashoffset="0" />
-            </svg>
-            <span class="timer-text" id="timerText">15:00</span>
+        <div class="footer-row">
+          <div class="last-checked">
+            <i class="fas fa-clock"></i>&nbsp; Last Checked: <span id="lastChecked">—</span>
           </div>
-          <span class="timer-label">Auto-refresh</span>
+          <div class="timer-wrapper">
+            <div class="timer-circle">
+              <svg viewBox="0 0 40 40">
+                <circle class="bg" cx="20" cy="20" r="17" />
+                <circle class="progress" id="timerProgress" cx="20" cy="20" r="17"
+                  stroke-dasharray="106.81"
+                  stroke-dashoffset="0" />
+              </svg>
+              <span class="timer-text" id="timerText">15:00</span>
+            </div>
+            <span class="timer-label">Auto-refresh</span>
+          </div>
+          <div class="total-domains" id="totalDomains">Total Domains: 0</div>
+          <button class="btn-refresh" id="btnRefresh" onclick="runPatrol()">
+            <i class="fas fa-sync"></i> Refresh Status
+          </button>
         </div>
-
-        <div class="total-domains" id="totalDomains">Total Domains: 0</div>
-
-        <button class="btn-refresh" id="btnRefresh" onclick="runPatrol()">
-          <i class="fas fa-sync"></i> Refresh Status
-        </button>
+        <div class="footer-row">
+          <div class="patrol-status" id="patrolStatus">Last patrol: Not run yet</div>
+        </div>
       </div>
-      
-      <div class="patrol-status" id="patrolStatus">Last patrol: Not run yet</div>
       
       <div class="footer-copyright">
         &copy; 2025 IPOS Monitoring — <a href="/">Back to Dashboard</a>
@@ -976,8 +1049,8 @@ HTML_TEMPLATE = '''
       }
 
       // ── DATA ──
-      const SERVICES = {{ services|tojson }};
-      const IPOS_DOMAINS = {{ ipos_domains|tojson }};
+      let SERVICES = {{ services|tojson }};
+      let IPOS_DOMAINS = {{ ipos_domains|tojson }};
       const AUTO_REFRESH_SEC = 15 * 60;
 
       let timerID = null;
@@ -985,11 +1058,11 @@ HTML_TEMPLATE = '''
       let isPatrolRunning = false;
 
       // ── RENDER ──
-      function renderList(services) {
+      function renderList(services, iposDomains) {
         const container = document.getElementById("statusContainer");
         const groups = {};
         
-        const iposSet = new Set(IPOS_DOMAINS.map(d => d.toLowerCase()));
+        const iposSet = new Set(iposDomains.map(d => d.toLowerCase()));
         
         services.forEach((svc) => {
           if (!groups[svc.brand]) groups[svc.brand] = [];
@@ -1028,6 +1101,30 @@ HTML_TEMPLATE = '''
               </div>`;
           });
 
+          html += `</div></div>`;
+        }
+
+        // ── IPOS SECTION ──
+        if (iposDomains && iposDomains.length > 0) {
+          html += `<div class="ipos-section">`;
+          html += `<div class="ipos-header"><i class="fas fa-triangle-exclamation"></i> IPOS Domains <span class="count">${iposDomains.length} domains</span></div>`;
+          html += `<div class="ipos-list">`;
+          
+          iposDomains.forEach((domain) => {
+            html += `
+              <div class="ipos-card">
+                <div class="status-icon"><i class="fas fa-circle-xmark" style="color:#ff1744;"></i></div>
+                <span class="status-name">${domain}</span>
+                <div style="flex:1;"></div>
+                <div class="status-right">
+                  <button class="copy-btn" onclick="copyDomain('${domain}')" title="Copy domain">
+                    <i class="fas fa-copy"></i> Copy
+                  </button>
+                  <span class="status-badge">IPOS</span>
+                </div>
+              </div>`;
+          });
+          
           html += `</div></div>`;
         }
 
@@ -1072,7 +1169,8 @@ HTML_TEMPLATE = '''
           showToast(`Copied: ${domain}`);
           const buttons = document.querySelectorAll('.copy-btn');
           buttons.forEach(btn => {
-            if (btn.closest('.status-card')?.querySelector('.status-name')?.textContent === domain) {
+            if (btn.closest('.status-card')?.querySelector('.status-name')?.textContent === domain ||
+                btn.closest('.ipos-card')?.querySelector('.status-name')?.textContent === domain) {
               btn.classList.add('copied');
               btn.innerHTML = '<i class="fas fa-check"></i> Copied';
               setTimeout(() => {
@@ -1168,13 +1266,11 @@ HTML_TEMPLATE = '''
           const data = await response.json();
           
           if (data.success) {
-            // Update services and IPOS domains
-            SERVICES.length = 0;
-            SERVICES.push(...data.services);
-            window.IPOS_DOMAINS = data.ipos_domains || [];
+            SERVICES = data.services || [];
+            IPOS_DOMAINS = data.ipos_domains || [];
             
-            renderList(SERVICES);
-            renderOverall(data.ipos_domains.length);
+            renderList(SERVICES, IPOS_DOMAINS);
+            renderOverall(IPOS_DOMAINS.length);
             
             const now = new Date();
             document.getElementById("lastChecked").textContent =
@@ -1182,8 +1278,8 @@ HTML_TEMPLATE = '''
             
             document.getElementById("patrolStatus").textContent = data.patrol_result || 'Patrol completed';
             
-            if (data.ipos_domains && data.ipos_domains.length > 0) {
-              showToast(`${data.ipos_domains.length} domain(s) detected as IPOS and removed`, false);
+            if (IPOS_DOMAINS.length > 0) {
+              showToast(`${IPOS_DOMAINS.length} domain(s) detected as IPOS and removed`, false);
             } else {
               showToast('No IPOS domains found. All domains are safe!', false);
             }
@@ -1199,8 +1295,6 @@ HTML_TEMPLATE = '''
         btn.classList.remove("spinning");
         timeLeft = AUTO_REFRESH_SEC;
         updateTimer();
-        
-        window.IPOS_DOMAINS = IPOS_DOMAINS;
       }
 
       // ── FETCH IPOS STATUS ──
@@ -1212,22 +1306,24 @@ HTML_TEMPLATE = '''
           const iposDomains = data.ipos_domains || [];
           const patrolResult = data.last_patrol || 'Not run yet';
           
-          document.getElementById('patrolStatus').textContent = `Last patrol: ${patrolResult}`;
+          document.getElementById('patrolStatus').textContent = patrolResult;
           
-          window.IPOS_DOMAINS = iposDomains;
-          renderList(SERVICES);
-          renderOverall(iposDomains.length);
+          IPOS_DOMAINS = iposDomains;
+          renderList(SERVICES, IPOS_DOMAINS);
+          renderOverall(IPOS_DOMAINS.length);
         } catch (e) {
           console.error('Failed to fetch IPOS status:', e);
         }
       }
 
       // ── INIT ──
-      window.IPOS_DOMAINS = IPOS_DOMAINS;
-      renderList(SERVICES);
+      renderList(SERVICES, IPOS_DOMAINS);
       renderOverall(IPOS_DOMAINS.length);
       startTimer();
 
+      // Initial fetch after 1 second
+      setTimeout(fetchIposStatus, 1000);
+      
       setInterval(fetchIposStatus, 15000);
       
       document.addEventListener('visibilitychange', () => {
