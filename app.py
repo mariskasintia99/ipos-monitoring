@@ -42,7 +42,6 @@ TARGETS_IPOS = [
     }
 ]
 
-# Store IPOS domains from last check
 IPOS_DOMAINS = []
 LAST_CHECK_RESULT = "No check run yet"
 IS_CHECK_RUNNING = False
@@ -68,8 +67,7 @@ def get_kv(key_name):
                 data = r.json()
                 if isinstance(data, list):
                     return data
-                else:
-                    return []
+                return []
             except:
                 return []
         return []
@@ -320,7 +318,7 @@ HTML_TEMPLATE = '''
         -webkit-backdrop-filter: blur(20px);
         border-radius: 24px;
         border: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 20px 28px 16px;
+        padding: 16px 24px 12px;
         display: flex;
         flex-direction: column;
         box-shadow: 0 25px 60px rgba(0,0,0,0.6);
@@ -331,12 +329,12 @@ HTML_TEMPLATE = '''
         align-items: center;
         justify-content: space-between;
         flex-shrink: 0;
-        padding-bottom: 10px;
+        padding-bottom: 6px;
         border-bottom: 2px solid rgba(255,255,255,0.08);
       }
 
       .logo {
-        font-size: 1.6rem;
+        font-size: 1.4rem;
         font-weight: 900;
         letter-spacing: -0.5px;
         background: linear-gradient(135deg, #fff 30%, #f093fb 100%);
@@ -344,98 +342,87 @@ HTML_TEMPLATE = '''
         -webkit-text-fill-color: transparent;
         background-clip: text;
       }
-
-      .logo i {
-        -webkit-text-fill-color: #f093fb;
-        margin-right: 8px;
-      }
+      .logo i { -webkit-text-fill-color: #f093fb; margin-right: 6px; }
 
       .header-status {
         display: flex;
         align-items: center;
         gap: 10px;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         color: rgba(255,255,255,0.6);
       }
-
       .status-dot {
-        width: 12px;
-        height: 12px;
+        width: 10px; height: 10px;
         border-radius: 50%;
         display: inline-block;
         animation: pulse-dot 1.5s ease-in-out infinite;
       }
-
       .status-dot.green { background: #00e676; box-shadow: 0 0 20px rgba(0, 230, 118, 0.4); }
       .status-dot.red { background: #ff1744; box-shadow: 0 0 20px rgba(255, 23, 68, 0.4); }
-
       @keyframes pulse-dot {
         0%, 100% { transform: scale(1); opacity: 1; }
         50% { transform: scale(1.3); opacity: 0.6; }
       }
 
-      .hero {
-        text-align: center;
+      /* ── HERO - BADGE DI SISI KIRI ── */
+      .hero-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         flex-shrink: 0;
-        padding: 8px 0 4px;
+        padding: 6px 0 4px;
+        gap: 16px;
       }
 
-      .hero h1 {
-        font-size: 1.4rem;
+      .hero-left {
+        display: flex;
+        flex-direction: column;
+      }
+      .hero-left h1 {
+        font-size: 1.1rem;
         font-weight: 800;
-        letter-spacing: -0.5px;
+        letter-spacing: -0.3px;
       }
-
-      .hero p {
-        color: rgba(255,255,255,0.4);
-        font-size: 0.8rem;
-        margin-top: 2px;
+      .hero-left p {
+        color: rgba(255,255,255,0.3);
+        font-size: 0.7rem;
       }
 
       .overall-badge {
         display: inline-flex;
         align-items: center;
-        gap: 10px;
-        padding: 6px 24px;
+        gap: 8px;
+        padding: 4px 18px;
         border-radius: 50px;
-        font-size: 1rem;
+        font-size: 0.8rem;
         font-weight: 700;
-        margin-top: 4px;
         transition: all 0.4s;
         cursor: default;
+        flex-shrink: 0;
+        height: 32px;
       }
-
       .overall-badge.all-up {
         background: rgba(0, 230, 118, 0.12);
         color: #00e676;
         border: 1.5px solid rgba(0, 230, 118, 0.25);
-        box-shadow: 0 0 30px rgba(0, 230, 118, 0.08);
       }
       .overall-badge.has-ipos {
         background: rgba(255, 23, 68, 0.12);
         color: #ff1744;
         border: 1.5px solid rgba(255, 23, 68, 0.25);
-        box-shadow: 0 0 30px rgba(255, 23, 68, 0.08);
       }
       .overall-badge.checking {
         background: rgba(245, 158, 11, 0.12);
         color: #f59e0b;
         border: 1.5px solid rgba(245, 158, 11, 0.25);
-        animation: pulse-badge-glow 0.8s ease-in-out infinite;
+        animation: pulse-glow 0.8s ease-in-out infinite;
       }
-      .overall-badge.checking .pulse-icon {
-        background: #f59e0b;
-        animation: pulse-badge 0.5s ease-in-out infinite;
-      }
-
-      @keyframes pulse-badge-glow {
+      @keyframes pulse-glow {
         0%, 100% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.1); }
         50% { box-shadow: 0 0 40px rgba(245, 158, 11, 0.3); }
       }
-
       .overall-badge .pulse-icon {
-        width: 10px;
-        height: 10px;
+        width: 8px; height: 8px;
         border-radius: 50%;
         display: inline-block;
         animation: pulse-badge 1.2s ease-in-out infinite;
@@ -443,52 +430,86 @@ HTML_TEMPLATE = '''
       .all-up .pulse-icon { background: #00e676; }
       .has-ipos .pulse-icon { background: #ff1744; }
       .checking .pulse-icon { background: #f59e0b; }
-
       @keyframes pulse-badge {
         0%, 100% { transform: scale(1); opacity: 1; }
         50% { transform: scale(1.5); opacity: 0.5; }
       }
 
+      /* ── IPOS CARD DI KANAN ATAS ── */
+      .ipos-summary-card {
+        background: rgba(255, 23, 68, 0.08);
+        border: 1px solid rgba(255, 23, 68, 0.2);
+        border-radius: 10px;
+        padding: 4px 16px 4px 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+        height: 32px;
+      }
+      .ipos-summary-card i {
+        color: #ff1744;
+        font-size: 0.8rem;
+      }
+      .ipos-summary-card .label {
+        font-size: 0.65rem;
+        color: rgba(255,255,255,0.4);
+      }
+      .ipos-summary-card .count {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #ff1744;
+      }
+      .ipos-summary-card .domains {
+        font-size: 0.7rem;
+        color: rgba(255,255,255,0.5);
+        max-width: 120px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* ── MAIN ── */
       main {
         flex: 1;
         min-height: 0;
         display: flex;
         flex-direction: column;
-        padding-top: 6px;
+        padding-top: 4px;
         overflow: hidden;
       }
 
       .section-title {
-        font-size: 0.65rem;
+        font-size: 0.6rem;
         font-weight: 700;
         letter-spacing: 2px;
         text-transform: uppercase;
-        color: rgba(255,255,255,0.25);
+        color: rgba(255,255,255,0.2);
         flex-shrink: 0;
-        padding-bottom: 4px;
+        padding-bottom: 3px;
         display: flex;
         justify-content: space-between;
         align-items: center;
       }
 
       .copy-all-btn {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         font-weight: 600;
-        color: rgba(255,255,255,0.6);
+        color: rgba(255,255,255,0.5);
         background: rgba(255,255,255,0.06);
-        border: 1px solid rgba(255,255,255,0.1);
-        padding: 4px 14px;
-        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.08);
+        padding: 2px 12px;
+        border-radius: 12px;
         cursor: pointer;
         transition: all 0.3s;
         font-family: inherit;
         display: flex;
         align-items: center;
-        gap: 6px;
-        height: 30px;
+        gap: 4px;
+        height: 26px;
       }
       .copy-all-btn:hover {
-        background: rgba(255,255,255,0.12);
+        background: rgba(255,255,255,0.1);
         color: #fff;
         border-color: rgba(255,255,255,0.2);
       }
@@ -501,79 +522,61 @@ HTML_TEMPLATE = '''
       .status-scroll {
         flex: 1;
         overflow-y: auto;
-        padding-right: 6px;
+        padding-right: 4px;
       }
-
-      .status-scroll::-webkit-scrollbar {
-        width: 4px;
-      }
-      .status-scroll::-webkit-scrollbar-track {
-        background: rgba(255,255,255,0.05);
-        border-radius: 4px;
-      }
-      .status-scroll::-webkit-scrollbar-thumb {
-        background: rgba(255,255,255,0.2);
-        border-radius: 4px;
-      }
+      .status-scroll::-webkit-scrollbar { width: 3px; }
+      .status-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 4px; }
+      .status-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
 
       .brand-group {
-        margin-bottom: 10px;
+        margin-bottom: 4px;
       }
-
       .brand-header {
-        font-size: 1.1rem;
+        font-size: 0.85rem;
         font-weight: 700;
         color: #f093fb;
-        padding: 4px 0 3px;
-        border-bottom: 1px solid rgba(255,255,255,0.06);
-        margin-bottom: 6px;
+        padding: 2px 0 1px;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        margin-bottom: 3px;
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 8px;
       }
-
       .brand-header .count {
-        font-size: 0.7rem;
+        font-size: 0.55rem;
         font-weight: 400;
-        color: rgba(255,255,255,0.3);
-        background: rgba(255,255,255,0.06);
-        padding: 1px 12px;
-        border-radius: 12px;
+        color: rgba(255,255,255,0.25);
+        background: rgba(255,255,255,0.05);
+        padding: 0 8px;
+        border-radius: 10px;
       }
 
       .status-list {
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 2px;
       }
-
       .status-card {
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 8px;
-        padding: 8px 16px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 6px;
+        padding: 4px 12px;
         display: flex;
         align-items: center;
-        gap: 14px;
-        text-decoration: none;
-        color: #fff;
-        transition: all 0.25s ease;
-        min-height: 44px;
+        gap: 10px;
+        min-height: 30px;
+        transition: all 0.2s ease;
       }
-
       .status-card:hover {
-        background: rgba(255, 255, 255, 0.08);
-        border-color: rgba(255, 255, 255, 0.15);
-        transform: translateX(4px);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.1);
       }
-
-      .status-card.active { border-left: 4px solid #00e676; }
-      .status-card.ipos { border-left: 4px solid #ff1744; }
+      .status-card.active { border-left: 3px solid #00e676; }
+      .status-card.ipos { border-left: 3px solid #ff1744; }
 
       .status-icon {
-        font-size: 1rem;
-        width: 24px;
+        font-size: 0.8rem;
+        width: 20px;
         text-align: center;
         flex-shrink: 0;
       }
@@ -585,211 +588,125 @@ HTML_TEMPLATE = '''
         min-width: 0;
         display: flex;
         align-items: center;
-        gap: 16px;
+        gap: 12px;
         flex-wrap: wrap;
       }
-
       .status-name {
-        font-size: 0.95rem;
-        font-weight: 700;
+        font-size: 0.8rem;
+        font-weight: 600;
         white-space: nowrap;
       }
-
       .status-url {
-        font-size: 0.7rem;
-        color: rgba(255,255,255,0.3);
+        font-size: 0.55rem;
+        color: rgba(255,255,255,0.2);
         white-space: nowrap;
       }
 
       .status-right {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 6px;
         flex-shrink: 0;
       }
-
       .status-badge {
-        font-size: 0.75rem;
+        font-size: 0.6rem;
         font-weight: 700;
-        padding: 3px 18px;
-        border-radius: 20px;
-        letter-spacing: 0.5px;
-        height: 30px;
+        padding: 1px 12px;
+        border-radius: 14px;
+        height: 22px;
         display: flex;
         align-items: center;
       }
       .active .status-badge {
-        background: rgba(0, 230, 118, 0.12);
+        background: rgba(0, 230, 118, 0.1);
         color: #00e676;
       }
       .ipos .status-badge {
-        background: rgba(255, 23, 68, 0.12);
+        background: rgba(255, 23, 68, 0.1);
         color: #ff1744;
       }
 
       .copy-btn {
-        font-size: 0.75rem;
-        color: rgba(255,255,255,0.4);
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.08);
-        padding: 2px 14px;
-        border-radius: 14px;
+        font-size: 0.6rem;
+        color: rgba(255,255,255,0.3);
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.06);
+        padding: 1px 10px;
+        border-radius: 12px;
         cursor: pointer;
         transition: all 0.3s;
         font-family: inherit;
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 3px;
         white-space: nowrap;
-        height: 30px;
+        height: 22px;
       }
       .copy-btn:hover {
-        background: rgba(255,255,255,0.1);
+        background: rgba(255,255,255,0.08);
         color: #fff;
-        border-color: rgba(255,255,255,0.2);
+        border-color: rgba(255,255,255,0.15);
       }
       .copy-btn.copied {
-        background: rgba(0, 230, 118, 0.15);
+        background: rgba(0, 230, 118, 0.12);
         color: #00e676;
-        border-color: rgba(0, 230, 118, 0.3);
+        border-color: rgba(0, 230, 118, 0.2);
       }
-      .copy-btn i {
-        font-size: 0.65rem;
-      }
+      .copy-btn i { font-size: 0.5rem; }
 
-      .ipos-section {
-        margin-top: 4px;
-        border-top: 1px solid rgba(255,23,68,0.2);
-        padding-top: 6px;
-      }
-
-      .ipos-header {
-        font-size: 0.8rem;
-        font-weight: 700;
-        color: #ff1744;
-        padding: 4px 0 3px;
-        border-bottom: 1px solid rgba(255,23,68,0.15);
-        margin-bottom: 6px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-
-      .ipos-header .count {
-        font-size: 0.65rem;
-        font-weight: 400;
-        color: rgba(255,255,255,0.3);
-        background: rgba(255,23,68,0.15);
-        padding: 1px 12px;
-        border-radius: 12px;
-      }
-
-      .ipos-list {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-      }
-
-      .ipos-card {
-        background: rgba(255, 23, 68, 0.06);
-        border: 1px solid rgba(255, 23, 68, 0.15);
-        border-radius: 8px;
-        padding: 8px 16px;
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        min-height: 40px;
-        border-left: 4px solid #ff1744;
-      }
-
-      .ipos-card .status-name {
-        font-size: 0.9rem;
-        font-weight: 700;
-        color: #ff1744;
-      }
-
-      .ipos-card .status-badge {
-        background: rgba(255, 23, 68, 0.15);
-        color: #ff1744;
-        font-size: 0.7rem;
-        padding: 3px 16px;
-        border-radius: 20px;
-        font-weight: 700;
-        height: 28px;
-        display: flex;
-        align-items: center;
-      }
-
-      .ipos-card .copy-btn {
-        border-color: rgba(255, 23, 68, 0.2);
-        color: rgba(255,255,255,0.4);
-        height: 28px;
-      }
-      .ipos-card .copy-btn:hover {
-        border-color: rgba(255, 23, 68, 0.4);
-        color: #fff;
-      }
-
+      /* ── FOOTER ── */
       .footer-controls {
         flex-shrink: 0;
-        padding-top: 10px;
-        border-top: 1px solid rgba(255,255,255,0.06);
+        padding-top: 6px;
+        border-top: 1px solid rgba(255,255,255,0.05);
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 3px;
       }
-
       .footer-row {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 16px;
+        gap: 12px;
         flex-wrap: wrap;
       }
-
       .footer-left {
         display: flex;
         align-items: center;
-        gap: 20px;
+        gap: 16px;
         flex-wrap: wrap;
       }
-
       .last-checked {
-        font-size: 0.8rem;
-        color: rgba(255,255,255,0.4);
+        font-size: 0.7rem;
+        color: rgba(255,255,255,0.35);
       }
-      .last-checked span { color: rgba(255,255,255,0.7); font-weight: 500; }
-
+      .last-checked span { color: rgba(255,255,255,0.6); font-weight: 500; }
       .check-result {
-        font-size: 0.75rem;
-        color: rgba(255,255,255,0.3);
+        font-size: 0.65rem;
+        color: rgba(255,255,255,0.25);
       }
-      .check-result span { color: rgba(255,255,255,0.5); }
+      .check-result span { color: rgba(255,255,255,0.4); }
 
       .timer-wrapper {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
       }
-
       .timer-circle {
         position: relative;
-        width: 40px;
-        height: 40px;
+        width: 32px;
+        height: 32px;
       }
-
       .timer-circle svg {
         transform: rotate(-90deg);
-        width: 40px;
-        height: 40px;
+        width: 32px;
+        height: 32px;
       }
-
       .timer-circle .bg {
         fill: none;
         stroke: rgba(255,255,255,0.08);
         stroke-width: 3;
       }
-
       .timer-circle .progress {
         fill: none;
         stroke: #f093fb;
@@ -797,74 +714,64 @@ HTML_TEMPLATE = '''
         stroke-linecap: round;
         transition: stroke-dashoffset 0.3s linear;
       }
-
       .timer-text {
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        font-size: 0.6rem;
+        font-size: 0.5rem;
         font-weight: 700;
         color: #fff;
         font-variant-numeric: tabular-nums;
       }
-
       .timer-label {
-        font-size: 0.65rem;
-        color: rgba(255,255,255,0.3);
+        font-size: 0.55rem;
+        color: rgba(255,255,255,0.25);
       }
 
       .total-domains {
-        font-size: 0.85rem;
-        color: rgba(255,255,255,0.4);
+        font-size: 0.75rem;
+        color: rgba(255,255,255,0.35);
         font-weight: 600;
       }
-
       .btn-refresh {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        padding: 7px 20px;
+        gap: 6px;
+        padding: 5px 16px;
         background: linear-gradient(135deg, #f093fb, #f5576c);
         color: #fff;
         border: none;
-        border-radius: 8px;
+        border-radius: 6px;
         font-family: inherit;
-        font-size: 0.75rem;
+        font-size: 0.65rem;
         font-weight: 700;
         cursor: pointer;
         transition: all 0.3s;
       }
       .btn-refresh:hover {
-        transform: scale(1.04);
-        box-shadow: 0 8px 30px rgba(245, 87, 108, 0.3);
+        transform: scale(1.03);
+        box-shadow: 0 6px 20px rgba(245, 87, 108, 0.25);
       }
       .btn-refresh.spinning i { animation: spin 0.7s linear infinite; }
-      .btn-refresh:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-        transform: none !important;
-      }
-
+      .btn-refresh:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
       @keyframes spin { to { transform: rotate(360deg); } }
 
       .footer-copyright {
         text-align: center;
-        padding: 6px 0 0;
-        font-size: 0.65rem;
-        color: rgba(255,255,255,0.2);
+        padding: 4px 0 0;
+        font-size: 0.55rem;
+        color: rgba(255,255,255,0.15);
         flex-shrink: 0;
-        border-top: 1px solid rgba(255,255,255,0.04);
-        margin-top: 4px;
+        border-top: 1px solid rgba(255,255,255,0.03);
+        margin-top: 3px;
       }
       .footer-copyright a {
-        color: rgba(255,255,255,0.3);
+        color: rgba(255,255,255,0.2);
         text-decoration: none;
         transition: color 0.3s;
       }
-      .footer-copyright a:hover {
-        color: #f093fb;
-      }
+      .footer-copyright a:hover { color: #f093fb; }
 
       .toast {
         position: fixed;
@@ -873,89 +780,84 @@ HTML_TEMPLATE = '''
         transform: translateX(-50%);
         background: rgba(0, 230, 118, 0.9);
         color: #fff;
-        padding: 10px 24px;
-        border-radius: 12px;
-        font-size: 0.85rem;
+        padding: 8px 20px;
+        border-radius: 10px;
+        font-size: 0.75rem;
         font-weight: 600;
         opacity: 0;
-        transition: opacity 0.3s ease, transform 0.3s ease;
+        transition: opacity 0.3s ease;
         pointer-events: none;
         z-index: 999;
         box-shadow: 0 8px 30px rgba(0,0,0,0.4);
       }
-      .toast.show {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-      }
-      .toast.error {
-        background: rgba(255, 23, 68, 0.9);
-      }
+      .toast.show { opacity: 1; }
+      .toast.error { background: rgba(255, 23, 68, 0.9); }
 
       @media (max-width: 768px) {
-        .app-container { padding: 14px 16px 12px; max-height: 100vh; border-radius: 16px; }
-        .logo { font-size: 1.2rem; }
-        .hero h1 { font-size: 1.1rem; }
-        .brand-header { font-size: 0.9rem; }
-        .status-name { font-size: 0.8rem; }
-        .status-url { font-size: 0.6rem; }
-        .status-card { padding: 6px 12px; min-height: 38px; gap: 10px; }
-        .status-info { gap: 8px; }
-        .status-badge { font-size: 0.65rem; padding: 2px 12px; height: 26px; }
-        .copy-btn { font-size: 0.65rem; padding: 1px 10px; height: 26px; }
-        .copy-all-btn { font-size: 0.65rem; padding: 2px 12px; height: 26px; }
-        .overall-badge { font-size: 0.8rem; padding: 4px 16px; }
-        .footer-row { gap: 8px; }
-        .footer-left { gap: 12px; }
-        .last-checked { font-size: 0.65rem; }
-        .check-result { font-size: 0.6rem; }
-        .total-domains { font-size: 0.7rem; }
-        .btn-refresh { font-size: 0.65rem; padding: 5px 14px; }
-        .timer-circle { width: 34px; height: 34px; }
-        .timer-circle svg { width: 34px; height: 34px; }
-        .timer-text { font-size: 0.5rem; }
-        .timer-label { font-size: 0.55rem; }
-        .header-status { font-size: 0.7rem; }
-        .status-right { gap: 6px; }
-        .footer-copyright { font-size: 0.55rem; }
-        .ipos-header { font-size: 0.7rem; }
-        .ipos-card .status-name { font-size: 0.75rem; }
-      }
-
-      @media (max-width: 480px) {
-        .app-container { padding: 10px 10px 8px; border-radius: 12px; }
-        .logo { font-size: 1rem; }
-        .hero h1 { font-size: 0.95rem; }
-        .hero p { font-size: 0.65rem; }
-        .brand-header { font-size: 0.75rem; }
+        .app-container { padding: 12px 14px 10px; max-height: 100vh; border-radius: 16px; }
+        .logo { font-size: 1.1rem; }
+        .hero-left h1 { font-size: 0.95rem; }
         .status-name { font-size: 0.7rem; }
         .status-url { font-size: 0.5rem; display: none; }
-        .status-card { padding: 5px 10px; min-height: 32px; gap: 8px; }
-        .status-icon { font-size: 0.8rem; width: 20px; }
-        .status-badge { font-size: 0.55rem; padding: 1px 10px; height: 22px; }
-        .copy-btn { font-size: 0.55rem; padding: 1px 8px; height: 22px; }
-        .copy-btn i { font-size: 0.5rem; }
-        .copy-all-btn { font-size: 0.55rem; padding: 1px 10px; height: 22px; }
-        .overall-badge { font-size: 0.65rem; padding: 3px 12px; gap: 6px; }
-        .footer-row { gap: 6px; flex-direction: column; align-items: stretch; }
-        .footer-left { flex-direction: column; align-items: flex-start; gap: 4px; }
-        .last-checked { font-size: 0.55rem; }
-        .check-result { font-size: 0.5rem; }
-        .total-domains { font-size: 0.6rem; }
-        .btn-refresh { font-size: 0.55rem; padding: 4px 10px; gap: 4px; }
+        .overall-badge { font-size: 0.65rem; padding: 3px 12px; height: 26px; }
+        .ipos-summary-card { height: 26px; padding: 2px 10px; }
+        .ipos-summary-card .domains { max-width: 80px; font-size: 0.6rem; }
+        .copy-btn { font-size: 0.5rem; padding: 1px 8px; height: 20px; }
+        .copy-btn i { font-size: 0.45rem; }
+        .copy-all-btn { font-size: 0.6rem; padding: 1px 10px; height: 22px; }
+        .status-badge { font-size: 0.5rem; padding: 1px 10px; height: 20px; }
+        .status-card { padding: 3px 10px; min-height: 26px; gap: 8px; }
+        .footer-left { gap: 10px; }
+        .last-checked { font-size: 0.6rem; }
+        .check-result { font-size: 0.55rem; }
+        .btn-refresh { font-size: 0.55rem; padding: 4px 12px; }
         .timer-circle { width: 28px; height: 28px; }
         .timer-circle svg { width: 28px; height: 28px; }
         .timer-text { font-size: 0.45rem; }
         .timer-label { font-size: 0.5rem; }
-        .header-status { font-size: 0.6rem; }
-        .status-dot { width: 8px; height: 8px; }
+        .total-domains { font-size: 0.65rem; }
+        .brand-header { font-size: 0.75rem; }
+        .status-icon { font-size: 0.7rem; width: 18px; }
+        .hero-row { flex-wrap: wrap; }
+        .ipos-summary-card .domains { max-width: 100px; }
         .status-right { gap: 4px; }
-        .footer-copyright { font-size: 0.5rem; }
-        .toast { font-size: 0.7rem; padding: 8px 16px; bottom: 20px; }
-        .ipos-header { font-size: 0.65rem; }
-        .ipos-card .status-name { font-size: 0.65rem; }
-        .ipos-card { padding: 5px 10px; min-height: 30px; }
-        .ipos-card .status-badge { font-size: 0.5rem; padding: 1px 10px; height: 20px; }
-        .ipos-card .copy-btn { font-size: 0.5rem; padding: 1px 6px; height: 20px; }
+      }
+
+      @media (max-width: 480px) {
+        .app-container { padding: 8px 8px 6px; border-radius: 12px; }
+        .logo { font-size: 0.9rem; }
+        .hero-left h1 { font-size: 0.8rem; }
+        .hero-left p { font-size: 0.55rem; }
+        .overall-badge { font-size: 0.55rem; padding: 2px 10px; height: 22px; }
+        .ipos-summary-card { height: 22px; padding: 2px 8px; gap: 6px; }
+        .ipos-summary-card .domains { max-width: 60px; font-size: 0.5rem; }
+        .ipos-summary-card .label { font-size: 0.5rem; }
+        .ipos-summary-card .count { font-size: 0.6rem; }
+        .status-name { font-size: 0.6rem; }
+        .status-url { display: none; }
+        .copy-btn { font-size: 0.45rem; padding: 1px 6px; height: 18px; }
+        .copy-btn i { font-size: 0.4rem; }
+        .copy-all-btn { font-size: 0.5rem; padding: 1px 8px; height: 18px; }
+        .status-badge { font-size: 0.45rem; padding: 1px 8px; height: 18px; }
+        .status-card { padding: 2px 8px; min-height: 22px; gap: 6px; }
+        .brand-header { font-size: 0.65rem; }
+        .brand-header .count { font-size: 0.45rem; padding: 0 6px; }
+        .status-icon { font-size: 0.6rem; width: 16px; }
+        .footer-left { gap: 6px; flex-wrap: wrap; }
+        .last-checked { font-size: 0.5rem; }
+        .check-result { font-size: 0.45rem; }
+        .btn-refresh { font-size: 0.5rem; padding: 3px 10px; gap: 4px; }
+        .timer-circle { width: 24px; height: 24px; }
+        .timer-circle svg { width: 24px; height: 24px; }
+        .timer-text { font-size: 0.4rem; }
+        .timer-label { font-size: 0.45rem; }
+        .total-domains { font-size: 0.55rem; }
+        .footer-copyright { font-size: 0.45rem; }
+        .toast { font-size: 0.6rem; padding: 6px 14px; bottom: 15px; }
+        .section-title { font-size: 0.5rem; }
+        .hero-row { gap: 8px; }
+        .status-right { gap: 3px; }
+        .ipos-summary-card .domains { display: none; }
       }
     </style>
   </head>
@@ -964,6 +866,7 @@ HTML_TEMPLATE = '''
     <div class="particles" id="particles"></div>
 
     <div class="app-container">
+      <!-- HEADER -->
       <header>
         <div class="logo"><i class="fas fa-shield-halved"></i>IPOS<span style="-webkit-text-fill-color:#f093fb;">Monitoring</span></div>
         <div class="header-status">
@@ -972,15 +875,25 @@ HTML_TEMPLATE = '''
         </div>
       </header>
 
-      <div class="hero">
-        <h1>IPOS Service Status</h1>
-        <p>Real-time monitoring of all domains</p>
+      <!-- HERO ROW: Badge kiri + IPOS Card kanan -->
+      <div class="hero-row">
+        <div class="hero-left">
+          <h1>IPOS Service Status</h1>
+          <p>Real-time monitoring of all domains</p>
+        </div>
         <div class="overall-badge all-up" id="overallBadge">
           <span class="pulse-icon"></span>
           <span id="overallText">All Domains Normal</span>
         </div>
+        <div class="ipos-summary-card" id="iposSummary" style="display:none;">
+          <i class="fas fa-triangle-exclamation"></i>
+          <span class="label">IPOS:</span>
+          <span class="count" id="iposCount">0</span>
+          <span class="domains" id="iposDomainsList">—</span>
+        </div>
       </div>
 
+      <!-- MAIN -->
       <main>
         <div class="section-title">
           <span><i class="fas fa-server"></i>&nbsp; Domain List</span>
@@ -993,6 +906,7 @@ HTML_TEMPLATE = '''
         </div>
       </main>
 
+      <!-- FOOTER -->
       <div class="footer-controls">
         <div class="footer-row">
           <div class="footer-left">
@@ -1003,19 +917,19 @@ HTML_TEMPLATE = '''
           </div>
           <div class="timer-wrapper">
             <div class="timer-circle">
-              <svg viewBox="0 0 40 40">
-                <circle class="bg" cx="20" cy="20" r="17" />
-                <circle class="progress" id="timerProgress" cx="20" cy="20" r="17"
-                  stroke-dasharray="106.81"
+              <svg viewBox="0 0 32 32">
+                <circle class="bg" cx="16" cy="16" r="13" />
+                <circle class="progress" id="timerProgress" cx="16" cy="16" r="13"
+                  stroke-dasharray="81.68"
                   stroke-dashoffset="0" />
               </svg>
               <span class="timer-text" id="timerText">15:00</span>
             </div>
             <span class="timer-label">Auto-refresh</span>
           </div>
-          <div class="total-domains" id="totalDomains">Total Domains: 0</div>
+          <div class="total-domains" id="totalDomains">Total: 0</div>
           <button class="btn-refresh" id="btnRefresh" onclick="runCheck()">
-            <i class="fas fa-sync"></i> Refresh Status
+            <i class="fas fa-sync"></i> Refresh
           </button>
         </div>
       </div>
@@ -1031,30 +945,28 @@ HTML_TEMPLATE = '''
       // ── PARTICLES ──
       (function createParticles() {
         const container = document.getElementById('particles');
-        const count = 25;
+        const count = 20;
         for (let i = 0; i < count; i++) {
-          const particle = document.createElement('div');
-          particle.className = 'particle';
-          particle.style.left = Math.random() * 100 + '%';
-          particle.style.width = (Math.random() * 4 + 2) + 'px';
-          particle.style.height = particle.style.width;
-          particle.style.animationDuration = (Math.random() * 15 + 10) + 's';
-          particle.style.animationDelay = (Math.random() * 15) + 's';
-          particle.style.opacity = Math.random() * 0.3 + 0.05;
-          container.appendChild(particle);
+          const p = document.createElement('div');
+          p.className = 'particle';
+          p.style.left = Math.random() * 100 + '%';
+          p.style.width = (Math.random() * 4 + 2) + 'px';
+          p.style.height = p.style.width;
+          p.style.animationDuration = (Math.random() * 15 + 10) + 's';
+          p.style.animationDelay = (Math.random() * 15) + 's';
+          p.style.opacity = Math.random() * 0.3 + 0.05;
+          container.appendChild(p);
         }
       })();
 
       // ── TOAST ──
-      function showToast(message, isError = false) {
-        const toast = document.getElementById('toast');
-        toast.textContent = message;
-        toast.className = 'toast' + (isError ? ' error' : '');
-        toast.classList.add('show');
-        clearTimeout(toast._timeout);
-        toast._timeout = setTimeout(() => {
-          toast.classList.remove('show');
-        }, 3000);
+      function showToast(msg, isError = false) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = 'toast' + (isError ? ' error' : '');
+        t.classList.add('show');
+        clearTimeout(t._timeout);
+        t._timeout = setTimeout(() => t.classList.remove('show'), 2500);
       }
 
       // ── DATA ──
@@ -1070,13 +982,12 @@ HTML_TEMPLATE = '''
       function renderList(services, iposDomains) {
         const container = document.getElementById("statusContainer");
         const groups = {};
-        
         const iposSet = new Set(iposDomains.map(d => d.toLowerCase()));
         
         services.forEach((svc) => {
           if (!groups[svc.brand]) groups[svc.brand] = [];
           const isIpos = iposSet.has(svc.name.toLowerCase());
-          groups[svc.brand].push({ ...svc, isIpos: isIpos });
+          groups[svc.brand].push({ ...svc, isIpos });
         });
 
         let html = '';
@@ -1089,10 +1000,9 @@ HTML_TEMPLATE = '''
           html += `<div class="status-list">`;
 
           items.forEach((svc) => {
-            const isIpos = svc.isIpos;
-            const cls = isIpos ? "ipos" : "active";
-            const badge = isIpos ? "IPOS" : "ACTIVE";
-            const icon = isIpos ? "fa-circle-xmark" : "fa-circle-check";
+            const cls = svc.isIpos ? "ipos" : "active";
+            const badge = svc.isIpos ? "IPOS" : "ACTIVE";
+            const icon = svc.isIpos ? "fa-circle-xmark" : "fa-circle-check";
 
             html += `
               <div class="status-card ${cls}">
@@ -1102,7 +1012,7 @@ HTML_TEMPLATE = '''
                   <span class="status-url">${svc.url}</span>
                 </div>
                 <div class="status-right">
-                  <button class="copy-btn" onclick="copyDomain('${svc.name}')" title="Copy domain">
+                  <button class="copy-btn" onclick="copyDomain('${svc.name}')">
                     <i class="fas fa-copy"></i> Copy
                   </button>
                   <span class="status-badge">${badge}</span>
@@ -1113,35 +1023,29 @@ HTML_TEMPLATE = '''
           html += `</div></div>`;
         }
 
-        // ── IPOS SECTION ──
-        if (iposDomains && iposDomains.length > 0) {
-          html += `<div class="ipos-section">`;
-          html += `<div class="ipos-header"><i class="fas fa-triangle-exclamation"></i> IPOS Domains <span class="count">${iposDomains.length} domains</span></div>`;
-          html += `<div class="ipos-list">`;
-          
-          iposDomains.forEach((domain) => {
-            html += `
-              <div class="ipos-card">
-                <div class="status-icon"><i class="fas fa-circle-xmark" style="color:#ff1744;"></i></div>
-                <span class="status-name">${domain}</span>
-                <div style="flex:1;"></div>
-                <div class="status-right">
-                  <button class="copy-btn" onclick="copyDomain('${domain}')" title="Copy domain">
-                    <i class="fas fa-copy"></i> Copy
-                  </button>
-                  <span class="status-badge">IPOS</span>
-                </div>
-              </div>`;
-          });
-          
-          html += `</div></div>`;
-        }
-
         container.innerHTML = html;
-        document.getElementById("totalDomains").textContent = `Total Domains: ${total}`;
+        document.getElementById("totalDomains").textContent = `Total: ${total}`;
+        
+        // Update IPOS summary
+        updateIposSummary(iposDomains);
       }
 
-      // ── OVERALL ──
+      // ── IPOS SUMMARY ──
+      function updateIposSummary(iposDomains) {
+        const card = document.getElementById('iposSummary');
+        const countEl = document.getElementById('iposCount');
+        const listEl = document.getElementById('iposDomainsList');
+        
+        if (iposDomains && iposDomains.length > 0) {
+          card.style.display = 'flex';
+          countEl.textContent = iposDomains.length;
+          listEl.textContent = iposDomains.join(', ');
+        } else {
+          card.style.display = 'none';
+        }
+      }
+
+      // ── OVERALL BADGE ──
       function renderOverall(iposCount) {
         const badge = document.getElementById("overallBadge");
         const text = document.getElementById("overallText");
@@ -1150,13 +1054,12 @@ HTML_TEMPLATE = '''
 
         if (isCheckRunning) {
           badge.className = "overall-badge checking";
-          text.textContent = "🔄 Checking domains...";
+          text.textContent = "🔄 Checking...";
           dot.className = "status-dot";
           dot.style.background = "#f59e0b";
           label.textContent = "Checking...";
           return;
         }
-
         dot.style.background = "";
 
         if (iposCount === 0) {
@@ -1172,38 +1075,34 @@ HTML_TEMPLATE = '''
         }
       }
 
-      // ── COPY SINGLE DOMAIN ──
+      // ── COPY ──
       function copyDomain(domain) {
         navigator.clipboard.writeText(domain).then(() => {
           showToast(`Copied: ${domain}`);
-          const buttons = document.querySelectorAll('.copy-btn');
-          buttons.forEach(btn => {
-            if (btn.closest('.status-card')?.querySelector('.status-name')?.textContent === domain ||
-                btn.closest('.ipos-card')?.querySelector('.status-name')?.textContent === domain) {
+          document.querySelectorAll('.copy-btn').forEach(btn => {
+            if (btn.closest('.status-card')?.querySelector('.status-name')?.textContent === domain) {
               btn.classList.add('copied');
               btn.innerHTML = '<i class="fas fa-check"></i> Copied';
               setTimeout(() => {
                 btn.classList.remove('copied');
                 btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
-              }, 1500);
+              }, 1200);
             }
           });
         }).catch(() => {
-          const textArea = document.createElement('textarea');
-          textArea.value = domain;
-          document.body.appendChild(textArea);
-          textArea.select();
+          const ta = document.createElement('textarea');
+          ta.value = domain;
+          document.body.appendChild(ta);
+          ta.select();
           document.execCommand('copy');
-          document.body.removeChild(textArea);
+          document.body.removeChild(ta);
           showToast(`Copied: ${domain}`);
         });
       }
 
-      // ── COPY ALL DOMAINS ──
       function copyAll() {
-        const domains = SERVICES.map(svc => svc.name);
+        const domains = SERVICES.map(s => s.name);
         const text = domains.join('\\n');
-        
         navigator.clipboard.writeText(text).then(() => {
           showToast(`Copied ${domains.length} domains`);
           const btn = document.getElementById('copyAllBtn');
@@ -1212,30 +1111,28 @@ HTML_TEMPLATE = '''
           setTimeout(() => {
             btn.classList.remove('copied');
             btn.innerHTML = '<i class="fas fa-copy"></i> Copy All';
-          }, 2000);
+          }, 1500);
         }).catch(() => {
-          const textArea = document.createElement('textarea');
-          textArea.value = text;
-          document.body.appendChild(textArea);
-          textArea.select();
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
           document.execCommand('copy');
-          document.body.removeChild(textArea);
+          document.body.removeChild(ta);
           showToast(`Copied ${domains.length} domains`);
         });
       }
 
       // ── TIMER ──
       function updateTimer() {
-        const progress = document.getElementById("timerProgress");
-        const text = document.getElementById("timerText");
-        const circumference = 106.81;
-        const offset = circumference * (1 - timeLeft / AUTO_REFRESH_SEC);
-        progress.style.strokeDashoffset = offset;
-
-        const mins = Math.floor(timeLeft / 60);
-        const secs = Math.floor(timeLeft % 60);
-        text.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-
+        const prog = document.getElementById("timerProgress");
+        const txt = document.getElementById("timerText");
+        const circ = 81.68;
+        const off = circ * (1 - timeLeft / AUTO_REFRESH_SEC);
+        prog.style.strokeDashoffset = off;
+        const m = Math.floor(timeLeft / 60);
+        const s = Math.floor(timeLeft % 60);
+        txt.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         if (timeLeft <= 0 && !isCheckRunning) {
           runCheck();
           timeLeft = AUTO_REFRESH_SEC;
@@ -1245,10 +1142,7 @@ HTML_TEMPLATE = '''
       function startTimer() {
         if (timerID) clearInterval(timerID);
         timerID = setInterval(() => {
-          if (!isCheckRunning) {
-            timeLeft--;
-            updateTimer();
-          }
+          if (!isCheckRunning) { timeLeft--; updateTimer(); }
         }, 1000);
         updateTimer();
       }
@@ -1256,7 +1150,6 @@ HTML_TEMPLATE = '''
       // ── RUN CHECK ──
       async function runCheck() {
         if (isCheckRunning) return;
-        
         isCheckRunning = true;
         const btn = document.getElementById("btnRefresh");
         btn.disabled = true;
@@ -1267,36 +1160,28 @@ HTML_TEMPLATE = '''
         document.getElementById("lastChecked").textContent = "Checking...";
         
         try {
-          const response = await fetch('/api/run-check', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-          });
-          
-          const data = await response.json();
+          const resp = await fetch('/api/run-check', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+          const data = await resp.json();
           
           if (data.success) {
             SERVICES = data.services || [];
             IPOS_DOMAINS = data.ipos_domains || [];
-            
             renderList(SERVICES, IPOS_DOMAINS);
             renderOverall(IPOS_DOMAINS.length);
-            
             const now = new Date();
             document.getElementById("lastChecked").textContent =
               now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-            
             document.getElementById("checkResult").textContent = data.check_result || 'Check completed';
-            
             if (IPOS_DOMAINS.length > 0) {
-              showToast(`${IPOS_DOMAINS.length} domain(s) detected as IPOS and removed`, false);
+              showToast(`${IPOS_DOMAINS.length} domain(s) detected as IPOS and removed`);
             } else {
-              showToast('No IPOS domains found. All domains are safe!', false);
+              showToast('No IPOS domains found. All domains are safe!');
             }
           } else {
             showToast('Check failed: ' + (data.error || 'Unknown error'), true);
           }
-        } catch (error) {
-          showToast('Check failed: ' + error.message, true);
+        } catch (e) {
+          showToast('Check failed: ' + e.message, true);
         }
         
         isCheckRunning = false;
@@ -1306,41 +1191,28 @@ HTML_TEMPLATE = '''
         updateTimer();
       }
 
-      // ── FETCH IPOS STATUS ──
-      async function fetchIposStatus() {
+      // ── FETCH STATUS ──
+      async function fetchStatus() {
         if (isCheckRunning) return;
         try {
-          const response = await fetch('/api/ipos-status');
-          const data = await response.json();
-          const iposDomains = data.ipos_domains || [];
-          const checkResult = data.last_check || 'No check run yet';
-          
-          document.getElementById('checkResult').textContent = checkResult;
-          
-          IPOS_DOMAINS = iposDomains;
+          const resp = await fetch('/api/ipos-status');
+          const data = await resp.json();
+          document.getElementById('checkResult').textContent = data.last_check || 'No check run yet';
+          IPOS_DOMAINS = data.ipos_domains || [];
           renderList(SERVICES, IPOS_DOMAINS);
           renderOverall(IPOS_DOMAINS.length);
-        } catch (e) {
-          console.error('Failed to fetch IPOS status:', e);
-        }
+        } catch (e) { console.error(e); }
       }
 
       // ── INIT ──
       renderList(SERVICES, IPOS_DOMAINS);
       renderOverall(IPOS_DOMAINS.length);
       startTimer();
-
-      // Set initial check result
-      const initialResult = "{{ last_check_result|default('No check run yet') }}";
-      document.getElementById('checkResult').textContent = initialResult;
-
-      setTimeout(fetchIposStatus, 1000);
-      setInterval(fetchIposStatus, 15000);
-      
+      document.getElementById('checkResult').textContent = "{{ last_check_result|default('No check run yet') }}";
+      setTimeout(fetchStatus, 1000);
+      setInterval(fetchStatus, 15000);
       document.addEventListener('visibilitychange', () => {
-        if (!document.hidden && !isCheckRunning) {
-          fetchIposStatus();
-        }
+        if (!document.hidden && !isCheckRunning) fetchStatus();
       });
     </script>
   </body>
@@ -1378,10 +1250,7 @@ def api_run_check():
     
     if IS_RUNNING:
         return Response(
-            json.dumps({
-                "success": False,
-                "error": "Check already running"
-            }),
+            json.dumps({"success": False, "error": "Check already running"}),
             mimetype='application/json',
             status=409
         )
@@ -1403,10 +1272,7 @@ def api_run_check():
         )
     except Exception as e:
         return Response(
-            json.dumps({
-                "success": False,
-                "error": str(e)
-            }),
+            json.dumps({"success": False, "error": str(e)}),
             mimetype='application/json',
             status=500
         )
