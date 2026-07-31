@@ -79,7 +79,7 @@ def send_and_pin(token, chat_id, message):
     except: 
         return False
 
-# --- GET ALL DOMAINS FROM KV (TANPA PING) ---
+# --- GET ALL DOMAINS FROM KV ---
 def get_all_domains():
     """Mengambil semua domain dari semua KV key"""
     all_domains = []
@@ -94,13 +94,6 @@ def get_all_domains():
                     "key": target['key']
                 })
     return all_domains
-
-# --- CEK STATUS DOMAIN DARI KV (HANYA UNTUK TAMPILAN) ---
-def get_domain_status_from_kv(domain):
-    """Cek apakah domain ada di KV (artinya AKTIF)"""
-    # Semua domain di KV dianggap AKTIF
-    # Domain IPOS akan dihapus dari KV oleh run_api_check()
-    return {"status": "up", "ping": None}
 
 # --- MESIN UTAMA (MULTI-KEY & AUTO FAILOVER) ---
 def run_api_check():
@@ -220,7 +213,7 @@ def run_api_check():
     log("SUCCESS", "Pengecekan Nawala Selesai!")
     return log_buffer
 
-# --- HTML TEMPLATE (DIPERKECIL) ---
+# --- HTML TEMPLATE (MODERN DENGAN ANIMASI TIMER) ---
 HTML_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="id">
@@ -228,139 +221,202 @@ HTML_TEMPLATE = '''
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Status — IPOS Monitoring</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
       :root {
-        --bg: #1a1a1a;
-        --card: #242424;
-        --border: #333;
-        --accent: #c70000;
-        --green: #22c55e;
-        --red: #ef4444;
-        --yellow: #f59e0b;
-        --text: #f1f1f1;
+        --bg: #0d0d0d;
+        --card: #1a1a1a;
+        --border: #2a2a2a;
+        --accent: #e50914;
+        --green: #00e676;
+        --red: #ff1744;
+        --yellow: #ffea00;
+        --text: #f5f5f5;
         --muted: #888;
+        --glow-green: 0 0 20px rgba(0, 230, 118, 0.3);
+        --glow-red: 0 0 20px rgba(255, 23, 68, 0.3);
       }
 
-      body {
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
         background: var(--bg);
         color: var(--text);
-        font-family: "Roboto", Arial, sans-serif;
-        min-height: 100vh;
+        font-family: "Inter", -apple-system, sans-serif;
+        overflow: hidden;
+      }
+
+      .app-container {
         display: flex;
         flex-direction: column;
-        font-size: 12px;
+        height: 100vh;
+        max-height: 100vh;
+        padding: 12px 24px 10px;
+        overflow: hidden;
       }
 
       /* ── HEADER ── */
       header {
-        background: #111;
-        border-bottom: 2px solid var(--accent);
-        padding: 8px 20px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
-        flex-wrap: wrap;
+        padding: 8px 0 6px;
+        border-bottom: 2px solid var(--accent);
+        flex-shrink: 0;
       }
 
       .logo {
-        display: inline-flex;
-        align-items: center;
-        text-decoration: none;
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--text);
+        font-size: 1.6rem;
+        font-weight: 900;
+        letter-spacing: -0.5px;
+        background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
       }
 
-      .logo span { color: var(--accent); }
+      .logo i {
+        -webkit-text-fill-color: var(--accent);
+        margin-right: 6px;
+      }
 
-      .header-sub {
-        font-size: 0.7rem;
+      .header-status {
+        font-size: 0.75rem;
         color: var(--muted);
+        display: flex;
+        align-items: center;
+        gap: 8px;
       }
 
-      /* ── HERO BANNER ── */
+      .header-status .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+        animation: pulse-dot 1.5s infinite;
+      }
+
+      .header-status .dot.green { background: var(--green); box-shadow: var(--glow-green); }
+      .header-status .dot.red { background: var(--red); box-shadow: var(--glow-red); }
+
+      @keyframes pulse-dot {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.4; transform: scale(0.8); }
+      }
+
+      /* ── HERO ── */
       .hero {
         text-align: center;
-        padding: 12px 16px 10px;
+        padding: 10px 0 6px;
+        flex-shrink: 0;
       }
 
       .hero h1 {
-        font-size: 1.2rem;
-        font-weight: 700;
-        margin-bottom: 4px;
+        font-size: 1.4rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
       }
 
       .hero p {
         color: var(--muted);
-        font-size: 0.75rem;
-        max-width: 480px;
-        margin: 0 auto 8px;
+        font-size: 0.8rem;
+        margin-top: 2px;
       }
 
+      /* ── OVERALL BADGE ── */
       .overall-badge {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        padding: 6px 16px;
+        gap: 10px;
+        padding: 6px 22px;
         border-radius: 50px;
-        font-size: 0.85rem;
+        font-size: 0.95rem;
         font-weight: 700;
-        transition: background 0.4s, color 0.4s;
+        margin-top: 4px;
+        transition: all 0.4s;
       }
 
-      .overall-badge.all-up   { background: rgba(34,197,94,0.15);  color: var(--green);  border: 1.5px solid var(--green); }
-      .overall-badge.has-down { background: rgba(239,68,68,0.15);  color: var(--red);    border: 1.5px solid var(--red); }
-      .overall-badge.checking { background: rgba(245,158,11,0.12); color: var(--yellow); border: 1.5px solid var(--yellow); }
+      .overall-badge.all-up {
+        background: rgba(0, 230, 118, 0.12);
+        color: var(--green);
+        border: 1.5px solid var(--green);
+        box-shadow: var(--glow-green);
+      }
+      .overall-badge.has-down {
+        background: rgba(255, 23, 68, 0.12);
+        color: var(--red);
+        border: 1.5px solid var(--red);
+        box-shadow: var(--glow-red);
+      }
 
-      .pulse {
-        width: 10px; height: 10px;
+      .overall-badge .pulse-icon {
+        width: 10px;
+        height: 10px;
         border-radius: 50%;
         display: inline-block;
-        animation: pulse 1.6s infinite;
+        animation: pulse-badge 1.2s ease-in-out infinite;
       }
-      .all-up   .pulse { background: var(--green); }
-      .has-down .pulse { background: var(--red); }
-      .checking .pulse { background: var(--yellow); }
+      .all-up .pulse-icon { background: var(--green); }
+      .has-down .pulse-icon { background: var(--red); }
 
-      @keyframes pulse {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50%       { opacity: 0.45; transform: scale(1.35); }
+      @keyframes pulse-badge {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.4); opacity: 0.6; }
       }
 
       /* ── MAIN CONTENT ── */
       main {
         flex: 1;
-        max-width: 950px;
-        width: 100%;
-        margin: 0 auto;
-        padding: 0 16px 20px;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        padding: 6px 0 0;
+        overflow: hidden;
       }
 
       .section-title {
         font-size: 0.65rem;
         font-weight: 700;
-        letter-spacing: 1px;
+        letter-spacing: 1.5px;
         text-transform: uppercase;
         color: var(--muted);
-        margin: 10px 0 6px;
+        flex-shrink: 0;
+        padding-bottom: 4px;
+      }
+
+      .status-scroll {
+        flex: 1;
+        overflow-y: auto;
+        padding-right: 4px;
+      }
+
+      .status-scroll::-webkit-scrollbar {
+        width: 4px;
+      }
+      .status-scroll::-webkit-scrollbar-track {
+        background: var(--border);
+        border-radius: 4px;
+      }
+      .status-scroll::-webkit-scrollbar-thumb {
+        background: var(--accent);
+        border-radius: 4px;
       }
 
       .brand-group {
-        margin-bottom: 8px;
+        margin-bottom: 6px;
       }
 
       .brand-header {
         font-size: 0.8rem;
         font-weight: 700;
         color: var(--accent);
-        padding: 4px 0 3px;
+        padding: 3px 0 2px;
         border-bottom: 1px solid var(--border);
-        margin-bottom: 5px;
+        margin-bottom: 4px;
         display: flex;
         align-items: center;
         gap: 8px;
@@ -376,9 +432,9 @@ HTML_TEMPLATE = '''
       }
 
       .status-list {
-        display: flex;
-        flex-direction: column;
-        gap: 3px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px;
       }
 
       .status-card {
@@ -389,42 +445,48 @@ HTML_TEMPLATE = '''
         display: flex;
         align-items: center;
         gap: 8px;
-        transition: border-color 0.3s, box-shadow 0.3s;
         text-decoration: none;
         color: inherit;
+        transition: all 0.25s ease;
         cursor: pointer;
+        min-height: 32px;
       }
 
       .status-card:hover {
-        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        border-color: var(--accent);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.5);
       }
 
-      .status-card.up   { border-left: 3px solid var(--green); }
+      .status-card.up { border-left: 3px solid var(--green); }
       .status-card.down { border-left: 3px solid var(--red); }
-      .status-card.loading { border-left: 3px solid var(--yellow); }
 
       .status-icon {
-        font-size: 0.85rem;
-        width: 22px;
+        font-size: 0.8rem;
+        width: 20px;
         text-align: center;
         flex-shrink: 0;
       }
-      .up   .status-icon { color: var(--green); }
+      .up .status-icon { color: var(--green); }
       .down .status-icon { color: var(--red); }
-      .loading .status-icon { color: var(--yellow); }
 
-      .status-info { flex: 1; min-width: 0; }
+      .status-info {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+      }
 
       .status-name {
-        font-size: 0.75rem;
-        font-weight: 700;
+        font-size: 0.7rem;
+        font-weight: 600;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
       }
 
       .status-url {
-        font-size: 0.6rem;
+        font-size: 0.55rem;
         color: var(--muted);
         white-space: nowrap;
         overflow: hidden;
@@ -435,32 +497,35 @@ HTML_TEMPLATE = '''
         display: flex;
         flex-direction: column;
         align-items: flex-end;
-        gap: 1px;
         flex-shrink: 0;
+        gap: 1px;
       }
 
       .status-badge {
-        font-size: 0.6rem;
+        font-size: 0.55rem;
         font-weight: 700;
         padding: 1px 8px;
-        border-radius: 12px;
+        border-radius: 10px;
         letter-spacing: 0.3px;
       }
-      .up   .status-badge { background: rgba(34,197,94,0.18);  color: var(--green); }
-      .down .status-badge { background: rgba(239,68,68,0.18);  color: var(--red); }
-      .loading .status-badge { background: rgba(245,158,11,0.18); color: var(--yellow); }
-
-      .status-ping {
-        font-size: 0.55rem;
-        color: var(--muted);
+      .up .status-badge {
+        background: rgba(0, 230, 118, 0.15);
+        color: var(--green);
+      }
+      .down .status-badge {
+        background: rgba(255, 23, 68, 0.15);
+        color: var(--red);
       }
 
-      .controls {
+      /* ── FOOTER CONTROLS ── */
+      .footer-controls {
+        flex-shrink: 0;
+        padding-top: 6px;
+        border-top: 1px solid var(--border);
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 10px;
-        margin: 12px 0 0;
+        gap: 12px;
         flex-wrap: wrap;
       }
 
@@ -468,117 +533,169 @@ HTML_TEMPLATE = '''
         font-size: 0.65rem;
         color: var(--muted);
       }
-
       .last-checked span { color: var(--text); font-weight: 500; }
 
       .btn-refresh {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 5px 14px;
+        padding: 5px 16px;
         background: var(--accent);
         color: #fff;
         border: none;
-        border-radius: 5px;
+        border-radius: 6px;
         font-family: inherit;
         font-size: 0.7rem;
         font-weight: 700;
         cursor: pointer;
-        transition: background 0.2s;
+        transition: all 0.25s;
       }
-
-      .btn-refresh:hover  { background: #a50000; }
+      .btn-refresh:hover {
+        background: #b71c1c;
+        transform: scale(1.03);
+      }
       .btn-refresh.spinning i { animation: spin 0.7s linear infinite; }
 
       @keyframes spin { to { transform: rotate(360deg); } }
 
-      .refresh-bar-wrap {
-        margin-top: 10px;
-        background: var(--border);
-        border-radius: 3px;
-        height: 2px;
-        overflow: hidden;
+      /* ── TIMER CIRCLE ── */
+      .timer-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
       }
 
-      .refresh-bar {
-        height: 100%;
-        background: var(--accent);
-        width: 100%;
-        transform-origin: left;
-        transition: transform linear;
+      .timer-circle {
+        position: relative;
+        width: 36px;
+        height: 36px;
       }
 
-      .refresh-note {
+      .timer-circle svg {
+        transform: rotate(-90deg);
+        width: 36px;
+        height: 36px;
+      }
+
+      .timer-circle .bg {
+        fill: none;
+        stroke: var(--border);
+        stroke-width: 3;
+      }
+
+      .timer-circle .progress {
+        fill: none;
+        stroke: var(--accent);
+        stroke-width: 3;
+        stroke-linecap: round;
+        transition: stroke-dashoffset 0.3s linear;
+      }
+
+      .timer-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 0.55rem;
+        font-weight: 700;
+        color: var(--text);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .timer-label {
         font-size: 0.6rem;
         color: var(--muted);
-        margin-top: 3px;
-        text-align: right;
       }
 
       .total-domains {
-        font-size: 0.65rem;
-        color: var(--muted);
-        margin-top: 4px;
-        text-align: center;
-      }
-
-      footer {
-        text-align: center;
-        padding: 8px;
         font-size: 0.6rem;
         color: var(--muted);
-        border-top: 1px solid var(--border);
+        flex-shrink: 0;
       }
 
-      footer a { color: var(--accent); text-decoration: none; }
+      /* ── RESPONSIVE ── */
+      @media (max-width: 640px) {
+        .app-container { padding: 8px 12px 6px; }
+        .logo { font-size: 1.2rem; }
+        .hero h1 { font-size: 1.1rem; }
+        .status-list { grid-template-columns: 1fr; }
+        .timer-wrapper { gap: 6px; }
+        .timer-circle { width: 30px; height: 30px; }
+        .timer-circle svg { width: 30px; height: 30px; }
+        .header-status { font-size: 0.6rem; }
+        .overall-badge { font-size: 0.75rem; padding: 4px 14px; }
+      }
+
+      @media (min-width: 1024px) {
+        .status-list { grid-template-columns: 1fr 1fr 1fr; }
+      }
     </style>
   </head>
   <body>
+    <div class="app-container">
+      <!-- HEADER -->
+      <header>
+        <div class="logo"><i class="fas fa-shield-halved"></i>IPOS<span style="-webkit-text-fill-color:var(--accent);">Monitor</span></div>
+        <div class="header-status">
+          <span class="dot green" id="statusDot"></span>
+          <span id="statusLabel">Online</span>
+        </div>
+      </header>
 
-    <header>
-      <div class="logo">IPOS<span>Monitor</span></div>
-      <div class="header-sub"><i class="fa fa-circle-dot" style="color:var(--accent)"></i>&nbsp; System Status</div>
-    </header>
-
-    <div class="hero">
-      <h1>Status Layanan IPOS</h1>
-      <p>Pantau kondisi semua domain IPOS secara real-time.</p>
-      <div class="overall-badge checking" id="overallBadge">
-        <span class="pulse"></span>
-        <span id="overallText">Memeriksa...</span>
+      <!-- HERO -->
+      <div class="hero">
+        <h1>Status Layanan IPOS</h1>
+        <p>Pantau kondisi semua domain secara real-time</p>
+        <div class="overall-badge all-up" id="overallBadge">
+          <span class="pulse-icon"></span>
+          <span id="overallText">Semua Domain Normal</span>
+        </div>
       </div>
-    </div>
 
-    <main>
-      <div class="section-title"><i class="fa fa-server"></i>&nbsp; Daftar Domain</div>
+      <!-- MAIN -->
+      <main>
+        <div class="section-title"><i class="fas fa-server"></i>&nbsp; Daftar Domain</div>
+        <div class="status-scroll" id="statusContainer"></div>
+      </main>
 
-      <div id="statusContainer"></div>
+      <!-- FOOTER CONTROLS -->
+      <div class="footer-controls">
+        <div class="last-checked">
+          <i class="fas fa-clock"></i>&nbsp; <span id="lastChecked">—</span>
+        </div>
 
-      <div class="total-domains" id="totalDomains">Total Domain: 0</div>
+        <div class="timer-wrapper">
+          <div class="timer-circle">
+            <svg viewBox="0 0 36 36">
+              <circle class="bg" cx="18" cy="18" r="15.5" />
+              <circle class="progress" id="timerProgress" cx="18" cy="18" r="15.5"
+                stroke-dasharray="97.39"
+                stroke-dashoffset="0" />
+            </svg>
+            <span class="timer-text" id="timerText">15:00</span>
+          </div>
+          <span class="timer-label">Auto-refresh</span>
+        </div>
 
-      <div class="controls">
-        <div class="last-checked">Terakhir dicek: <span id="lastChecked">—</span></div>
+        <div class="total-domains" id="totalDomains">Total: 0</div>
+
         <button class="btn-refresh" id="btnRefresh" onclick="checkAll()">
-          <i class="fa fa-rotate-right"></i> Refresh
+          <i class="fas fa-sync"></i> Refresh
         </button>
       </div>
-
-      <div class="refresh-bar-wrap">
-        <div class="refresh-bar" id="refreshBar"></div>
-      </div>
-      <div class="refresh-note">Auto-refresh setiap <span id="intervalLabel">15</span> menit</div>
-    </main>
-
-    <footer>&copy; 2025 IPOS Monitoring &mdash; <a href="/">Kembali</a></footer>
+    </div>
 
     <script>
       const SERVICES = {{ services|tojson }};
       const AUTO_REFRESH_SEC = 15 * 60;
 
-      let results = SERVICES.map(() => ({ status: "up", ping: null }));
+      let results = SERVICES.map(() => ({ status: "up" }));
       let timerID = null;
-      let barAnimID = null;
+      let animID = null;
+      let timeLeft = AUTO_REFRESH_SEC;
 
+      // ── RENDER ──
       function renderList() {
         const container = document.getElementById("statusContainer");
         const groups = {};
@@ -588,31 +705,29 @@ HTML_TEMPLATE = '''
         });
 
         let html = '';
-        let totalDomains = 0;
+        let total = 0;
 
         for (const [brand, items] of Object.entries(groups)) {
-          totalDomains += items.length;
+          total += items.length;
           html += `<div class="brand-group">`;
-          html += `<div class="brand-header"><i class="fa fa-folder-open"></i> ${brand} <span class="count">${items.length}</span></div>`;
+          html += `<div class="brand-header"><i class="fas fa-folder"></i> ${brand} <span class="count">${items.length}</span></div>`;
           html += `<div class="status-list">`;
 
           items.forEach((svc) => {
-            const r = results[svc.index] || { status: "up", ping: null };
+            const r = results[svc.index] || { status: "up" };
             const cls = r.status || "up";
             const badge = cls === "up" ? "AKTIF" : "IPOS";
             const icon = cls === "up" ? "fa-circle-check" : "fa-circle-xmark";
-            const ping = (r.ping !== null && r.ping !== undefined) ? `${r.ping} ms` : "—";
 
             html += `
               <a class="status-card ${cls}" href="${svc.url}" target="_blank" rel="noopener noreferrer">
-                <div class="status-icon"><i class="fa ${icon}"></i></div>
+                <div class="status-icon"><i class="fas ${icon}"></i></div>
                 <div class="status-info">
                   <div class="status-name">${svc.name}</div>
                   <div class="status-url">${svc.url}</div>
                 </div>
                 <div class="status-right">
                   <span class="status-badge">${badge}</span>
-                  <span class="status-ping"><i class="fa fa-bolt" style="font-size:.5rem"></i> ${ping}</span>
                 </div>
               </a>`;
           });
@@ -621,70 +736,82 @@ HTML_TEMPLATE = '''
         }
 
         container.innerHTML = html;
-        document.getElementById("totalDomains").textContent = `Total Domain: ${totalDomains}`;
+        document.getElementById("totalDomains").textContent = `Total: ${total}`;
       }
 
+      // ── OVERALL STATUS ──
       function renderOverall() {
         const badge = document.getElementById("overallBadge");
         const text = document.getElementById("overallText");
         const allUp = results.every(r => r.status === "up");
         const anyDown = results.some(r => r.status === "down");
+        const dot = document.getElementById("statusDot");
+        const label = document.getElementById("statusLabel");
 
         if (!anyDown) {
           badge.className = "overall-badge all-up";
           text.textContent = "Semua Domain Normal";
+          dot.className = "dot green";
+          label.textContent = "All Systems Go";
         } else {
           const downCount = results.filter(r => r.status === "down").length;
           badge.className = "overall-badge has-down";
           text.textContent = `${downCount} Domain Bermasalah (IPOS)`;
+          dot.className = "dot red";
+          label.textContent = `${downCount} Issue(s)`;
         }
       }
 
-      async function checkAll() {
-        results = SERVICES.map(() => ({ status: "up", ping: null }));
-        renderList();
-        renderOverall();
+      // ── TIMER ──
+      function updateTimer() {
+        const progress = document.getElementById("timerProgress");
+        const text = document.getElementById("timerText");
+        const circumference = 97.39;
+        const offset = circumference * (1 - timeLeft / AUTO_REFRESH_SEC);
+        progress.style.strokeDashoffset = offset;
 
+        const mins = Math.floor(timeLeft / 60);
+        const secs = Math.floor(timeLeft % 60);
+        text.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+        if (timeLeft <= 0) {
+          checkAll();
+          timeLeft = AUTO_REFRESH_SEC;
+        }
+      }
+
+      function startTimer() {
+        if (timerID) clearInterval(timerID);
+        timerID = setInterval(() => {
+          timeLeft--;
+          updateTimer();
+        }, 1000);
+        updateTimer();
+      }
+
+      // ── CHECK ALL ──
+      async function checkAll() {
         const btn = document.getElementById("btnRefresh");
         btn.classList.add("spinning");
+
+        results = SERVICES.map(() => ({ status: "up" }));
+        renderList();
+        renderOverall();
 
         const now = new Date();
         document.getElementById("lastChecked").textContent =
           now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 
-        // Reset auto-refresh bar
-        startProgressBar();
+        timeLeft = AUTO_REFRESH_SEC;
+        updateTimer();
 
         btn.classList.remove("spinning");
       }
 
-      function startProgressBar() {
-        clearTimeout(timerID);
-        if (barAnimID) cancelAnimationFrame(barAnimID);
-
-        const bar = document.getElementById("refreshBar");
-        const total = AUTO_REFRESH_SEC * 1000;
-        const start = performance.now();
-
-        function tick(now) {
-          const elapsed = now - start;
-          const pct = Math.min(elapsed / total, 1);
-          bar.style.transform = `scaleX(${1 - pct})`;
-          if (pct < 1) {
-            barAnimID = requestAnimationFrame(tick);
-          }
-        }
-        barAnimID = requestAnimationFrame(tick);
-
-        timerID = setTimeout(() => {
-          checkAll();
-        }, total);
-      }
-
-      document.getElementById("intervalLabel").textContent = "15";
+      // ── INIT ──
       renderList();
       renderOverall();
-      startProgressBar();
+      startTimer();
     </script>
   </body>
 </html>
@@ -697,19 +824,16 @@ IS_RUNNING = False
 
 @app.route('/')
 def status_page():
-    """Halaman utama dengan tampilan status IPOS"""
     all_domains = get_all_domains()
     return render_template_string(HTML_TEMPLATE, services=all_domains)
 
 @app.route('/api/domains')
 def api_domains():
-    """API untuk mendapatkan daftar semua domain dari KV"""
     all_domains = get_all_domains()
     return Response(json.dumps(all_domains), mimetype='application/json')
 
 @app.route('/jalankan-patroli', methods=['GET', 'HEAD'])
 def endpoint_patroli():
-    """Endpoint untuk menjalankan patroli Nawala"""
     hantu_chrome = request.headers.get('Purpose') == 'prefetch' or request.headers.get('Sec-Fetch-Purpose') == 'prefetch'
     if request.method == 'HEAD' or hantu_chrome:
         return Response("", status=200)
