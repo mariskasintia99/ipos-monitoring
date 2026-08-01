@@ -353,16 +353,23 @@ HTML_TEMPLATE = '''
       }
       .logo i { -webkit-text-fill-color: #f093fb; margin-right: 6px; }
 
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
       .real-time-clock {
-        font-size: 0.7rem;
-        font-weight: 400;
-        color: rgba(255,255,255,0.3);
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: rgba(255,255,255,0.4);
         font-variant-numeric: tabular-nums;
-        -webkit-text-fill-color: rgba(255,255,255,0.3);
         background: rgba(255,255,255,0.05);
-        padding: 2px 10px;
+        padding: 2px 12px;
         border-radius: 12px;
         border: 1px solid rgba(255,255,255,0.06);
+        min-width: 70px;
+        text-align: center;
       }
 
       .header-status {
@@ -946,11 +953,13 @@ HTML_TEMPLATE = '''
       <header>
         <div class="logo">
           <span><i class="fas fa-shield-halved"></i>IPOS<span style="-webkit-text-fill-color:#f093fb;">Monitoring</span></span>
-          <span class="real-time-clock" id="realTimeClock">--:--:--</span>
         </div>
-        <div class="header-status">
-          <span class="status-dot green" id="statusDot"></span>
-          <span id="statusLabel">Monitoring Active</span>
+        <div class="header-right">
+          <span class="real-time-clock" id="realTimeClock">--:--:--</span>
+          <div class="header-status">
+            <span class="status-dot green" id="statusDot"></span>
+            <span id="statusLabel">Monitoring Active</span>
+          </div>
         </div>
       </header>
 
@@ -1043,7 +1052,7 @@ HTML_TEMPLATE = '''
       let timeLeft = AUTO_REFRESH_SEC;
       let isCheckRunning = false;
 
-      // ── JAM REAL-TIME GMT+7 ──
+      // ── JAM REAL-TIME GMT+7 (24 JAM) ──
       function updateRealTimeClock() {
         const now = new Date();
         const gmt7 = new Date(now.getTime() + (7 * 60 * 60 * 1000));
@@ -1059,7 +1068,7 @@ HTML_TEMPLATE = '''
       setInterval(updateRealTimeClock, 1000);
       updateRealTimeClock();
 
-      // ── UPDATE LAST CHECKED (GMT+7) ──
+      // ── UPDATE LAST CHECKED (24 JAM) ──
       function updateLastChecked() {
         const now = new Date();
         const gmt7 = new Date(now.getTime() + (7 * 60 * 60 * 1000));
