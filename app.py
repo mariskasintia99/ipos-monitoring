@@ -347,8 +347,23 @@ HTML_TEMPLATE = '''
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
+        display: flex;
+        align-items: center;
+        gap: 12px;
       }
       .logo i { -webkit-text-fill-color: #f093fb; margin-right: 6px; }
+
+      .real-time-clock {
+        font-size: 0.7rem;
+        font-weight: 400;
+        color: rgba(255,255,255,0.3);
+        font-variant-numeric: tabular-nums;
+        -webkit-text-fill-color: rgba(255,255,255,0.3);
+        background: rgba(255,255,255,0.05);
+        padding: 2px 10px;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.06);
+      }
 
       .header-status {
         display: flex;
@@ -881,6 +896,7 @@ HTML_TEMPLATE = '''
         .top-bar .timer-section .icon-sand { font-size: 0.85rem; }
         .top-bar .btn-refresh { font-size: 0.65rem; padding: 3px 12px; }
         .section-title { font-size: 0.6rem; }
+        .real-time-clock { font-size: 0.6rem; padding: 1px 8px; }
       }
 
       @media (max-width: 480px) {
@@ -917,6 +933,7 @@ HTML_TEMPLATE = '''
         .top-bar .timer-section .icon-sand { font-size: 0.7rem; }
         .top-bar .btn-refresh { font-size: 0.55rem; padding: 2px 10px; }
         .top-bar { gap: 8px; }
+        .real-time-clock { font-size: 0.5rem; padding: 1px 6px; }
       }
     </style>
   </head>
@@ -927,7 +944,10 @@ HTML_TEMPLATE = '''
     <div class="app-container">
       <!-- HEADER -->
       <header>
-        <div class="logo"><i class="fas fa-shield-halved"></i>IPOS<span style="-webkit-text-fill-color:#f093fb;">Monitoring</span></div>
+        <div class="logo">
+          <span><i class="fas fa-shield-halved"></i>IPOS<span style="-webkit-text-fill-color:#f093fb;">Monitoring</span></span>
+          <span class="real-time-clock" id="realTimeClock">--:--:--</span>
+        </div>
         <div class="header-status">
           <span class="status-dot green" id="statusDot"></span>
           <span id="statusLabel">Monitoring Active</span>
@@ -1022,6 +1042,35 @@ HTML_TEMPLATE = '''
       let timerID = null;
       let timeLeft = AUTO_REFRESH_SEC;
       let isCheckRunning = false;
+
+      // ── JAM REAL-TIME GMT+7 ──
+      function updateRealTimeClock() {
+        const now = new Date();
+        const gmt7 = new Date(now.getTime() + (7 * 60 * 60 * 1000));
+        const timeStr = gmt7.toLocaleTimeString('en-US', { 
+          hour: '2-digit', 
+          minute: '2-digit', 
+          second: '2-digit',
+          hour12: false
+        });
+        const clock = document.getElementById('realTimeClock');
+        if (clock) clock.textContent = timeStr;
+      }
+      setInterval(updateRealTimeClock, 1000);
+      updateRealTimeClock();
+
+      // ── UPDATE LAST CHECKED (GMT+7) ──
+      function updateLastChecked() {
+        const now = new Date();
+        const gmt7 = new Date(now.getTime() + (7 * 60 * 60 * 1000));
+        const timeStr = gmt7.toLocaleTimeString('en-US', { 
+          hour: '2-digit', 
+          minute: '2-digit', 
+          second: '2-digit',
+          hour12: false
+        });
+        document.getElementById('lastChecked').textContent = timeStr;
+      }
 
       // ── SIMPAN STATE KE LOCALSTORAGE ──
       function saveTimerState() {
@@ -1263,9 +1312,10 @@ HTML_TEMPLATE = '''
             IPOS_DOMAINS = data.ipos_domains || [];
             renderList(SERVICES, IPOS_DOMAINS);
             renderOverall(IPOS_DOMAINS.length);
-            const now = new Date();
-            document.getElementById("lastChecked").textContent =
-              now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+            
+            // Update Last Checked dengan GMT+7
+            updateLastChecked();
+            
             document.getElementById("checkResult").textContent = data.check_result || 'Check completed';
             if (IPOS_DOMAINS.length > 0) {
               showToast(`${IPOS_DOMAINS.length} domain(s) detected as IPOS and removed`);
@@ -1300,13 +1350,6 @@ HTML_TEMPLATE = '''
         } catch (e) { console.error(e); }
       }
 
-      // ── UPDATE LAST CHECKED REAL-TIME ──
-      function updateLastCheckedRealTime() {
-        const now = new Date();
-        const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        document.getElementById('lastChecked').textContent = timeStr;
-      }
-
       // ── INIT ──
       renderList(SERVICES, IPOS_DOMAINS);
       renderOverall(IPOS_DOMAINS.length);
@@ -1318,21 +1361,30 @@ HTML_TEMPLATE = '''
       // Set initial check result
       document.getElementById('checkResult').textContent = "{{ last_check_result|default('No check run yet') }}";
       
-      // Update Last Checked real-time setiap detik
-      setInterval(updateLastCheckedRealTime, 1000);
+      // Set initial Last Checked
+      updateLastChecked();
       
       // Force refresh data saat halaman dimuat (tanpa reset timer)
       window.addEventListener('load', function() {
         fetchStatus();
+        updateLastChecked();
       });
       
-      // Fetch setiap 15 detik (background)
+      // Auto check setiap 15 menit (900 detik)
+      setInterval(function() {
+        if (!isCheckRunning) {
+          runCheck();
+        }
+      }, 15 * 60 * 1000);
+      
+      // Fetch status setiap 15 detik (untuk update check result)
       setInterval(fetchStatus, 15000);
       
       // Fetch saat tab menjadi aktif kembali (tanpa reset timer)
       document.addEventListener('visibilitychange', function() {
         if (!document.hidden && !isCheckRunning) {
           fetchStatus();
+          updateLastChecked();
         }
       });
     </script>
