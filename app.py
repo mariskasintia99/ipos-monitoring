@@ -253,6 +253,9 @@ HTML_TEMPLATE = '''
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>IPOS Monitoring</title>
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>" />
@@ -958,12 +961,6 @@ HTML_TEMPLATE = '''
 
       <!-- MAIN -->
       <main>
-        <div class="section-title">
-          <span><i class="fas fa-server"></i>&nbsp; Domain List</span>
-          <button class="copy-all-btn" id="copyAllBtn" onclick="copyAll()">
-            <i class="fas fa-copy"></i> Copy All
-          </button>
-        </div>
         <div class="status-scroll" id="statusContainer">
           <!-- Rendered by JS -->
         </div>
@@ -1027,28 +1024,41 @@ HTML_TEMPLATE = '''
       let isCheckRunning = false;
 
       // ── RENDER ──
-      function renderList(services, iposDomains) {
-        const container = document.getElementById("statusContainer");
-        const groups = {};
-        const iposSet = new Set(iposDomains.map(d => d.toLowerCase()));
+    function renderList(services, iposDomains) {
+      const container = document.getElementById("statusContainer");
+      const groups = {};
+      const iposSet = new Set(iposDomains.map(d => d.toLowerCase()));
+      
+      services.forEach((svc) => {
+        if (!groups[svc.brand]) groups[svc.brand] = [];
+        const isIpos = iposSet.has(svc.name.toLowerCase());
+        groups[svc.brand].push({ ...svc, isIpos });
+      });
+    
+      let html = '';
+      let total = 0;
+      let isFirstBrand = true; // Flag untuk brand pertama
+    
+      for (const [brand, items] of Object.entries(groups)) {
+        total += items.length;
+        html += `<div class="brand-group">`;
         
-        services.forEach((svc) => {
-          if (!groups[svc.brand]) groups[svc.brand] = [];
-          const isIpos = iposSet.has(svc.name.toLowerCase());
-          groups[svc.brand].push({ ...svc, isIpos });
-        });
-
-        let html = '';
-        let total = 0;
-
-        for (const [brand, items] of Object.entries(groups)) {
-          total += items.length;
-          html += `<div class="brand-group">`;
-          html += `<div class="brand-header">
-            <i class="fas fa-folder"></i> ${brand}
-            <span class="count">${items.length} domains</span>
-          </div>`;
-          html += `<div class="status-list">`;
+        // Brand header dengan Copy All hanya di brand pertama
+        html += `<div class="brand-header">`;
+        html += `<div class="brand-left">`;
+        html += `<i class="fas fa-folder"></i> ${brand}`;
+        html += `<span class="count">${items.length} domains</span>`;
+        html += `</div>`;
+        
+        if (isFirstBrand) {
+          html += `<button class="copy-all-btn" onclick="copyAll()">`;
+          html += `<i class="fas fa-copy"></i> Copy All`;
+          html += `</button>`;
+          isFirstBrand = false;
+        }
+        html += `</div>`; // tutup brand-header
+        
+        html += `<div class="status-list">`;
 
           items.forEach((svc) => {
             const cls = svc.isIpos ? "ipos" : "active";
@@ -1263,15 +1273,29 @@ HTML_TEMPLATE = '''
       }
 
       // ── INIT ──
-      renderList(SERVICES, IPOS_DOMAINS);
-      renderOverall(IPOS_DOMAINS.length);
-      startTimer();
-      document.getElementById('checkResult').textContent = "{{ last_check_result|default('No check run yet') }}";
-      setTimeout(fetchStatus, 1000);
-      setInterval(fetchStatus, 15000);
-      document.addEventListener('visibilitychange', () => {
-        if (!document.hidden && !isCheckRunning) fetchStatus();
-      });
+    renderList(SERVICES, IPOS_DOMAINS);
+    renderOverall(IPOS_DOMAINS.length);
+    startTimer();
+    document.getElementById('checkResult').textContent = "{{ last_check_result|default('No check run yet') }}";
+    
+    // Force refresh data saat halaman dimuat
+    window.addEventListener('load', function() {
+      fetchStatus();
+      timeLeft = AUTO_REFRESH_SEC;
+      updateTimer();
+    });
+    
+    // Fetch setiap 15 detik (background)
+    setInterval(fetchStatus, 15000);
+    
+    // Fetch saat tab menjadi aktif kembali
+    document.addEventListener('visibilitychange', function() {
+      if (!document.hidden && !isCheckRunning) {
+        fetchStatus();
+        timeLeft = AUTO_REFRESH_SEC;
+        updateTimer();
+      }
+    });
     </script>
   </body>
 </html>
