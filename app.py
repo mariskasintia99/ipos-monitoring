@@ -1023,6 +1023,27 @@ HTML_TEMPLATE = '''
       let timeLeft = AUTO_REFRESH_SEC;
       let isCheckRunning = false;
 
+      // ── SIMPAN STATE KE LOCALSTORAGE ──
+      function saveTimerState() {
+        localStorage.setItem('ipos_timerRemaining', Math.floor(timeLeft));
+        localStorage.setItem('ipos_timerTimestamp', Date.now());
+      }
+
+      function loadTimerState() {
+        const savedRemaining = localStorage.getItem('ipos_timerRemaining');
+        const savedTimestamp = localStorage.getItem('ipos_timerTimestamp');
+        if (savedRemaining && savedTimestamp) {
+          const elapsed = (Date.now() - parseInt(savedTimestamp)) / 1000;
+          timeLeft = Math.max(0, parseInt(savedRemaining) - elapsed);
+          if (timeLeft <= 0) {
+            timeLeft = AUTO_REFRESH_SEC;
+            localStorage.removeItem('ipos_timerRemaining');
+            localStorage.removeItem('ipos_timerTimestamp');
+          }
+        }
+        updateTimer();
+      }
+
       // ── RENDER ──
     function renderList(services, iposDomains) {
       const container = document.getElementById("statusContainer");
@@ -1201,16 +1222,22 @@ HTML_TEMPLATE = '''
         const m = Math.floor(timeLeft / 60);
         const s = Math.floor(timeLeft % 60);
         text.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        saveTimerState();
+        
         if (timeLeft <= 0 && !isCheckRunning) {
           runCheck();
           timeLeft = AUTO_REFRESH_SEC;
+          saveTimerState();
         }
       }
 
       function startTimer() {
         if (timerID) clearInterval(timerID);
         timerID = setInterval(() => {
-          if (!isCheckRunning) { timeLeft--; updateTimer(); }
+          if (!isCheckRunning) { 
+            timeLeft--; 
+            updateTimer(); 
+          }
         }, 1000);
         updateTimer();
       }
@@ -1256,6 +1283,7 @@ HTML_TEMPLATE = '''
         btn.disabled = false;
         btn.classList.remove("spinning");
         timeLeft = AUTO_REFRESH_SEC;
+        saveTimerState();
         updateTimer();
       }
 
@@ -1272,30 +1300,41 @@ HTML_TEMPLATE = '''
         } catch (e) { console.error(e); }
       }
 
-      // ── INIT ──
-    renderList(SERVICES, IPOS_DOMAINS);
-    renderOverall(IPOS_DOMAINS.length);
-    startTimer();
-    document.getElementById('checkResult').textContent = "{{ last_check_result|default('No check run yet') }}";
-    
-    // Force refresh data saat halaman dimuat
-    window.addEventListener('load', function() {
-      fetchStatus();
-      timeLeft = AUTO_REFRESH_SEC;
-      updateTimer();
-    });
-    
-    // Fetch setiap 15 detik (background)
-    setInterval(fetchStatus, 15000);
-    
-    // Fetch saat tab menjadi aktif kembali
-    document.addEventListener('visibilitychange', function() {
-      if (!document.hidden && !isCheckRunning) {
-        fetchStatus();
-        timeLeft = AUTO_REFRESH_SEC;
-        updateTimer();
+      // ── UPDATE LAST CHECKED REAL-TIME ──
+      function updateLastCheckedRealTime() {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        document.getElementById('lastChecked').textContent = timeStr;
       }
-    });
+
+      // ── INIT ──
+      renderList(SERVICES, IPOS_DOMAINS);
+      renderOverall(IPOS_DOMAINS.length);
+      
+      // Load timer state dari localStorage
+      loadTimerState();
+      startTimer();
+      
+      // Set initial check result
+      document.getElementById('checkResult').textContent = "{{ last_check_result|default('No check run yet') }}";
+      
+      // Update Last Checked real-time setiap detik
+      setInterval(updateLastCheckedRealTime, 1000);
+      
+      // Force refresh data saat halaman dimuat (tanpa reset timer)
+      window.addEventListener('load', function() {
+        fetchStatus();
+      });
+      
+      // Fetch setiap 15 detik (background)
+      setInterval(fetchStatus, 15000);
+      
+      // Fetch saat tab menjadi aktif kembali (tanpa reset timer)
+      document.addEventListener('visibilitychange', function() {
+        if (!document.hidden && !isCheckRunning) {
+          fetchStatus();
+        }
+      });
     </script>
   </body>
 </html>
