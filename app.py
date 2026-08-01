@@ -1052,15 +1052,15 @@ HTML_TEMPLATE = '''
       let timeLeft = AUTO_REFRESH_SEC;
       let isCheckRunning = false;
 
-      // ── JAM REAL-TIME GMT+7 (24 JAM) ──
+      // ── JAM REAL-TIME ASIA/BANGKOK (GMT+7) ──
       function updateRealTimeClock() {
         const now = new Date();
-        const gmt7 = new Date(now.getTime() + (7 * 60 * 60 * 1000));
-        const timeStr = gmt7.toLocaleTimeString('en-US', { 
+        const timeStr = now.toLocaleTimeString('en-US', { 
           hour: '2-digit', 
           minute: '2-digit', 
           second: '2-digit',
-          hour12: false
+          hour12: false,
+          timeZone: 'Asia/Bangkok'
         });
         const clock = document.getElementById('realTimeClock');
         if (clock) clock.textContent = timeStr;
@@ -1068,15 +1068,15 @@ HTML_TEMPLATE = '''
       setInterval(updateRealTimeClock, 1000);
       updateRealTimeClock();
 
-      // ── UPDATE LAST CHECKED (24 JAM) ──
+      // ── UPDATE LAST CHECKED (Asia/Bangkok) ──
       function updateLastChecked() {
         const now = new Date();
-        const gmt7 = new Date(now.getTime() + (7 * 60 * 60 * 1000));
-        const timeStr = gmt7.toLocaleTimeString('en-US', { 
+        const timeStr = now.toLocaleTimeString('en-US', { 
           hour: '2-digit', 
           minute: '2-digit', 
           second: '2-digit',
-          hour12: false
+          hour12: false,
+          timeZone: 'Asia/Bangkok'
         });
         document.getElementById('lastChecked').textContent = timeStr;
       }
